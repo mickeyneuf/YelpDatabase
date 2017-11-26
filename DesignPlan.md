@@ -1,4 +1,3 @@
-
 Caelin Preston
 Mikayla Neufeld
 November 23, 2017
@@ -122,6 +121,5 @@ Abstraction Functions/Rep Invariants:
 - Represent databases as list of users
 - Represent a user/review/restaurant as an object containing all the relevant fields
 	o	Requires each line in databases contains all fields 
-
 
 
