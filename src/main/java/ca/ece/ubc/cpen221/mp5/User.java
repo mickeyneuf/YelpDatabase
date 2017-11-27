@@ -1,5 +1,6 @@
 package ca.ece.ubc.cpen221.mp5;
-/*
+
+/* 
  * This is a generic interface to represent a User of a web service or forum.
  */
 public interface User {
