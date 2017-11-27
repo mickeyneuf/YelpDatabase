@@ -15,7 +15,7 @@ public class YelpDb implements MP5Db {
 	private List<Review> reviewList;
 
 	
-	public void YelpDB (String userFile, String restaurantFile, String reviewFile ) throws IOException {
+	public YelpDb (String userFile, String restaurantFile, String reviewFile ) throws IOException {
 		Scanner scanUser = new Scanner(new File(userFile));
 		Scanner scanRestaurant = new Scanner(new File(restaurantFile));
 		Scanner scanReview = new Scanner(new File(reviewFile));
