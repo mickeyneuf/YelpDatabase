@@ -1,0 +1,45 @@
+package ca.ece.ubc.cpen221.mp5;
+
+public class Restaurant implements Business {
+
+	private String json;
+	private String businessID;
+	private String name;
+	private String url;
+	private Location location;
+
+	public Restaurant() {
+
+	}
+
+	public Restaurant(String json) {
+		this.json = json;
+	}
+
+	@Override
+	public String getBusinessID() {
+		return businessID;
+	}
+
+	@Override
+	public String getBusinessName() {
+		return name;
+	}
+
+	@Override
+	public String getURL() {
+		return url;
+	}
+
+	@Override
+	public Location getLocation() {
+		return location;
+	}
+
+	@Override
+	public boolean isOpen() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+}

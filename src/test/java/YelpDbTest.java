@@ -1,3 +1,5 @@
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 
 import javax.json.*;
@@ -5,6 +7,7 @@ import javax.json.*;
 import org.junit.Test;
 
 import ca.ece.ubc.cpen221.mp5.YelpDb;
+import ca.ece.ubc.cpen221.mp5.YelpUser;
 
 public class YelpDbTest {
 	
