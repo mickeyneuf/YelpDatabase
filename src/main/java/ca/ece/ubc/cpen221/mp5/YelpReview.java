@@ -43,4 +43,8 @@ public class YelpReview implements Review {
 		return date;
 	}
 
+	public String getReviewID() {
+		return reviewID;
+	}
+
 }

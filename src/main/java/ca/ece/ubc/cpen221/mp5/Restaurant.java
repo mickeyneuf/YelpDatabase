@@ -11,7 +11,7 @@ public class Restaurant implements Business {
 	public Restaurant(Integer businessID, String latitude, String longitude) {
 
 		this.businessID = businessID.toString();
-		this.location = new Location (longitude, latitude);
+		this.location = new Location(longitude, latitude);
 	}
 
 	public Restaurant(String json) {

@@ -2,6 +2,8 @@ package ca.ece.ubc.cpen221.mp5;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
@@ -11,10 +13,10 @@ import javax.json.*;
 
 public class YelpDb implements MP5Db {
 
-	private TreeSet<User> userList;
-	private TreeSet<Business> restaurantList;
-	private TreeSet<Review> reviewList;
-	private TreeMap<User, Set<Business>> visitedBy;
+	private TreeMap<String, User> userList;
+	private TreeMap<String, Business> restaurantList;
+	private TreeMap<String, Review> reviewList;
+	private TreeMap<User, List<Business>> visitedBy;
 	private Integer userID;
 	private Integer reviewID;
 	private Integer businessID;
@@ -23,33 +25,33 @@ public class YelpDb implements MP5Db {
 		Scanner scanUser = new Scanner(new File(userFile));
 		Scanner scanRestaurant = new Scanner(new File(restaurantFile));
 		Scanner scanReview = new Scanner(new File(reviewFile));
-		TreeSet<User> user = new TreeSet<User>();
-		TreeSet<Business> restaurant = new TreeSet<Business>();
-		TreeSet<Review> review = new TreeSet<Review>();
+		TreeMap<String, User> user = new TreeMap<String, User>();
+		TreeMap<String, Business> restaurant = new TreeMap<String, Business>();
+		TreeMap<String, Review> review = new TreeMap<String, Review>();
 		this.userID = 0;
 		this.reviewID = 0;
 		this.businessID = 0;
 
 		while (scanUser.hasNext()) {
 			User newUser = new YelpUser(scanUser.nextLine());
-			user.add(newUser);
+			user.put(newUser.getUserID(), newUser);
 		}
 		scanUser.close();
+		this.userList = user;
 
 		while (scanRestaurant.hasNext()) {
 			Business rest = new Restaurant(scanRestaurant.nextLine());
-			restaurant.add(rest);
+			restaurant.put(rest.getBusinessID(), rest);
 		}
 		scanRestaurant.close();
+		this.restaurantList = restaurant;
 
 		while (scanReview.hasNext()) {
-			Review rev = new YelpReview(scanReview.nextLine());
-			review.add(rev);
+			YelpReview rev = new YelpReview(scanReview.nextLine());
+			review.put(rev.getReviewID(), rev);
+			visitedBy.get(userList.get(rev.getPoster())).add(restaurantList.get((rev.getReviewed())));
 		}
 		scanReview.close();
-
-		this.userList = user;
-		this.restaurantList = restaurant;
 		this.reviewList = review;
 
 	}
@@ -68,31 +70,30 @@ public class YelpDb implements MP5Db {
 
 	@Override
 	public ToDoubleBiFunction getPredictorFunction(String user) {
-		
+
 		return null;
 	}
 
 	public void addUser() {
-		this.userList.add(new YelpUser(userID));
+		User user = new YelpUser(userID);
+		this.userList.put(userID.toString(), user);
 		this.userID += 1;
+		this.visitedBy.put(user, new ArrayList<Business>());
 	}
 
 	public void addReview() {
 
-		this.reviewList.add(new YelpReview(reviewID));
+		Review rev = new YelpReview(reviewID);
+		this.reviewList.put(reviewID.toString(), rev);
 		this.reviewID += 1;
+		visitedBy.get(userList.get(rev.getPoster())).add(restaurantList.get((rev.getReviewed())));
 	}
 
-	public void addRestaurant() {
-		
-		this.restaurantList.add(new Restaurant(businessID));
-		this.businessID +=1;
+	public void addRestaurant(String longitude, String latitude) {
+
+		this.restaurantList.put(businessID.toString(), new Restaurant(businessID, latitude, longitude));
+		this.businessID += 1;
 
 	}
-	
-	
-	
-	
-	
-	
+
 }
