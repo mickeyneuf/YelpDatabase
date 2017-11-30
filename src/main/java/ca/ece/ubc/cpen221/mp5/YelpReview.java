@@ -9,7 +9,7 @@ public class YelpReview implements Review {
 	private String userID;
 	private String date;
 
-	public YelpReview() {
+	public YelpReview(Integer reviewID) {
 
 	}
 

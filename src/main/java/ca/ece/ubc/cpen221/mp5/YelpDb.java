@@ -2,8 +2,6 @@ package ca.ece.ubc.cpen221.mp5;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
@@ -16,6 +14,8 @@ public class YelpDb implements MP5Db {
 	private TreeSet<Business> restaurantList;
 	private TreeSet<Review> reviewList;
 	private Integer userID;
+	private Integer reviewID;
+	private Integer businessID;
 
 	public YelpDb(String userFile, String restaurantFile, String reviewFile) throws IOException {
 		Scanner scanUser = new Scanner(new File(userFile));
@@ -25,6 +25,8 @@ public class YelpDb implements MP5Db {
 		TreeSet<Business> restaurant = new TreeSet<Business>();
 		TreeSet<Review> review = new TreeSet<Review>();
 		this.userID = 0;
+		this.reviewID = 0;
+		this.businessID = 0;
 
 		while (scanUser.hasNext()) {
 			User newUser = new YelpUser(scanUser.nextLine());
@@ -75,6 +77,8 @@ public class YelpDb implements MP5Db {
 
 	public void addReview() {
 
+		this.reviewList.add(new YelpReview(reviewID));
+		this.reviewID += 1;
 	}
 
 	public void addRestaurant() {

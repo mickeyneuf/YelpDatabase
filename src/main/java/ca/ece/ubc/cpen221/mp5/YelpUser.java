@@ -1,6 +1,6 @@
 package ca.ece.ubc.cpen221.mp5;
 
-import java.util.Random;
+import java.util.HashMap;
 
 public class YelpUser implements User {
 
@@ -10,6 +10,7 @@ public class YelpUser implements User {
 	private int reviewCount;
 	private String name;
 	private double avgStars;
+	private HashMap<String, Integer> votes;
 
 	public YelpUser(Integer id) {
 
@@ -17,6 +18,7 @@ public class YelpUser implements User {
 		this.reviewCount = 0;
 		this.avgStars = 0.0;
 		this.name = "";
+		this.votes = new HashMap<String, Integer>();
 
 	}
 
