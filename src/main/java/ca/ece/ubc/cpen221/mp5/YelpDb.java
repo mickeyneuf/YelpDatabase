@@ -78,23 +78,39 @@ public class YelpDb implements MP5Db {
 		double sxy = 0;
 		double avgx = 0;
 		double avgy = 0;
-		
-		/*
-		 * We should probably use map filter reduce here... I have the list of restaurants reviewed by the user
-		 * but we still need the rating of the review by that user for that restaurant
-		 * which will take lots of searching and iteration without map filter reduce i think
-		 * 
-		 */
 
 		for (Restaurant r : restaurants) {
 			avgx += restaurantList.get(r.getBusinessID()).getPrice();
+			sxx++;
 			for (String yr : reviewList.keySet()) {
-				if (reviewList.get(yr).getPoster().equals(user) && reviewList.get(yr).getReviewed().equals(r.getBusinessID())) {
+				if (reviewList.get(yr).getPoster().equals(user)
+						&& reviewList.get(yr).getReviewed().equals(r.getBusinessID())) {
 					avgy += reviewList.get(yr).getRating();
+					syy++;
 				}
 			}
 		}
-		
+		avgx = avgx / sxx;
+		avgy = avgy / syy;
+		sxx = 0;
+		syy = 0;
+
+		for (Restaurant r : restaurants) {
+			sxx += Math.pow((restaurantList.get(r.getBusinessID()).getPrice() - avgx), 2);
+			for (String yr : reviewList.keySet()) {
+				if (reviewList.get(yr).getPoster().equals(user)
+						&& reviewList.get(yr).getReviewed().equals(r.getBusinessID())) {
+					syy += Math.pow((reviewList.get(yr).getRating() - avgy), 2);
+					sxy += (restaurantList.get(r.getBusinessID()).getPrice() - avgx)
+							* (reviewList.get(yr).getRating() - avgy);
+				}
+			}
+		}
+
+		double b = sxy / sxx;
+		double a = avgy - (b * avgx);
+		double rSquared = (Math.pow(sxy, 2) / (sxx * syy));
+
 		return null;
 	}
 
