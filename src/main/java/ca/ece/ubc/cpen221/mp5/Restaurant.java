@@ -6,6 +6,7 @@ public class Restaurant implements Business {
 	private String businessID;
 	private String name;
 	private String url;
+	private Integer price;
 	private Location location;
 
 	public Restaurant(Integer businessID, String latitude, String longitude) {
@@ -42,6 +43,10 @@ public class Restaurant implements Business {
 	public boolean isOpen() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+	
+	public Integer getPrice() {
+		return price;
 	}
 
 }

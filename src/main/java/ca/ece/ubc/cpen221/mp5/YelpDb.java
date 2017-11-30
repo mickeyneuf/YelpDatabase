@@ -13,10 +13,10 @@ import javax.json.*;
 
 public class YelpDb implements MP5Db {
 
-	private TreeMap<String, User> userList;
-	private TreeMap<String, Business> restaurantList;
-	private TreeMap<String, Review> reviewList;
-	private TreeMap<User, List<Business>> visitedBy;
+	private TreeMap<String, YelpUser> userList;
+	private TreeMap<String, Restaurant> restaurantList;
+	private TreeMap<String, YelpReview> reviewList;
+	private TreeMap<YelpUser, List<Restaurant>> visitedBy;
 	private Integer userID;
 	private Integer reviewID;
 	private Integer businessID;
@@ -25,22 +25,23 @@ public class YelpDb implements MP5Db {
 		Scanner scanUser = new Scanner(new File(userFile));
 		Scanner scanRestaurant = new Scanner(new File(restaurantFile));
 		Scanner scanReview = new Scanner(new File(reviewFile));
-		TreeMap<String, User> user = new TreeMap<String, User>();
-		TreeMap<String, Business> restaurant = new TreeMap<String, Business>();
-		TreeMap<String, Review> review = new TreeMap<String, Review>();
+		TreeMap<String, YelpUser> user = new TreeMap<String, YelpUser>();
+		TreeMap<String, Restaurant> restaurant = new TreeMap<String, Restaurant>();
+		TreeMap<String, YelpReview> review = new TreeMap<String, YelpReview>();
+		TreeMap<YelpUser, List<Restaurant>> visitedBy = new TreeMap<YelpUser, List<Restaurant>>();
 		this.userID = 0;
 		this.reviewID = 0;
 		this.businessID = 0;
 
 		while (scanUser.hasNext()) {
-			User newUser = new YelpUser(scanUser.nextLine());
+			YelpUser newUser = new YelpUser(scanUser.nextLine());
 			user.put(newUser.getUserID(), newUser);
 		}
 		scanUser.close();
 		this.userList = user;
 
 		while (scanRestaurant.hasNext()) {
-			Business rest = new Restaurant(scanRestaurant.nextLine());
+			Restaurant rest = new Restaurant(scanRestaurant.nextLine());
 			restaurant.put(rest.getBusinessID(), rest);
 		}
 		scanRestaurant.close();
@@ -53,6 +54,7 @@ public class YelpDb implements MP5Db {
 		}
 		scanReview.close();
 		this.reviewList = review;
+		this.visitedBy = visitedBy;
 
 	}
 
@@ -70,20 +72,42 @@ public class YelpDb implements MP5Db {
 
 	@Override
 	public ToDoubleBiFunction getPredictorFunction(String user) {
+		List<Restaurant> restaurants = visitedBy.get(userList.get(user));
+		double sxx = 0;
+		double syy = 0;
+		double sxy = 0;
+		double avgx = 0;
+		double avgy = 0;
+		
+		/*
+		 * We should probably use map filter reduce here... I have the list of restaurants reviewed by the user
+		 * but we still need the rating of the review by that user for that restaurant
+		 * which will take lots of searching and iteration without map filter reduce i think
+		 * 
+		 */
 
+		for (Restaurant r : restaurants) {
+			avgx += restaurantList.get(r.getBusinessID()).getPrice();
+			for (String yr : reviewList.keySet()) {
+				if (reviewList.get(yr).getPoster().equals(user) && reviewList.get(yr).getReviewed().equals(r.getBusinessID())) {
+					avgy += reviewList.get(yr).getRating();
+				}
+			}
+		}
+		
 		return null;
 	}
 
 	public void addUser() {
-		User user = new YelpUser(userID);
+		YelpUser user = new YelpUser(userID);
 		this.userList.put(userID.toString(), user);
 		this.userID += 1;
-		this.visitedBy.put(user, new ArrayList<Business>());
+		this.visitedBy.put(user, new ArrayList<Restaurant>());
 	}
 
 	public void addReview() {
 
-		Review rev = new YelpReview(reviewID);
+		YelpReview rev = new YelpReview(reviewID);
 		this.reviewList.put(reviewID.toString(), rev);
 		this.reviewID += 1;
 		visitedBy.get(userList.get(rev.getPoster())).add(restaurantList.get((rev.getReviewed())));

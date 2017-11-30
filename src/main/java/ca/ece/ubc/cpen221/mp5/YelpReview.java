@@ -8,6 +8,7 @@ public class YelpReview implements Review {
 	private String url;
 	private String userID;
 	private String date;
+	private Integer rating;
 
 	public YelpReview(Integer reviewID) {
 
@@ -45,6 +46,10 @@ public class YelpReview implements Review {
 
 	public String getReviewID() {
 		return reviewID;
+	}
+	
+	public Integer getRating() {
+		return rating;
 	}
 
 }
