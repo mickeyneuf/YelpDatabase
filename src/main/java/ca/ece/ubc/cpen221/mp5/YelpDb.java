@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.ToDoubleBiFunction;
 import javax.json.*;
@@ -13,11 +14,12 @@ public class YelpDb implements MP5Db {
 	private TreeSet<User> userList;
 	private TreeSet<Business> restaurantList;
 	private TreeSet<Review> reviewList;
+	private TreeMap<User, Set<Business>> visitedBy;
 	private Integer userID;
 	private Integer reviewID;
 	private Integer businessID;
 
-	public YelpDb(String userFile, String restaurantFile, String reviewFile) throws IOException {
+	public YelpDb(String restaurantFile, String reviewFile, String userFile) throws IOException {
 		Scanner scanUser = new Scanner(new File(userFile));
 		Scanner scanRestaurant = new Scanner(new File(restaurantFile));
 		Scanner scanReview = new Scanner(new File(reviewFile));
@@ -66,7 +68,7 @@ public class YelpDb implements MP5Db {
 
 	@Override
 	public ToDoubleBiFunction getPredictorFunction(String user) {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 
@@ -82,6 +84,15 @@ public class YelpDb implements MP5Db {
 	}
 
 	public void addRestaurant() {
+		
+		this.restaurantList.add(new Restaurant(businessID));
+		this.businessID +=1;
 
 	}
+	
+	
+	
+	
+	
+	
 }
