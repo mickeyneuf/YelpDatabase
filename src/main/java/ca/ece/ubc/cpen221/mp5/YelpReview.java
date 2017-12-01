@@ -1,6 +1,5 @@
 package ca.ece.ubc.cpen221.mp5;
 
-import java.util.HashMap;
 
 public class YelpReview implements Review {
 
@@ -21,11 +20,16 @@ public class YelpReview implements Review {
 		this.date = "no date";
 		this.businessID = "no businessID";
 		this.rating = 0;
+		this.votes = new YelpVotes();
 	}
 
 	public YelpReview(String json) {
 		this.json = json;
-		String[] fields = json.split(", ");
+		String[] fields = json.split(" ");
+		this.businessID = fields[3].replaceAll("\"", "");
+		this.votes = new YelpVotes();
+		votes.setVotes("cool", Integer.parseInt(fields[6].replaceAll(",", "")));
+		votes.setVotes("cool", Integer.parseInt(fields[6].replaceAll(",", "")));
 	}
 
 	public String getJSON() {
