@@ -4,12 +4,6 @@ package ca.ece.ubc.cpen221.mp5;
  * Examples: Yelp, Amazon, RottenTomatoes
  */
 public interface Review {
-	/**
-	 * A method to return the url of this review
-	 * @return
-	 * 		String representing url of this review
-	 */		
-	String getURL();
 	
 	/**
 	 * A method to return the ID of the poster of this review
@@ -60,8 +54,8 @@ public interface Review {
 	
 	/**
 	 * A method to return hashCode of this review
-	 * A review's hashCode is represented by the sum of the numeric values
-	 * of the characters in its url
+	 * A review's hashCode is represented by the hashCode of this review's 
+	 * reviewID string
 	 * @return
 	 * 		int representing hashCode of reviewID string
 	 */		

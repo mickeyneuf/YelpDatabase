@@ -44,6 +44,11 @@ public class YelpVotes implements VotesMap {
 	}
 	
 	@Override
+	public String toString() {
+		return getMap().toString();
+	}
+		
+	@Override
 	public boolean equals(Object other) {
 		if (other instanceof YelpVotes) {
 			return ((YelpVotes) other).getMap().equals(this.votes);
