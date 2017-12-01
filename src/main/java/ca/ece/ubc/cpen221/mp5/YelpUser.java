@@ -26,40 +26,32 @@ public class YelpUser implements User {
 	public YelpUser(String json) {
 		Pattern urlPat = Pattern.compile("\"url\": \"(.*?)\", \"votes\": ");
 		Matcher urlMat = urlPat.matcher(json);
-		while(urlMat.find()) {
-			this.url = urlMat.group(1);
-		}
-		
+		this.url = urlMat.group(1);
+				
 		Pattern votesPat = Pattern.compile("\"votes\": (.*?), \"review_id\"");
 		Matcher votesMat = votesPat.matcher(json);
 		String voteStr = null;
-		while (votesMat.find()){
-			voteStr = votesMat.group(1);
-		}
+		voteStr = votesMat.group(1);
 		String[] voteArr = voteStr.split(" ");
 		this.votes = new YelpVotes(Integer.parseInt(voteArr[1].replaceAll(",", "")), 
 								   Integer.parseInt(voteArr[3].replaceAll(",", "")), 
 								   Integer.parseInt(voteArr[5].replaceAll("}", "")));
+		
 		Pattern reviewCountPat = Pattern.compile("\"review_count\": (.*?), \"type\": ");
 		Matcher reviewCountMat = reviewCountPat.matcher(json);
-		while(reviewCountMat.find()) {
-			this.reviewCount = Integer.parseInt(reviewCountMat.group(1));
-		}
+		this.reviewCount = Integer.parseInt(reviewCountMat.group(1));
+			
 		Pattern userIDPat = Pattern.compile("\"user_id\": \"(.*?)\", \"name\": ");
 		Matcher userIDMat = userIDPat.matcher(json);
-		while(userIDMat.find()) {
-			this.userID = userIDMat.group(1);
-		}
+		this.userID = userIDMat.group(1);
+		
 		Pattern namePat = Pattern.compile("\"name\": \"(.*?)\", \"average_stars\": ");
 		Matcher nameMat = namePat.matcher(json);
-		while(nameMat.find()) {
-			this.name = nameMat.group(1);
-		}
+		this.name = nameMat.group(1);
+		
 		Pattern starsPat = Pattern.compile("\"average_stars\": (.*?)}");
 		Matcher starsMat = starsPat.matcher(json);
-		while(starsMat.find()) {
-			this.avgStars = Double.parseDouble(starsMat.group(1));
-		}
+		this.avgStars = Double.parseDouble(starsMat.group(1));
 	}
 
 	@Override

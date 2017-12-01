@@ -109,14 +109,12 @@ public class Restaurant implements Business {
 		
 		Pattern reviewCountPat = Pattern.compile("\"review_count\": (.*?), \"photo_url\": ");
 		Matcher reviewCountMat = reviewCountPat.matcher(json);
-		while(reviewCountMat.find()) {
-			this.reviewCount = Integer.parseInt(reviewCountMat.group(1));
-		}
+		this.reviewCount = Integer.parseInt(reviewCountMat.group(1));
 		
 		Pattern photoURLpat = Pattern.compile("\"photo_url\": \"(.*?)\", \"schools\": ");
 		Matcher photoURLmat = photoURLpat.matcher(json);
 		while(photoURLmat.find()) {
-			this.reviewCount
+			this.photoURL
 		}
 		
 		

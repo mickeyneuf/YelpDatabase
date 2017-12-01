@@ -26,48 +26,36 @@ public class YelpReview implements Review {
 	public YelpReview(String json) {
 		Pattern businessIDpat = Pattern.compile("\"business_id\": \"(.*?)\", \"votes\"");
 		Matcher businessIDmat = businessIDpat.matcher(json);
-		while (businessIDmat.find()) {
-			this.businessID = businessIDmat.group(1);
-		}
+		this.businessID = businessIDmat.group(1);
+		
 		Pattern votesPat = Pattern.compile("\"votes\": (.*?), \"review_id\"");
 		Matcher votesMat = votesPat.matcher(json);
 		String voteStr = null;
-		while (votesMat.find()){
-			voteStr = votesMat.group(1);
-		}
+		voteStr = votesMat.group(1);
+		
 		String[] voteArr = voteStr.split(" ");
 		this.votes = new YelpVotes(Integer.parseInt(voteArr[1].replaceAll(",", "")), 
 								   Integer.parseInt(voteArr[3].replaceAll(",", "")), 
 								   Integer.parseInt(voteArr[5].replaceAll("}", "")));
 		Pattern reviewIDpat = Pattern.compile("\"review_id\": \"(.*?)\", \"text\"");
 		Matcher reviewIDmat = reviewIDpat.matcher(json);
-		while (reviewIDmat.find()) {
-			this.reviewID = reviewIDmat.group(1);	
-		}
+		this.reviewID = reviewIDmat.group(1);	
 		
 		Pattern textPat = Pattern.compile("\"text\": \"(.*?)\", \"stars\": ");
 		Matcher textMat = textPat.matcher(json);
-		while (textMat.find()) {
-			this.review = textMat.group(1);
-		}
+		this.review = textMat.group(1);
 		
 		Pattern starsPat = Pattern.compile("\"stars\": (.*?), \"user_id\": ");
 		Matcher starsMat = starsPat.matcher(json);
-		while (starsMat.find()) {
-			this.rating = Integer.parseInt(starsMat.group(1));
-		}
+		this.rating = Integer.parseInt(starsMat.group(1));
 		
 		Pattern userIDpat = Pattern.compile("\"user_id\": \"(.*?)\", \"date\": ");
 		Matcher userIDmat = userIDpat.matcher(json);
-		while (userIDmat.find()) {
-			this.userID = userIDmat.group(1);
-		}
+		this.userID = userIDmat.group(1);
 		
 		Pattern datePat = Pattern.compile("\"date\": \"(.*?)\"\\");
 		Matcher dateMat = datePat.matcher(json);
-		while (dateMat.find()) {
-			this.date = dateMat.group(1);
-		}
+		this.date = dateMat.group(1);
 	}
 
 	public String getJSON() {
