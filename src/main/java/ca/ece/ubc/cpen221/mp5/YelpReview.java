@@ -10,9 +10,10 @@ public class YelpReview implements Review {
 	private String date;
 	private Integer rating;
 	private String businessID;
+	private String reviewID;
 	private YelpVotes votes;
 	
-	public YelpReview() {
+	public YelpReview(Integer reviewID) {
 		this.url = "no-url.com";
 		this.json = "no json";
 		this.review = "no review";
@@ -20,6 +21,7 @@ public class YelpReview implements Review {
 		this.date = "no date";
 		this.businessID = "no businessID";
 		this.rating = 0;
+		this.reviewID = reviewID;
 		this.votes = new YelpVotes();
 	}
 
@@ -29,7 +31,8 @@ public class YelpReview implements Review {
 		this.businessID = fields[3].replaceAll("\"", "");
 		this.votes = new YelpVotes();
 		votes.setVotes("cool", Integer.parseInt(fields[6].replaceAll(",", "")));
-		votes.setVotes("cool", Integer.parseInt(fields[6].replaceAll(",", "")));
+		votes.setVotes("useful", Integer.parseInt(fields[8].replaceAll(",", "")));
+		votes.setVotes("funny", Integer.parseInt(fields[10].replaceAll(",", "")));
 	}
 
 	public String getJSON() {
@@ -39,7 +42,12 @@ public class YelpReview implements Review {
 	public void setJSON(String json) {
 		this.json = json;
 	}
-
+	
+	
+	public String getReviewID() {
+		return this.reviewID;
+	}
+	
 	public String getText() {
 		return review;
 	}
