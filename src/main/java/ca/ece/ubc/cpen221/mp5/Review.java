@@ -16,7 +16,7 @@ public interface Review {
 	 * @return
 	 * 		String representing ID of review poster
 	 */	
-	String getPoster();
+	String getUser();
 
 	/**
 	 * A method that returns the ID of the thing being reviewed
@@ -49,5 +49,15 @@ public interface Review {
 	 * 		true if this is equal to other, false otherwise
 	 */
 	boolean equals(Object other);
+	
+	/**
+	 * A method to return hashCode of this review
+	 * A review's hashCode is represented by the sum of the numeric values
+	 * of the characters in its url
+	 * @return
+	 * 		int representing sum of numerical values of characters in this review's url
+	 */		
+	@Override
+	int hashCode();
 	
 }

@@ -1,55 +1,99 @@
 package ca.ece.ubc.cpen221.mp5;
 
+import java.util.HashMap;
+
 public class YelpReview implements Review {
 
 	private String json;
 	private String review;
-	private String reviewID;
 	private String url;
 	private String userID;
 	private String date;
 	private Integer rating;
-
-	public YelpReview(Integer reviewID) {
-
+	private String businessID;
+	private YelpVotes votes;
+	
+	public YelpReview() {
+		this.url = "no-url.com";
+		this.json = "no json";
+		this.review = "no review";
+		this.userID = "no UserID";
+		this.date = "no date";
+		this.businessID = "no businessID";
+		this.rating = 0;
 	}
 
 	public YelpReview(String json) {
 		this.json = json;
+		String[] fields = json.split(", ");
 	}
 
-	@Override
-	public String getURL() {
-		return url;
+	public String getJSON() {
+		return json;
 	}
 
-	@Override
-	public String getPoster() {
-		return userID;
+	public void setJSON(String json) {
+		this.json = json;
 	}
 
-	@Override
-	public String getReviewed() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public String getText() {
 		return review;
 	}
 
-	@Override
+	public void setText(String review) {
+		this.review = review;
+	}
+
+	public String getURL() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getUser() {
+		return userID;
+	}
+
+	public void setUser(String userID) {
+		this.userID = userID;
+	}
+
 	public String getDate() {
 		return date;
 	}
 
-	public String getReviewID() {
-		return reviewID;
+	public void setDate(String date) {
+		this.date = date;
 	}
-	
+
 	public Integer getRating() {
 		return rating;
 	}
 
+	public void setRating(Integer rating) {
+		this.rating = rating;
+	}
+
+	public String getReviewed() {
+		return businessID;
+	}
+
+	public void setReviewed(String businessID) {
+		this.businessID = businessID;
+	}
+	
+	@Override 
+	public boolean equals(Object other) {
+		if(other instanceof YelpReview) {
+			return this.url.equals(((YelpReview) other).getURL());
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return this.url.hashCode();
+	}
 }

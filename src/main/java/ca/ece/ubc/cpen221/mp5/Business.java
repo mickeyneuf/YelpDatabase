@@ -49,5 +49,15 @@ boolean isOpen();
  */
 boolean equals(Object other);
 
+/**
+ * A method to return hashCode of this business
+ * A business' hashCode is represented by the sum of the numeric values
+ * of the characters in its business ID
+ * @return
+ * 		int representing sum of numerical values of characters in this business' ID
+ */		
+@Override
+int hashCode();
+
 
 }

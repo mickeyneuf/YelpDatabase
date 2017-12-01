@@ -44,4 +44,14 @@ public interface User {
 	@Override
 	boolean equals(Object other);
 	
+	/**
+	 * A method to return hashCode of this User
+	 * A User's hashCode is represented by the sum of the numeric values
+	 * of the characters in its user ID
+	 * @return
+	 * 		int representing sum of numerical values of characters in this user's ID
+	 */		
+	@Override
+	int hashCode();
+	
 }
