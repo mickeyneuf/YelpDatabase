@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.ToDoubleBiFunction;
+import java.util.stream.Collectors;
+
 import javax.json.*;
 
 public class YelpDb implements MP5Db {
@@ -50,7 +52,7 @@ public class YelpDb implements MP5Db {
 		while (scanReview.hasNext()) {
 			YelpReview rev = new YelpReview(scanReview.nextLine());
 			review.put(rev.getReviewID(), rev);
-			visitedBy.get(userList.get(rev.getPoster())).add(restaurantList.get((rev.getReviewed())));
+			visitedBy.get(userList.get(rev.getUser())).add(restaurantList.get((rev.getReviewed())));
 		}
 		scanReview.close();
 		this.reviewList = review;
@@ -60,7 +62,7 @@ public class YelpDb implements MP5Db {
 
 	@Override
 	public Set getMatches(String queryString) {
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -71,45 +73,37 @@ public class YelpDb implements MP5Db {
 	}
 
 	@Override
-	public ToDoubleBiFunction getPredictorFunction(String user) {
+	public ToDoubleBiFunction<MP5Db, String> getPredictorFunction(String user) {
 		List<Restaurant> restaurants = visitedBy.get(userList.get(user));
 		double sxx = 0;
-		double syy = 0;
 		double sxy = 0;
 		double avgx = 0;
 		double avgy = 0;
 
-		for (Restaurant r : restaurants) {
-			avgx += restaurantList.get(r.getBusinessID()).getPrice();
-			sxx++;
-			for (String yr : reviewList.keySet()) {
-				if (reviewList.get(yr).getUser().equals(user)
-						&& reviewList.get(yr).getReviewed().equals(r.getBusinessID())) {
-					avgy += reviewList.get(yr).getRating();
-					syy++;
-				}
-			}
-		}
-		avgx = avgx / sxx;
-		avgy = avgy / syy;
-		sxx = 0;
-		syy = 0;
+		List<String> restID = reviewList.values().stream().filter(rev -> rev.getUser() == user)
+				.map(YelpReview::getReviewed).collect(Collectors.toList());
 
-		for (Restaurant r : restaurants) {
-			sxx += Math.pow((restaurantList.get(r.getBusinessID()).getPrice() - avgx), 2);
-			for (String yr : reviewList.keySet()) {
-				if (reviewList.get(yr).getPoster().equals(user)
-						&& reviewList.get(yr).getReviewed().equals(r.getBusinessID())) {
-					syy += Math.pow((reviewList.get(yr).getRating() - avgy), 2);
-					sxy += (restaurantList.get(r.getBusinessID()).getPrice() - avgx)
-							* (reviewList.get(yr).getRating() - avgy);
-				}
-			}
+		List<Integer> prices = restaurantList.keySet().stream().filter(rest -> restID.contains(rest))
+				.map(rest -> restaurantList.get(rest)).map(Restaurant::getPrice).collect(Collectors.toList());
+
+		int totalPrice = prices.stream().reduce(0, (x, y) -> x + y);
+
+		List<Integer> ratings = reviewList.values().stream().filter(rev -> rev.getUser() == user)
+				.map(YelpReview::getRating).collect(Collectors.toList());
+
+		int totalRating = ratings.stream().reduce(0, (x, y) -> x + y);
+
+		avgx = totalPrice / restID.size();
+		avgy = totalRating / restID.size();
+
+		for (int i = 0; i < prices.size(); i++) {
+			sxx += Math.pow((prices.get(i) - avgx), 2);
+			sxy += (prices.get(i) - avgx) * (ratings.get(i) - avgy);
+
 		}
 
 		double b = sxy / sxx;
 		double a = avgy - (b * avgx);
-		double rSquared = (Math.pow(sxy, 2) / (sxx * syy));
 
 		return null;
 	}
@@ -126,7 +120,7 @@ public class YelpDb implements MP5Db {
 		YelpReview rev = new YelpReview(reviewID);
 		this.reviewList.put(reviewID.toString(), rev);
 		this.reviewID += 1;
-		visitedBy.get(userList.get(rev.getPoster())).add(restaurantList.get((rev.getReviewed())));
+		visitedBy.get(userList.get(rev.getUser())).add(restaurantList.get((rev.getReviewed())));
 	}
 
 	public void addRestaurant(String longitude, String latitude) {

@@ -38,23 +38,17 @@ public class Restaurant implements Business {
 		
 		Pattern urlPat = Pattern.compile("\"url\": \"(.*?)\", \"longitude\": ");
 		Matcher urlMat = urlPat.matcher(json);
-		while(urlMat.find()) {
-			this.url = urlMat.group(1);
-		}
+		this.url = urlMat.group(1);
 		
 		this.location = new Location();
 		Pattern longPat = Pattern.compile("\"longitude\": (.*?), \"neighborhoods\": ");
 		Matcher longMat = longPat.matcher(json);
-		while(longMat.find()) {
-			this.location.setLongitude(urlMat.group(1));
-		}
+		this.location.setLongitude(urlMat.group(1));
 		
 		String neighStr = null;
 		Pattern neighPat = Pattern.compile("\"neighborhoods\": [(.*?)], \"business_id\": ");
 		Matcher neighMat = neighPat.matcher(json);
-		while(neighMat.find()) {
-			neighStr = longMat.group(1);
-		}
+		neighStr = longMat.group(1);
 		String[] neighArr = neighStr.split(", ");
 		for(int i = 0; i<neighArr.length; i++) {
 			this.location.getNeighborhoods().add(neighArr[i].replaceAll("\"", ""));
@@ -62,22 +56,16 @@ public class Restaurant implements Business {
 		
 		Pattern businessIDpat = Pattern.compile("\"business_id\": \"(.*?)\", \"name\": ");
 		Matcher businessIDmat = businessIDpat.matcher(json);
-		while(businessIDmat.find()) {
-			this.businessID = businessIDmat.group(1);
-		}
+		this.businessID = businessIDmat.group(1);
 		
 		Pattern namePat = Pattern.compile("\"name\": \"(.*?)\", \"categories\": ");
 		Matcher nameMat = namePat.matcher(json);
-		while(nameMat.find()) {
-			this.name = nameMat.group(1);
-		}
+		this.name = nameMat.group(1);
 		
 		String catStr = null;
 		Pattern catPat = Pattern.compile("\"categories\": [(.*?)], \"state\": ");
 		Matcher catMat = catPat.matcher(json);
-		while(catMat.find()) {
-			catStr = catMat.group(1);
-		}
+		catStr = catMat.group(1);
 		
 		String[] catArr = catStr.split(", ");
 		for(int i = 0; i<catArr.length; i++) {
@@ -102,7 +90,35 @@ public class Restaurant implements Business {
 			this.location.setCity(cityMat.group(1));
 		}
 		
-		Pattern fullAddrPat = Pattern.compile)
+		String fullAddrStr = null;
+		Pattern fullAddrPat = Pattern.compile("\"full_address\": \"(.*?)\", \"review_count\": ");
+		Matcher fullAddrMat = fullAddrPat.matcher(json);
+		while(fullAddrMat.find()) {
+			fullAddrStr = fullAddrMat.group(1);
+		}
+		
+		String[] fullAddrArr = fullAddrStr.split("\n");
+		String[] addr1 = fullAddrArr[0].split(" ");
+		this.location.setStreetAddress(addr1[0]);
+		
+		this.location.setStreet(fullAddrArr[0].replaceAll(addr1[0], ""));
+		this.location.setArea(addr1[1]);
+		String[] addr3 = fullAddrArr[2].split(" ");
+		String areaCode = addr3[addr3.length];
+		this.location.setAreaCode(areaCode);
+		
+		Pattern reviewCountPat = Pattern.compile("\"review_count\": (.*?), \"photo_url\": ");
+		Matcher reviewCountMat = reviewCountPat.matcher(json);
+		while(reviewCountMat.find()) {
+			this.reviewCount = Integer.parseInt(reviewCountMat.group(1));
+		}
+		
+		Pattern photoURLpat = Pattern.compile("\"photo_url\": \"(.*?)\", \"schools\": ");
+		Matcher photoURLmat = photoURLpat.matcher(json);
+		while(photoURLmat.find()) {
+			this.reviewCount
+		}
+		
 		
 	}
 
