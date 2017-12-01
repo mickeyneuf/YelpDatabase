@@ -50,7 +50,7 @@ public class YelpDb implements MP5Db {
 		while (scanReview.hasNext()) {
 			YelpReview rev = new YelpReview(scanReview.nextLine());
 			review.put(rev.getReviewID(), rev);
-			visitedBy.get(userList.get(rev.getPoster())).add(restaurantList.get((rev.getReviewed())));
+			visitedBy.get(userList.get(rev.getUser())).add(restaurantList.get((rev.getReviewed())));
 		}
 		scanReview.close();
 		this.reviewList = review;
@@ -83,7 +83,7 @@ public class YelpDb implements MP5Db {
 			avgx += restaurantList.get(r.getBusinessID()).getPrice();
 			sxx++;
 			for (String yr : reviewList.keySet()) {
-				if (reviewList.get(yr).getPoster().equals(user)
+				if (reviewList.get(yr).getUser().equals(user)
 						&& reviewList.get(yr).getReviewed().equals(r.getBusinessID())) {
 					avgy += reviewList.get(yr).getRating();
 					syy++;
@@ -98,7 +98,7 @@ public class YelpDb implements MP5Db {
 		for (Restaurant r : restaurants) {
 			sxx += Math.pow((restaurantList.get(r.getBusinessID()).getPrice() - avgx), 2);
 			for (String yr : reviewList.keySet()) {
-				if (reviewList.get(yr).getPoster().equals(user)
+				if (reviewList.get(yr).getUser().equals(user)
 						&& reviewList.get(yr).getReviewed().equals(r.getBusinessID())) {
 					syy += Math.pow((reviewList.get(yr).getRating() - avgy), 2);
 					sxy += (restaurantList.get(r.getBusinessID()).getPrice() - avgx)
@@ -123,10 +123,10 @@ public class YelpDb implements MP5Db {
 
 	public void addReview() {
 
-		YelpReview rev = new YelpReview(reviewID);
+		YelpReview rev = new YelpReview();
 		this.reviewList.put(reviewID.toString(), rev);
 		this.reviewID += 1;
-		visitedBy.get(userList.get(rev.getPoster())).add(restaurantList.get((rev.getReviewed())));
+		visitedBy.get(userList.get(rev.getUser())).add(restaurantList.get((rev.getReviewed())));
 	}
 
 	public void addRestaurant(String longitude, String latitude) {
