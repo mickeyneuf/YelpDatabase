@@ -62,7 +62,7 @@ public class YelpDb implements MP5Db {
 
 	@Override
 	public Set getMatches(String queryString) {
-		
+
 		return null;
 	}
 
@@ -76,33 +76,30 @@ public class YelpDb implements MP5Db {
 	public ToDoubleBiFunction<MP5Db, String> getPredictorFunction(String user) {
 		List<Restaurant> restaurants = visitedBy.get(userList.get(user));
 		double sxx = 0;
-		double syy = 0;
 		double sxy = 0;
 		double avgx = 0;
 		double avgy = 0;
 
-		List<String> restID = reviewList.values().stream().filter(rev -> rev.getUser() == user).map(YelpReview :: getReviewed).collect(Collectors.toList());
-		
-		int totalPrice = restaurantList.keySet().stream().filter(rest -> reviewList.containsKey(rest)).map(rest -> restaurantList.get(rest)).map(Restaurant :: getPrice).reduce(0, (x, y) -> x+y);
-		
-		int totalRating = reviewList.values().stream().filter(rev -> rev.getUser() == user).map(YelpReview :: getRating).reduce(0,  (x, y) -> x+y);
-		
+		List<String> restID = reviewList.values().stream().filter(rev -> rev.getUser() == user)
+				.map(YelpReview::getReviewed).collect(Collectors.toList());
+
+		List<Integer> prices = restaurantList.keySet().stream().filter(rest -> restID.contains(rest))
+				.map(rest -> restaurantList.get(rest)).map(Restaurant::getPrice).collect(Collectors.toList());
+
+		int totalPrice = prices.stream().reduce(0, (x, y) -> x + y);
+
+		List<Integer> ratings = reviewList.values().stream().filter(rev -> rev.getUser() == user)
+				.map(YelpReview::getRating).collect(Collectors.toList());
+
+		int totalRating = ratings.stream().reduce(0, (x, y) -> x + y);
+
 		avgx = totalPrice / restID.size();
 		avgy = totalRating / restID.size();
 
-	
-		
-		for (Restaurant r : restaurants) {
-			
-			sxx += Math.pow((restaurantList.get(r.getBusinessID()).getPrice() - avgx), 2);
-			for (String yr : reviewList.keySet()) {
-				if (reviewList.get(yr).getUser().equals(user)
-						&& reviewList.get(yr).getReviewed().equals(r.getBusinessID())) {
-					syy += Math.pow((reviewList.get(yr).getRating() - avgy), 2);
-					sxy += (restaurantList.get(r.getBusinessID()).getPrice() - avgx)
-							* (reviewList.get(yr).getRating() - avgy);
-				}
-			}
+		for (int i = 0; i < prices.size(); i++) {
+			sxx += Math.pow((prices.get(i) - avgx), 2);
+			sxy += (prices.get(i) - avgx) * (ratings.get(i) - avgy);
+
 		}
 
 		double b = sxy / sxx;
