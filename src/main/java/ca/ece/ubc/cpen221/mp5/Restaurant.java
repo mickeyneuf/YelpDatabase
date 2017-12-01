@@ -113,11 +113,8 @@ public class Restaurant implements Business {
 		
 		Pattern photoURLpat = Pattern.compile("\"photo_url\": \"(.*?)\", \"schools\": ");
 		Matcher photoURLmat = photoURLpat.matcher(json);
-		while(photoURLmat.find()) {
-			this.photoURL
-		}
-		
-		
+		this.photoURL = photoURLmat.group(1);
+
 	}
 
 	public String getBusinessID() {
