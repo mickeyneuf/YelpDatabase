@@ -34,6 +34,13 @@ public interface Review {
 	String getText();
 	
 	/**
+	 * A method that returns a string representing the ID of this review
+	 * @return
+	 * 		string representing review's ID
+	 */	
+	String getReviewID();
+	
+	/**
 	 * A method that returns string representation of date review was posted
 	 * @return
 	 * 		String of date of review posting
@@ -42,12 +49,13 @@ public interface Review {
 	
 	/**
 	 * A method to check equality of this Review with another object
-	 * Two reviews are defined as equal if their url is equal
+	 * Two reviews are defined as equal if their reviewID is equal
 	 * @param
 	 * 		other object to be compared
 	 * @return
 	 * 		true if this is equal to other, false otherwise
 	 */
+	@Override
 	boolean equals(Object other);
 	
 	/**
@@ -55,7 +63,7 @@ public interface Review {
 	 * A review's hashCode is represented by the sum of the numeric values
 	 * of the characters in its url
 	 * @return
-	 * 		int representing sum of numerical values of characters in this review's url
+	 * 		int representing hashCode of reviewID string
 	 */		
 	@Override
 	int hashCode();

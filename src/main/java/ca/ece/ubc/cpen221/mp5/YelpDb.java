@@ -83,7 +83,7 @@ public class YelpDb implements MP5Db {
 			avgx += restaurantList.get(r.getBusinessID()).getPrice();
 			sxx++;
 			for (String yr : reviewList.keySet()) {
-				if (reviewList.get(yr).getPoster().equals(user)
+				if (reviewList.get(yr).getUser().equals(user)
 						&& reviewList.get(yr).getReviewed().equals(r.getBusinessID())) {
 					avgy += reviewList.get(yr).getRating();
 					syy++;

@@ -13,10 +13,10 @@ public class YelpUser implements User {
 	private HashMap<String, Integer> votes;
 	
 	
-	public YelpUser(Integer id) {
+	public YelpUser(Integer userID) {
 		this.json = "no JSON";
 		this.url = "no-url.com";
-		this.UserID = id.toString();
+		this.UserID = userID.toString();
 		this.reviewCount = 0;
 		this.avgStars = 0.0;
 		this.name = "no name";
