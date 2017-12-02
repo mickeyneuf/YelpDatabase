@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 import javax.json.*;
 
-public class YelpDb implements MP5Db {
+public class YelpDb implements MP5Db<Restaurant> {
 
 	private TreeMap<String, YelpUser> userList;
 	private TreeMap<String, Restaurant> restaurantList;
