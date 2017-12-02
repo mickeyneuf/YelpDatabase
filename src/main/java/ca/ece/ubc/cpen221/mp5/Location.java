@@ -14,12 +14,11 @@ public class Location extends Object {
 	private String state;
 	private String city;
 	private ArrayList<String> neighborhoods;
-	private String school;
+	private ArrayList<String> schools;
 	private String streetAddress;
 	private String street;
 	private String area;
 	private String areaCode;
-	private String fullAddress;
 	
 	public Location() {
 		this.longitude = "no longitude";
@@ -27,12 +26,11 @@ public class Location extends Object {
 		this.state = "no state";
 		this.city = "no city";
 		this.neighborhoods = new ArrayList<String>();
-		this.school = "no school";
+		this.schools = new ArrayList<String>();
 		this.streetAddress = "no street address";
 		this.street = "no street";
 		this.area = "no area";
 		this.areaCode = "no area code";
-		this.fullAddress = "no full address";
 	}
 	
 	public Location(String longitude, String latitude, String state, String city, String neighborhood, String school,
@@ -41,13 +39,14 @@ public class Location extends Object {
 		this.latitude = latitude;
 		this.state = state;
 		this.city = city;
+		this.neighborhoods = new ArrayList<String>();
 		this.neighborhoods.add(neighborhood);
-		this.school = school;
+		this.schools = new ArrayList<String>();
+		this.schools.add(school);
 		this.streetAddress = streetAddress;
 		this.street = street;
 		this.area = area;
 		this.areaCode = areaCode;
-		this.fullAddress = this.streetAddress+" "+this.street+"\n"+this.area+"\n"+this.city+", "+this.state+" "+this.areaCode;
 	}
 	
 	public String getLongitude() {
@@ -85,14 +84,9 @@ public class Location extends Object {
 		return neighborhoods;
 	}
 
-	public String getSchool() {
-		return school;
+	public ArrayList<String> getSchools() {
+		return schools;
 	}
-
-	public void setSchool(String school) {
-		this.school = school;
-	}
-	
 	
 	public String getStreetAddress() {
 		return streetAddress;
@@ -127,7 +121,8 @@ public class Location extends Object {
 	}
 	
 	public String getFullAddress() {
-		return this.fullAddress;
+		return this.streetAddress+""+this.street+"\\n"+this.area+"\\n"+this.city+", "+this.state+" "+this.areaCode+"\"";
+
 	}
 
 	@Override
@@ -138,7 +133,7 @@ public class Location extends Object {
 				   ((Location) other).getState().equals(this.state)&&
 				   ((Location) other).getCity().equals(this.city)&&
 				   ((Location) other).getNeighborhoods().equals(this.neighborhoods)&&
-				   ((Location) other).getSchool().equals(this.school));
+				   ((Location) other).getSchools().equals(this.schools));
 		}
 		return false;
 	}

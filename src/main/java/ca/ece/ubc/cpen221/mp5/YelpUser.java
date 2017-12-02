@@ -26,31 +26,37 @@ public class YelpUser implements User {
 	public YelpUser(String json) {
 		Pattern urlPat = Pattern.compile("\"url\": \"(.*?)\", \"votes\": ");
 		Matcher urlMat = urlPat.matcher(json);
+		urlMat.find();
 		this.url = urlMat.group(1);
 				
-		Pattern votesPat = Pattern.compile("\"votes\": (.*?), \"review_id\"");
+		Pattern votesPat = Pattern.compile("\"votes\": (.*?), \"review_count\": ");
 		Matcher votesMat = votesPat.matcher(json);
 		String voteStr = null;
+		votesMat.find();
 		voteStr = votesMat.group(1);
 		String[] voteArr = voteStr.split(" ");
-		this.votes = new YelpVotes(Integer.parseInt(voteArr[1].replaceAll(",", "")), 
+		this.votes = new YelpVotes(Integer.parseInt(voteArr[5].replaceAll("}", "")), 
 								   Integer.parseInt(voteArr[3].replaceAll(",", "")), 
-								   Integer.parseInt(voteArr[5].replaceAll("}", "")));
+								   Integer.parseInt(voteArr[1].replaceAll(",", "")));
 		
 		Pattern reviewCountPat = Pattern.compile("\"review_count\": (.*?), \"type\": ");
 		Matcher reviewCountMat = reviewCountPat.matcher(json);
+		reviewCountMat.find();
 		this.reviewCount = Integer.parseInt(reviewCountMat.group(1));
 			
 		Pattern userIDPat = Pattern.compile("\"user_id\": \"(.*?)\", \"name\": ");
 		Matcher userIDMat = userIDPat.matcher(json);
+		userIDMat.find();
 		this.userID = userIDMat.group(1);
 		
 		Pattern namePat = Pattern.compile("\"name\": \"(.*?)\", \"average_stars\": ");
 		Matcher nameMat = namePat.matcher(json);
+		nameMat.find();
 		this.name = nameMat.group(1);
 		
 		Pattern starsPat = Pattern.compile("\"average_stars\": (.*?)}");
 		Matcher starsMat = starsPat.matcher(json);
+		starsMat.find();
 		this.avgStars = Double.parseDouble(starsMat.group(1));
 	}
 
@@ -59,7 +65,7 @@ public class YelpUser implements User {
 		return "{\"url\": \""+this.url+"\", \"votes\": {\"funny\": "+this.votes.getVotes("funny")
 		+", \"useful\": "+this.votes.getVotes("useful")+", \"cool\": "+this.votes.getVotes("cool")
 		+"}, \"review_count\": "+this.reviewCount.toString()+", \"type\": \"user\", \"user_id\": \""
-		+this.userID+"\", \"name\": \""+this.name+"\", average_stars\": "+this.avgStars.toString()+"}";
+		+this.userID+"\", \"name\": \""+this.name+"\", \"average_stars\": "+this.avgStars.toString()+"}";
 	}
 	
 	public String getUserID() {

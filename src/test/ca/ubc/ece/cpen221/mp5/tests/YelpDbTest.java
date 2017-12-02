@@ -1,9 +1,9 @@
-
+package ca.ubc.ece.cpen221.mp5.tests;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
 
-import javax.json.*;
+//import javax.json.*;
 
 import org.junit.Test;
 
@@ -14,7 +14,7 @@ import ca.ece.ubc.cpen221.mp5.YelpUser;
 
 public class YelpDbTest {
 
-	@Test
+	/*@Test
 	public void test0() throws IOException {
 		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
 
@@ -45,6 +45,27 @@ public class YelpDbTest {
 		YelpReview rev2 = new YelpReview(string);
 		
 		assertTrue(rev1.equals(rev2));
+	}*/
+	
+	@Test
+	public void test4() {
+		String json = "{\"type\": \"review\", \"business_id\": \"1CBs84C-a-cuA3vncXVSAw\", \"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": \"0a-pCW4guXIlWNpVeBHChg\", \"text\": \"The pizza is terrible, but if you need a place to watch a game or just down some pitchers, this place works.\\n\\nOh, and the pasta is even worse than the pizza.\", \"stars\": 2, \"user_id\": \"90wm_01FAIqhcgV_mPON9Q\", \"date\": \"2006-07-26\"}";
+		YelpReview rev = new YelpReview(json);
+		assertEquals(json, rev.getJSON());
+		
 	}
-
+	
+	@Test
+	public void test5() {
+		String json = "{\"url\": \"http://www.yelp.com/user_details?userid=zkjy_XoVgR2EFjLjtzFDNw\", \"votes\": {\"funny\": 1, \"useful\": 8, \"cool\": 4}, \"review_count\": 7, \"type\": \"user\", \"user_id\": \"zkjy_XoVgR2EFjLjtzFDNw\", \"name\": \"Elise B.\", \"average_stars\": 3.28571428571429}";
+		YelpUser elise = new YelpUser(json);
+		assertEquals(json, elise.getJSON());
+	}
+	
+	@Test
+	public void test6() {
+		String json = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/peking-express-berkeley\", \"longitude\": -122.2581978, \"neighborhoods\": [\"Telegraph Ave\", \"UC Campus Area\"], \"business_id\": \"1E2MQLWfwpsId185Fs2gWw\", \"name\": \"Peking Express\", \"categories\": [\"Chinese\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.5, \"city\": \"Berkeley\", \"full_address\": \"2516 Durant Ave\\nTelegraph Ave\\nBerkeley, CA 94704\", \"review_count\": 10, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/bphoto/BPMBr2aiOEpVioLb-RurJQ/ms.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.867768, \"price\": 1}";
+		Restaurant PekingExpress = new Restaurant(json);
+		assertEquals(json, PekingExpress.getJSON());
+	}
 }

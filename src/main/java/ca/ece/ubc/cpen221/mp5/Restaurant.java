@@ -32,23 +32,25 @@ public class Restaurant implements Business {
 	public Restaurant(String json) {
 		Pattern openPat = Pattern.compile("\"open\": (.*?), \"url\": ");
 		Matcher openMat = openPat.matcher(json);
-		while(openMat.find()) {
-			this.open = Boolean.parseBoolean(openMat.group(1));
-		}
+		openMat.find();
+		this.open = Boolean.parseBoolean(openMat.group(1));
 		
 		Pattern urlPat = Pattern.compile("\"url\": \"(.*?)\", \"longitude\": ");
 		Matcher urlMat = urlPat.matcher(json);
+		urlMat.find();
 		this.url = urlMat.group(1);
 		
 		this.location = new Location();
 		Pattern longPat = Pattern.compile("\"longitude\": (.*?), \"neighborhoods\": ");
 		Matcher longMat = longPat.matcher(json);
-		this.location.setLongitude(urlMat.group(1));
+		longMat.find();
+		this.location.setLongitude(longMat.group(1));
 		
 		String neighStr = null;
-		Pattern neighPat = Pattern.compile("\"neighborhoods\": [(.*?)], \"business_id\": ");
+		Pattern neighPat = Pattern.compile("\"neighborhoods\": \\[(.*?)\\], \"business_id\": ");
 		Matcher neighMat = neighPat.matcher(json);
-		neighStr = longMat.group(1);
+		neighMat.find();
+		neighStr = neighMat.group(1);
 		String[] neighArr = neighStr.split(", ");
 		for(int i = 0; i<neighArr.length; i++) {
 			this.location.getNeighborhoods().add(neighArr[i].replaceAll("\"", ""));
@@ -56,67 +58,118 @@ public class Restaurant implements Business {
 		
 		Pattern businessIDpat = Pattern.compile("\"business_id\": \"(.*?)\", \"name\": ");
 		Matcher businessIDmat = businessIDpat.matcher(json);
+		businessIDmat.find();
 		this.businessID = businessIDmat.group(1);
 		
 		Pattern namePat = Pattern.compile("\"name\": \"(.*?)\", \"categories\": ");
 		Matcher nameMat = namePat.matcher(json);
+		nameMat.find();
 		this.name = nameMat.group(1);
 		
 		String catStr = null;
-		Pattern catPat = Pattern.compile("\"categories\": [(.*?)], \"state\": ");
+		Pattern catPat = Pattern.compile("\"categories\": \\[(.*?)\\], \"state\": ");
 		Matcher catMat = catPat.matcher(json);
+		catMat.find();
 		catStr = catMat.group(1);
 		
 		String[] catArr = catStr.split(", ");
-		for(int i = 0; i<catArr.length; i++) {
-			this.categories.add(catArr[i].replaceAll("\"", ""));
+		this.categories = new ArrayList<String>();
+		for(String s : catArr) {
+			this.categories.add(s.replaceAll("\"", ""));
 		}
 		
 		Pattern statePat = Pattern.compile("\"state\": \"(.*?)\", \"type\": ");
 		Matcher stateMat = statePat.matcher(json);
-		while(stateMat.find()) {
+		stateMat.find();
 			this.location.setState(stateMat.group(1));
-		}
 		
 		Pattern starsPat = Pattern.compile("\"stars\": (.*?), \"city\": ");
 		Matcher starsMat = starsPat.matcher(json);
-		while (starsMat.find()) {
+		starsMat.find();
 			this.stars = Double.parseDouble(starsMat.group(1));
-		}
 		
 		Pattern cityPat = Pattern.compile("\"city\": \"(.*?)\", \"full_address\": ");
 		Matcher cityMat = cityPat.matcher(json);
-		while(cityMat.find()) {
-			this.location.setCity(cityMat.group(1));
-		}
+		cityMat.find();
+		this.location.setCity(cityMat.group(1));
 		
 		String fullAddrStr = null;
 		Pattern fullAddrPat = Pattern.compile("\"full_address\": \"(.*?)\", \"review_count\": ");
 		Matcher fullAddrMat = fullAddrPat.matcher(json);
-		while(fullAddrMat.find()) {
-			fullAddrStr = fullAddrMat.group(1);
-		}
+		fullAddrMat.find();
+		fullAddrStr = fullAddrMat.group(1);
 		
-		String[] fullAddrArr = fullAddrStr.split("\n");
+		System.out.println(fullAddrStr);
+		
+		String[] fullAddrArr = fullAddrStr.split(Pattern.quote("\\n"));
 		String[] addr1 = fullAddrArr[0].split(" ");
 		this.location.setStreetAddress(addr1[0]);
-		
+		this.location.setArea(fullAddrArr[1]);
 		this.location.setStreet(fullAddrArr[0].replaceAll(addr1[0], ""));
-		this.location.setArea(addr1[1]);
 		String[] addr3 = fullAddrArr[2].split(" ");
-		String areaCode = addr3[addr3.length];
+		
+		String areaCode = addr3[addr3.length-1];
 		this.location.setAreaCode(areaCode);
 		
 		Pattern reviewCountPat = Pattern.compile("\"review_count\": (.*?), \"photo_url\": ");
 		Matcher reviewCountMat = reviewCountPat.matcher(json);
+		reviewCountMat.find();
 		this.reviewCount = Integer.parseInt(reviewCountMat.group(1));
+		reviewCountMat.find();
 		
 		Pattern photoURLpat = Pattern.compile("\"photo_url\": \"(.*?)\", \"schools\": ");
 		Matcher photoURLmat = photoURLpat.matcher(json);
+		photoURLmat.find();
 		this.photoURL = photoURLmat.group(1);
-
+		
+		Pattern schoolsPat = Pattern.compile("\"schools\": \\[\"(.*?)\"\\], \"latitude\": ");
+		Matcher schoolsMat = schoolsPat.matcher(json);
+		schoolsMat.find();
+		String[] schoolArr = schoolsMat.group(1).split(", ");
+		for (String s : schoolArr) {
+			this.location.getSchools().add(s.replaceAll("\"", ""));
+		}
+		
+		Pattern latPat = Pattern.compile("\"latitude\": (.*?), \"price\": ");
+		Matcher latMat = latPat.matcher(json);
+		latMat.find();
+		this.location.setLatitude(latMat.group(1));
+		
+		Pattern pricePat = Pattern.compile("\"price\": (.*?)}");
+		Matcher priceMat = pricePat.matcher(json);
+		priceMat.find();
+		this.price = Integer.parseInt(priceMat.group(1));
 	}
 
+	public String getJSON() {
+		String json = "{\"open\": "+this.open+", \"url\": \""+this.url+"\", \"longitude\": "+this.location.getLongitude()
+					  +", \"neighborhoods\": [";
+		for(int i = 0; i < this.location.getNeighborhoods().size(); i++) {
+			json+= "\"" + this.location.getNeighborhoods().get(i) + "\"";
+			if(i<this.location.getNeighborhoods().size()-1) {
+				json+=", ";
+			}
+		}
+		json+= "], \"business_id\": \"" + this.businessID + "\", \"name\": \""+this.name+"\", \"categories\": [";
+		for(int i = 0; i < this.categories.size(); i++) {
+			json+= "\"" + this.categories.get(i)+"\"";
+			if(i<this.categories.size()-1) {
+				json+= ", ";
+			}
+		}
+		json+="], \"state\": \""+this.location.getState()+"\", \"type\": \"business\", \"stars\": "+this.stars+", \"city\": \""
+				+this.location.getCity()+"\", \"full_address\": \""+this.location.getFullAddress()+", \"review_count\": "
+				+this.reviewCount+", \"photo_url\": \""+this.photoURL+"\", \"schools\": [";
+		for(int i = 0; i < this.location.getSchools().size(); i++) {
+			json+= "\""+this.location.getSchools().get(i)+"\"";
+			if(i<this.location.getSchools().size()-1) {
+				json+= ", ";
+			}
+		}
+		json+= "], \"latitude\": "+this.location.getLatitude()+", \"price\": "+this.price+"}";
+		return json;
+	}
+	
 	public String getBusinessID() {
 		return businessID;
 	}
@@ -131,6 +184,7 @@ public class Restaurant implements Business {
 
 	public void setName(String name) {
 		this.name = name;
+		this.url = "http://www.yelp.com/biz/"+name.replaceAll(" ", "-");
 	}
 
 	public String getURL() {

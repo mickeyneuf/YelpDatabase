@@ -26,6 +26,13 @@ String getBusinessName();
 String getURL();
 
 /**
+ * A method to return this business' info in JSON format
+ * @return
+ * 		String representing business' info in JSON
+ */
+String getJSON();
+
+/**
  * A method that returns the location of this business
  * @return 
  * 		Location object representing this business' location
@@ -47,6 +54,7 @@ boolean isOpen();
  * @return
  * 		true if this is equal to other, false otherwise
  */
+@Override
 boolean equals(Object other);
 
 /**

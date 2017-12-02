@@ -24,13 +24,15 @@ public class YelpReview implements Review {
 	}
 
 	public YelpReview(String json) {
-		Pattern businessIDpat = Pattern.compile("\"business_id\": \"(.*?)\", \"votes\"");
+		Pattern businessIDpat = Pattern.compile("\"business_id\": \"(.*?)\", \"votes\": ");
 		Matcher businessIDmat = businessIDpat.matcher(json);
+		businessIDmat.find();
 		this.businessID = businessIDmat.group(1);
 		
 		Pattern votesPat = Pattern.compile("\"votes\": (.*?), \"review_id\"");
 		Matcher votesMat = votesPat.matcher(json);
 		String voteStr = null;
+		votesMat.find();
 		voteStr = votesMat.group(1);
 		
 		String[] voteArr = voteStr.split(" ");
@@ -39,27 +41,32 @@ public class YelpReview implements Review {
 								   Integer.parseInt(voteArr[5].replaceAll("}", "")));
 		Pattern reviewIDpat = Pattern.compile("\"review_id\": \"(.*?)\", \"text\"");
 		Matcher reviewIDmat = reviewIDpat.matcher(json);
+		reviewIDmat.find();
 		this.reviewID = reviewIDmat.group(1);	
 		
 		Pattern textPat = Pattern.compile("\"text\": \"(.*?)\", \"stars\": ");
 		Matcher textMat = textPat.matcher(json);
+		textMat.find();
 		this.review = textMat.group(1);
 		
 		Pattern starsPat = Pattern.compile("\"stars\": (.*?), \"user_id\": ");
 		Matcher starsMat = starsPat.matcher(json);
+		starsMat.find();
 		this.rating = Integer.parseInt(starsMat.group(1));
 		
 		Pattern userIDpat = Pattern.compile("\"user_id\": \"(.*?)\", \"date\": ");
 		Matcher userIDmat = userIDpat.matcher(json);
+		userIDmat.find();
 		this.userID = userIDmat.group(1);
 		
-		Pattern datePat = Pattern.compile("\"date\": \"(.*?)\"\\");
+		Pattern datePat = Pattern.compile("\"date\": \"(.*?)\"}");
 		Matcher dateMat = datePat.matcher(json);
+		dateMat.find();
 		this.date = dateMat.group(1);
 	}
 
 	public String getJSON() {
-		return "{\"type\": \""+this.review+"\", \"business_id\": \""+this.businessID+
+		return "{\"type\": \"review\", \"business_id\": \""+this.businessID+
 				"\", \"votes\": {\"cool\": "+this.votes.getVotes("cool").toString()+
 				", \"useful\": "+this.votes.getVotes("useful").toString()+", \"funny\": "
 				+this.votes.getVotes("funny").toString()+"}, \"review_id\": \""+this.reviewID
