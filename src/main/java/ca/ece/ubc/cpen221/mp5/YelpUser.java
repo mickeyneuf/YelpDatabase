@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 
 public class YelpUser implements User {
 
-	private String userID;
+	private final String userID;
 	private String url;
 	private Integer reviewCount;
 	private String name;
@@ -13,12 +13,12 @@ public class YelpUser implements User {
 	private YelpVotes votes;
 	
 	
-	public YelpUser(Integer userID) {
+	public YelpUser(Integer userID, String name) {
 		this.userID = userID.toString();
 		this.url = "http://www.yelp.com/user_details?userid="+this.userID;
 		this.reviewCount = 0;
 		this.avgStars = 0.0;
-		this.name = "no name";
+		this.name = name;
 		this.votes = new YelpVotes();
 
 	}
@@ -72,9 +72,6 @@ public class YelpUser implements User {
 		return userID;
 	}
 
-	public void setUserID(String userID) {
-		this.userID = userID;
-	}
 
 	public String getURL() {
 		return url;

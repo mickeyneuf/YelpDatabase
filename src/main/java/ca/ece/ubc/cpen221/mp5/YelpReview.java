@@ -5,21 +5,21 @@ import java.util.regex.Pattern;
 
 public class YelpReview implements Review {
 
+	private final String reviewID;
 	private String userID;
 	private String businessID;
-	private String reviewID;
 	private String review;
 	private String date;
 	private Integer rating;
 	private YelpVotes votes;
 	
-	public YelpReview(Integer reviewID, String date, Integer userID, Integer businessID) {
+	public YelpReview (String reviewID, String date, String userID, String businessID, Integer rating) {
 		this.review = "no text";
-		this.userID = userID.toString();
+		this.userID = userID;
 		this.date = date;
-		this.businessID = businessID.toString();
-		this.rating = 0;
-		this.reviewID = reviewID.toString();
+		this.businessID = businessID;
+		this.rating = rating;
+		this.reviewID = reviewID;
 		this.votes = new YelpVotes();
 	}
 
@@ -77,10 +77,6 @@ public class YelpReview implements Review {
 	
 	public String getReviewID() {
 		return this.reviewID;
-	}
-	
-	public void setReviewID(String reviewID) {
-		this.reviewID = reviewID;
 	}
 	
 	public String getText() {

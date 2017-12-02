@@ -9,8 +9,8 @@ import java.util.ArrayList;
  *
  */
 public class Location extends Object {
-	private String longitude;
-	private String latitude;
+	private Double longitude;
+	private Double latitude;
 	private String state;
 	private String city;
 	private ArrayList<String> neighborhoods;
@@ -21,8 +21,8 @@ public class Location extends Object {
 	private String areaCode;
 	
 	public Location() {
-		this.longitude = "no longitude";
-		this.latitude = "no latitude";
+		this.longitude = 0.0;
+		this.latitude = 0.0;
 		this.state = "no state";
 		this.city = "no city";
 		this.neighborhoods = new ArrayList<String>();
@@ -33,7 +33,7 @@ public class Location extends Object {
 		this.areaCode = "no area code";
 	}
 	
-	public Location(String longitude, String latitude, String state, String city, String neighborhood, String school,
+	public Location(Double longitude, Double latitude, String state, String city, String neighborhood, String school,
 					String streetAddress, String street, String area, String areaCode) {
 		this.longitude = longitude;
 		this.latitude = latitude;
@@ -49,18 +49,18 @@ public class Location extends Object {
 		this.areaCode = areaCode;
 	}
 	
-	public String getLongitude() {
+	public Double getLongitude() {
 		return longitude;
 	}
-	public void setLongitude(String longitude) {
+	public void setLongitude(Double longitude) {
 		this.longitude = longitude;
 	}
 
-	public String getLatitude() {
+	public Double getLatitude() {
 		return latitude;
 	}
 
-	public void setLatitude(String latitude) {
+	public void setLatitude(Double latitude) {
 		this.latitude = latitude;
 	}
 

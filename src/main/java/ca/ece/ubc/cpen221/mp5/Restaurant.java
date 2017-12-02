@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public class Restaurant implements Business {
 
-	private String businessID;
+	private final String businessID;
 	private String name;
 	private String url;
 	private Integer price;
@@ -18,11 +18,11 @@ public class Restaurant implements Business {
 	private String photoURL;
 	
 
-	public Restaurant(Integer businessID) {
+	public Restaurant(Integer businessID, String name) {
 		this.businessID = businessID.toString();
 		this.open=false;
 		this.location = new Location();
-		this.name = "no name";
+		this.name = name;
 		this.url = "http://www.yelp.com/biz/"+businessID.toString();
 		this.price = 0;
 		this.categories = new ArrayList<String>();
@@ -44,7 +44,7 @@ public class Restaurant implements Business {
 		Pattern longPat = Pattern.compile("\"longitude\": (.*?), \"neighborhoods\": ");
 		Matcher longMat = longPat.matcher(json);
 		longMat.find();
-		this.location.setLongitude(longMat.group(1));
+		this.location.setLongitude(Double.parseDouble(longMat.group(1)));
 		
 		String neighStr = null;
 		Pattern neighPat = Pattern.compile("\"neighborhoods\": \\[(.*?)\\], \"business_id\": ");
@@ -133,7 +133,7 @@ public class Restaurant implements Business {
 		Pattern latPat = Pattern.compile("\"latitude\": (.*?), \"price\": ");
 		Matcher latMat = latPat.matcher(json);
 		latMat.find();
-		this.location.setLatitude(latMat.group(1));
+		this.location.setLatitude(Double.parseDouble(latMat.group(1)));
 		
 		Pattern pricePat = Pattern.compile("\"price\": (.*?)}");
 		Matcher priceMat = pricePat.matcher(json);
@@ -172,10 +172,6 @@ public class Restaurant implements Business {
 	
 	public String getBusinessID() {
 		return businessID;
-	}
-
-	public void setBusinessID(String businessID) {
-		this.businessID = businessID;
 	}
 
 	public String getName() {

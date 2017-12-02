@@ -1,4 +1,4 @@
-package ca.ece.ubc.cpen221.mp5.tests;
+package java.ca.ece.ubc.cpen221.mp5.tests;
 
 import static org.junit.Assert.*;
 

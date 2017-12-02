@@ -3,8 +3,10 @@ package ca.ece.ubc.cpen221.mp5;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
@@ -16,10 +18,14 @@ import javax.json.*;
 
 public class YelpDb implements MP5Db<Restaurant> {
 
-	private TreeMap<String, YelpUser> userList;
-	private TreeMap<String, Restaurant> restaurantList;
-	private TreeMap<String, YelpReview> reviewList;
-	private TreeMap<YelpUser, List<Restaurant>> visitedBy;
+	private ArrayList<YelpUser> userList;
+	private ArrayList<Restaurant> restaurantList;
+	private ArrayList<YelpReview> reviewList;
+
+	private TreeMap<String, ArrayList<String>> visitedBy;
+	private TreeMap<String, ArrayList<String>> restaurantReviews;
+	private TreeMap<String, ArrayList<String>> userReviews;
+	
 	private Integer userID;
 	private Integer reviewID;
 	private Integer businessID;
@@ -28,36 +34,40 @@ public class YelpDb implements MP5Db<Restaurant> {
 		Scanner scanUser = new Scanner(new File(userFile));
 		Scanner scanRestaurant = new Scanner(new File(restaurantFile));
 		Scanner scanReview = new Scanner(new File(reviewFile));
-		TreeMap<String, YelpUser> user = new TreeMap<String, YelpUser>();
-		TreeMap<String, Restaurant> restaurant = new TreeMap<String, Restaurant>();
-		TreeMap<String, YelpReview> review = new TreeMap<String, YelpReview>();
-		TreeMap<YelpUser, List<Restaurant>> visitedBy = new TreeMap<YelpUser, List<Restaurant>>();
+		userList = new ArrayList<YelpUser>();
+		restaurantList = new ArrayList<Restaurant>();
+		reviewList = new ArrayList<YelpReview>();
+		visitedBy = new TreeMap<String, ArrayList<String>>();
+		restaurantReviews = new TreeMap<String, ArrayList<String>>();
+		userReviews = new TreeMap<String, ArrayList<String>>();
+		
 		this.userID = 0;
 		this.reviewID = 0;
 		this.businessID = 0;
 
 		while (scanUser.hasNext()) {
 			YelpUser newUser = new YelpUser(scanUser.nextLine());
-			user.put(newUser.getUserID(), newUser);
+			this.userList.add(newUser);
+			this.userReviews.put(newUser.getUserID(), new ArrayList<String>());
 		}
 		scanUser.close();
-		this.userList = user;
 
 		while (scanRestaurant.hasNext()) {
-			Restaurant rest = new Restaurant(scanRestaurant.nextLine());
-			restaurant.put(rest.getBusinessID(), rest);
+			Restaurant newRestaurant = new Restaurant(scanRestaurant.nextLine());
+			this.restaurantList.add(newRestaurant);
+			this.restaurantReviews.put(newRestaurant.getBusinessID(), new ArrayList<String>());
+			this.visitedBy.put(newRestaurant.getBusinessID(), new ArrayList<String>());
 		}
 		scanRestaurant.close();
-		this.restaurantList = restaurant;
 
 		while (scanReview.hasNext()) {
-			YelpReview rev = new YelpReview(scanReview.nextLine());
-			review.put(rev.getReviewID(), rev);
-			visitedBy.get(userList.get(rev.getUser())).add(restaurantList.get((rev.getReviewed())));
+			YelpReview newReview = new YelpReview(scanReview.nextLine());
+			this.reviewList.add(newReview);
+			this.visitedBy.get(newReview.getReviewed()).add(newReview.getUser());
+			this.restaurantReviews.get(newReview.getReviewed()).add(newReview.getReviewID());
+			this.userReviews.get(newReview.getUser()).add(newReview.getReviewID());
 		}
 		scanReview.close();
-		this.reviewList = review;
-		this.visitedBy = visitedBy;
 
 	}
 
@@ -78,22 +88,73 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * 
 	 */
 	@Override
-	public Set getMatches(String queryString) {
-		if (restaurantList.containsKey(queryString)) {
+	public Set<Restaurant> getMatches(String queryString) {
+		if (restaurantList.contains(this.getRestaurant(queryString))) {
 			Set<Restaurant> set = new HashSet<Restaurant>();
-			set.add(restaurantList.get(queryString));
+			set.add(this.getRestaurant(queryString));
 			return set;
 		}
 		
-		return new HashSet();
+		return new HashSet<>();
 	}
 
+	public ArrayList<HashSet<String>> kMeansClusters(int k) {
+		Random rand = new Random();
+		HashMap<String, ArrayList<String>> clusters = new HashMap<String, ArrayList<String>>();
+		ArrayList<HashSet<String>> clusterList = new ArrayList<HashSet<String>>();
+		
+		// choosing centroids and putting them on map
+		// no clusters can be empty because we chose restaurant locations as centroids
+		for (int i = 0; i<k; i++) {
+			int n = rand.nextInt(this.restaurantList.size()-1)+0;
+			clusters.put(restaurantList.get(n).getBusinessID(), new ArrayList<String>());
+		}
+		
+		for(Restaurant r : this.restaurantList) {
+			String closest = null;
+			double mindistance = Double.MAX_VALUE;
+			if(!clusters.keySet().contains(r.getBusinessID())) {
+				for (String centroid : clusters.keySet()) {
+					double distance = Math.sqrt(Math.pow(r.getLocation().getLatitude()-this.getRestaurant(centroid).getLocation().getLatitude(), 2)+
+									  Math.pow(r.getLocation().getLongitude()-this.getRestaurant(centroid).getLocation().getLongitude(), 2));
+					if(distance < mindistance) {
+						closest = centroid;
+						mindistance = distance;
+					}
+				}
+			clusters.get(closest).add(r.getBusinessID());
+			}
+		}
+		
+		for (String rest1 : clusters.keySet()) {
+			HashSet<String> cluster = new HashSet<String>();
+			cluster.add(rest1);
+			cluster.addAll(clusters.get(rest1));
+			clusterList.add(cluster);
+			}
+		
+		return clusterList;
+	}
+	
 	@Override
 	public String kMeansClusters_json(int k) {
-		// TODO Auto-generated method stub
-		return null;
+		ArrayList<HashSet<String>> setList = this.kMeansClusters(k);
+		String json = null;
+		int c = 0;
+		for (HashSet<String> cluster : setList) {
+			for (String r : cluster) {
+				json+="{\"x\": "+this.getRestaurant(r).getLocation().getLongitude()
+					  +", \"y\": "+this.getRestaurant(r).getLocation().getLatitude()
+					  +", \"name\": \"cluster\": "+c+", \"weight\": 1.0}";
+			}
+			c++;
+			if(c<setList.size()) {
+				json+=", ";
+			}
+		}
+		return json;
 	}
-
+	
 	@Override
 	public ToDoubleBiFunction<MP5Db<Restaurant>, String> getPredictorFunction(String user) {
 		double sxx = 0;
@@ -101,15 +162,15 @@ public class YelpDb implements MP5Db<Restaurant> {
 		double avgx = 0;
 		double avgy = 0;
 
-		List<String> restID = reviewList.values().stream().filter(rev -> rev.getUser() == user)
+		List<String> restID = reviewList.stream().filter(rev -> rev.getUser().equals(user))
 				.map(YelpReview::getReviewed).collect(Collectors.toList());
 
-		List<Integer> prices = restaurantList.keySet().stream().filter(rest -> restID.contains(rest))
-				.map(rest -> restaurantList.get(rest)).map(Restaurant::getPrice).collect(Collectors.toList());
+		List<Integer> prices = restaurantList.stream().filter(rest -> restID.contains(rest.getBusinessID()))
+				.map(Restaurant::getPrice).collect(Collectors.toList());
 
 		int totalPrice = prices.stream().reduce(0, (x, y) -> x + y);
 
-		List<Integer> ratings = reviewList.values().stream().filter(rev -> rev.getUser() == user)
+		List<Integer> ratings = reviewList.stream().filter(rev -> rev.getUser().equals(user))
 				.map(YelpReview::getRating).collect(Collectors.toList());
 
 		int totalRating = ratings.stream().reduce(0, (x, y) -> x + y);
@@ -130,25 +191,50 @@ public class YelpDb implements MP5Db<Restaurant> {
 
 		return new PredictorFunction(a,b);
 	}
+	
+	private YelpUser getUser(String userID) {
+		List<YelpUser> users = userList.stream().filter(user -> user.getUserID().equals(userID)).collect(Collectors.toList());
+		return users.get(0);
+	}
+	
+	private YelpReview getReview(String reviewID) {
+		List<YelpReview> reviews = reviewList.stream().filter(review -> review.getReviewID().equals(reviewID)).collect(Collectors.toList());
+		return reviews.get(0);
+	}
+	
+	private Restaurant getRestaurant(String businessID) {
+		List<Restaurant> restaurants = restaurantList.stream().filter(restaurant -> restaurant.getBusinessID().equals(businessID)).collect(Collectors.toList());
+		return restaurants.get(0);
+	}
+	
+	public void addUserJSON(String json) {
+		YelpUser user = new YelpUser(json);
+		this.userList.add(user);
+		this.userReviews.put(user.getUserID(), new ArrayList<String>());
+	}
 
-	public void addUser() {
-		YelpUser user = new YelpUser(userID);
-		this.userList.put(userID.toString(), user);
+	public void addUser(String name) {
+		YelpUser user = new YelpUser(userID, name);
 		this.userID += 1;
-		this.visitedBy.put(user, new ArrayList<Restaurant>());
+		this.userList.add(user);
+		this.userReviews.put(user.getUserID(), new ArrayList<String>());
 	}
 
-	public void addReview() {
-
-		YelpReview rev = new YelpReview(reviewID);
-		this.reviewList.put(reviewID.toString(), rev);
+	public void addReview(String date, String userID, String businessID, Integer rating) {
+		YelpReview rev = new YelpReview(reviewID.toString(), date, userID, businessID, rating);
+		this.getUser(userID).setReviewCount(this.getUser(userID).getReviewCount()+1);
+		this.getRestaurant(businessID).setReviewCount(this.getRestaurant(businessID).getReviewCount()+1);
+		this.reviewList.add(rev);
 		this.reviewID += 1;
-		visitedBy.get(userList.get(rev.getUser())).add(restaurantList.get((rev.getReviewed())));
+		visitedBy.get(businessID.toString()).add(userID.toString());
+		this.restaurantReviews.get(businessID.toString()).add(reviewID.toString());
+		this.userReviews.get(userID.toString()).add(reviewID.toString());
 	}
+	
 
 	public void addRestaurant(String longitude, String latitude) {
 
-		this.restaurantList.put(businessID.toString(), new Restaurant(businessID, latitude, longitude));
+		this.restaurantList.put(businessID.toString(), new Restaurant(businessID));
 		this.businessID += 1;
 
 	}
