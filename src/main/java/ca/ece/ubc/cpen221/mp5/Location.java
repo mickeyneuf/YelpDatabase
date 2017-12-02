@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 /**
  * 
- * This class represents a location. At the minimum, it must have a longitude
- * and latitude All other fields initialized to null and can be set
+ * This class represents a location. It can be created as empty, and have its fields filled with
+ * its methods, or it can be created with parameters representing all of its fields.
  *
  */
 public class Location extends Object {
@@ -20,6 +20,8 @@ public class Location extends Object {
 	private String area;
 	private String areaCode;
 	private String suite;
+	private String building;
+	private String room;
 	
 	public Location() {
 		this.longitude = 0.0;
@@ -33,10 +35,12 @@ public class Location extends Object {
 		this.area = "no area";
 		this.areaCode = "no area code";
 		this.suite = "no suite";
+		this.building = "no building";
+		this.room = "no building";
 	}
 	
 	public Location(Double longitude, Double latitude, String state, String city, String neighborhood, String school,
-					String streetAddress, String street, String area, String areaCode, String suite) {
+					String streetAddress, String street, String area, String areaCode, String suite, String building, String room) {
 		this.longitude = longitude;
 		this.latitude = latitude;
 		this.state = state;
@@ -50,8 +54,26 @@ public class Location extends Object {
 		this.area = area;
 		this.areaCode = areaCode;
 		this.suite = suite.isEmpty() ? "no suite" : suite;
+		this.building = building.isEmpty() ? "no building" : building;
+		this.room = room.isEmpty() ? "no room" : room;
 	}
 	
+	public String getBuilding() {
+		return building;
+	}
+
+	public void setBuilding(String building) {
+		this.building = building;
+	}
+
+	public String getRoom() {
+		return room;
+	}
+
+	public void setRoom(String room) {
+		this.room = room;
+	}
+
 	public Double getLongitude() {
 		return longitude;
 	}
@@ -125,8 +147,16 @@ public class Location extends Object {
 	
 	public String getFullAddress() {
 		String json = "";
+		if(!this.room.equals("no room")) {
+			json+=this.room;
+		}
+		if (!this.building.equals("no building")) {
+			json+=this.building;
+		}
 		if (!this.streetAddress.equals("no street address")){
 			json+=this.streetAddress;
+		}
+		if(!this.street.equals("no street")) {
 			json+=this.street;
 		}
 		if (!this.suite.equals("no suite")) {

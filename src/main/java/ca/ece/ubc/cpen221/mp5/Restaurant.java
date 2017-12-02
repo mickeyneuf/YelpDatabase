@@ -105,12 +105,20 @@ public class Restaurant implements Business {
 		String[] addr2 = null;
 		String[] addr3 = null;
 		String[] addr4 = null;
-		if(json.equals("{\"open\": true, \"url\": \"http://www.yelp.com/biz/cafe-durant-berkeley\", \"longitude\": -122.2583343, \"neighborhoods\": [\"Telegraph Ave\", \"UC Campus Area\"], \"business_id\": \"BOCJ5g4q1RhP8wikwwr3Ow\", \"name\": \"Cafe Durant\", \"categories\": [\"Breakfast & Brunch\", \"American (Traditional)\", \"Mexican\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.5, \"city\": \"Berkeley\", \"full_address\": \"2517 Durant Ave\\nSte C\\nTelegraph Ave\\nBerkeley, CA 94704\", \"review_count\": 233, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/bphoto/ngW3u47q-rmJacKI0g196g/ms.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8680114, \"price\": 2}")) {
-			System.out.println(fullAddrArr.length==3);
-			System.out.println(fullAddrArr[0]+fullAddrArr[1]+fullAddrArr[2]);
+		String[] addr5 = null;
+		if(fullAddrArr.length>4) {	
+			System.out.println(json);
 		}
 		try {
-			if (fullAddrArr.length==4) {
+			if (fullAddrArr.length==5) {
+				this.location.setRoom(fullAddrArr[0]);
+				this.location.setBuilding(fullAddrArr[1]);
+				this.location.setStreet(fullAddrArr[2]);
+				this.location.setArea(fullAddrArr[3]);
+				addr5 = fullAddrArr[4].split(" ");
+				this.location.setAreaCode(addr5[addr5.length-1]);
+			}
+			else if (fullAddrArr.length==4) {
 				addr1 = fullAddrArr[0].split(" ");
 				this.location.setStreetAddress(addr1[0]);
 				this.location.setStreet(fullAddrArr[0].replaceAll(addr1[0], ""));
@@ -126,14 +134,12 @@ public class Restaurant implements Business {
 				this.location.setStreet(fullAddrArr[0].replaceAll(addr1[0], ""));
 				addr3 = fullAddrArr[2].split(" ");
 				this.location.setAreaCode(addr3[addr3.length-1]);
-			} else if (fullAddrArr.length==2) {
+			} else {
 				addr1 = fullAddrArr[0].split(" ");
 				this.location.setArea(fullAddrArr[0]);
 				this.location.setStreet("no street");
 				addr2 = fullAddrArr[1].split(" ");
 				this.location.setAreaCode(addr2[addr2.length-1]);
-			} else {
-				System.out.println(json);
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			System.out.println("Please enter restaurant info in valid JSON format:\nCould not find full address");

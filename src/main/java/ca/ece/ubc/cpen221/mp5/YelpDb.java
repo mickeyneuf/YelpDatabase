@@ -274,7 +274,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 		this.restaurantReviews.put(rest.getBusinessID(), new ArrayList<String>());
 	}
 	
-	public void addRestaurantJSON(String json) {
+	public void addRestaurantJSON(String json) throws InvalidInputException {
 		Restaurant rest = new Restaurant(json);
 		this.restaurantList.add(rest);
 		this.visitedBy.put(rest.getBusinessID(), new ArrayList<String>());
