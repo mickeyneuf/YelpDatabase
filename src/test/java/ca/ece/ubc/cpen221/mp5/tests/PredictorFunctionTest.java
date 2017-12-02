@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import ca.ece.ubc.cpen221.mp5.InvalidInputException;
 import ca.ece.ubc.cpen221.mp5.MP5Db;
 import ca.ece.ubc.cpen221.mp5.PredictorFunction;
 import ca.ece.ubc.cpen221.mp5.Restaurant;
@@ -27,11 +28,11 @@ public class PredictorFunctionTest {
 
 		assertTrue(func.applyAsDouble(yelp, restID) == 3);
 
-	}
-	*/
+	}*/
+	
 	
 	@Test
-	public void test1() throws IOException {
+	public void test1() throws IOException, InvalidInputException {
 		YelpDb yelp = new YelpDb("data/restaurantsTest.json", "data/reviewsTest.json", "data/usersTest.json");
 		String userID = "_NH7Cpq3qZkByP5xR4gXog";
 		PredictorFunction func = (PredictorFunction) yelp.getPredictorFunction(userID);

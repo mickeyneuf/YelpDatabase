@@ -3,16 +3,59 @@ package ca.ece.ubc.cpen221.mp5;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * This class represents a review for the restaurant-review website Yelp, and implements 
+ * the generic Review interface
+ * 
+ * A review contains final fields of Strings representing reviewID, userID, businessID, a
+ * non-final string field representing the review text, another representing the date it 
+ * was written, an Integer rating, and a YelpVotes object representing the votes this review
+ * has been given. 
+ * 
+ */
 public class YelpReview implements Review {
 
 	private final String reviewID;
-	private String userID;
-	private String businessID;
+	private final String userID;
+	private final String businessID;
 	private String review;
 	private String date;
 	private Integer rating;
 	private YelpVotes votes;
 	
+	/* Abstraction Function:
+	 * 		-   Represents a Yelp review as an object with the review's info as fields, all of which
+	 * 			can be returned to clients and some of which can be set by clients.
+	 * 
+	 * Rep Invariant:
+	 * 		-   reviewID, userID, and businessID contains only alphabetical (upper or lower case)
+	 * 			and numerical characters.
+	 * 		-   date is in YYYY-MM-DD format
+	 * 		-   no fields can be null or empty
+	 * 		-   rating is an integer between 1 and 5
+	 */
+	
+	/**
+	 * Constructor to create a YelpReview object with certain parameters, rather than a full JSON string.
+	 * Review text and votes must be set after creation, using getter and setter methods of this class.
+	 * 
+	 * Requires:
+	 * 			- reviewID, businessID, userID contain only numeric and alphabetical characters
+	 *			- date is in MM/DD/YY format
+	 *			- 1<rating<5
+	 *			- no parameters null or empty
+	 * 
+	 * @param reviewID
+	 * 				String representing ID of this review
+	 * @param date
+	 * 				String representing date on which review was posted (or last edited)
+	 * @param userID
+	 * 				String representing the ID of user who wrote this review
+	 * @param businessID
+	 * 				String representing the ID of the business this review is written for
+	 * @param rating
+	 * 				Integer representing the rating of this review
+	 */
 	public YelpReview (String reviewID, String date, String userID, String businessID, Integer rating) {
 		this.review = "no text";
 		this.userID = userID;
@@ -23,46 +66,96 @@ public class YelpReview implements Review {
 		this.votes = new YelpVotes();
 	}
 
-	public YelpReview(String json) {
+	/**
+	 * Constructor to create a YelpReview object from a JSON string containing information to fill all the fields.
+	 * Contains a built in parser that extracts info from JSON string based on JSON grammar and fills this object's
+	 * fields with the info
+	 * 
+	 * Requires: String is in correct-JSON format for Yelp reviews
+	 * 			 Throws an InvalidFormatException if not
+	 * 
+	 * @param json
+	 * 			A JSON-formatted String representing all the info for this review
+	 * 		
+	 */
+	public YelpReview(String json) throws InvalidInputException, ArrayIndexOutOfBoundsException{
+		// locates and stores businessID of this review based on JSON grammar and format
 		Pattern businessIDpat = Pattern.compile("\"business_id\": \"(.*?)\", \"votes\": ");
 		Matcher businessIDmat = businessIDpat.matcher(json);
-		businessIDmat.find();
-		this.businessID = businessIDmat.group(1);
-		
+		// if a businessID cannot be found in this format, throw exception
+		if(businessIDmat.find()) {
+			this.businessID = businessIDmat.group(1);
+		} else {
+			System.out.println("Please enter Yelp Review info in valid JSON format:\nCould not find BusinessID");
+			throw new InvalidInputException();
+		}
+		// locates and stores votes in a YelpVotes object based on JSON grammar and format
 		Pattern votesPat = Pattern.compile("\"votes\": (.*?), \"review_id\"");
 		Matcher votesMat = votesPat.matcher(json);
 		String voteStr = null;
-		votesMat.find();
-		voteStr = votesMat.group(1);
 		
+		if(votesMat.find()) {
+			voteStr = votesMat.group(1);
+		} else {
+			System.out.println("Please enter Yelp Review info in valid JSON format:\nCould not find votes");
+			throw new InvalidInputException();
+		}
+		// storing "cool", "useful", funny votes in a YelpVotes object by parsing integers
+		// catches ArrayIndexOutOfBoundsException, throws new
 		String[] voteArr = voteStr.split(" ");
+		try {
 		this.votes = new YelpVotes(Integer.parseInt(voteArr[1].replaceAll(",", "")), 
 								   Integer.parseInt(voteArr[3].replaceAll(",", "")), 
 								   Integer.parseInt(voteArr[5].replaceAll("}", "")));
+		}catch(ArrayIndexOutOfBoundsException e) {
+			System.out.println("Please enter Yelp Review info in valid JSON format:\nCould not find votes");
+			throw new InvalidInputException();
+		}
+		// storing reviewID
 		Pattern reviewIDpat = Pattern.compile("\"review_id\": \"(.*?)\", \"text\"");
 		Matcher reviewIDmat = reviewIDpat.matcher(json);
-		reviewIDmat.find();
-		this.reviewID = reviewIDmat.group(1);	
-		
+		if(reviewIDmat.find()) {
+			this.reviewID = reviewIDmat.group(1);	
+		} else {
+			System.out.println("Please enter Yelp Review info in valid JSON format:\nCould not find review ID");
+			throw new InvalidInputException();
+		}
+		// storing review text
 		Pattern textPat = Pattern.compile("\"text\": \"(.*?)\", \"stars\": ");
 		Matcher textMat = textPat.matcher(json);
-		textMat.find();
-		this.review = textMat.group(1);
-		
+		if(textMat.find()) {
+			this.review = textMat.group(1);
+		} else {
+			System.out.println("Please enter Yelp Review info in valid JSON format:\nCould not find review text");
+			throw new InvalidInputException();
+		}
+		// storing rating
 		Pattern starsPat = Pattern.compile("\"stars\": (.*?), \"user_id\": ");
 		Matcher starsMat = starsPat.matcher(json);
-		starsMat.find();
-		this.rating = Integer.parseInt(starsMat.group(1));
-		
+		if(starsMat.find()) {
+			this.rating = Integer.parseInt(starsMat.group(1));
+		} else {
+			System.out.println("Please enter Yelp Review info in valid JSON format:\nCould not find rating");
+			throw new InvalidInputException();
+		}
+		//storing user ID
 		Pattern userIDpat = Pattern.compile("\"user_id\": \"(.*?)\", \"date\": ");
 		Matcher userIDmat = userIDpat.matcher(json);
-		userIDmat.find();
-		this.userID = userIDmat.group(1);
-		
+		if(userIDmat.find()) {
+			this.userID = userIDmat.group(1);
+		} else {
+			System.out.println("Please enter Yelp Review info in valid JSON format:\nCould not find userID");
+			throw new InvalidInputException();
+		}
+		// storing review date
 		Pattern datePat = Pattern.compile("\"date\": \"(.*?)\"}");
 		Matcher dateMat = datePat.matcher(json);
-		dateMat.find();
-		this.date = dateMat.group(1);
+		if(dateMat.find()) {
+			this.date = dateMat.group(1);
+		} else {
+			System.out.println("Please enter Yelp Review info in valid JSON format:\nCould not find date");
+			throw new InvalidInputException();
+		}
 	}
 
 	public String getJSON() {
@@ -91,10 +184,6 @@ public class YelpReview implements Review {
 		return userID;
 	}
 
-	public void setUser(String userID) {
-		this.userID = userID;
-	}
-
 	public String getDate() {
 		return date;
 	}
@@ -113,10 +202,6 @@ public class YelpReview implements Review {
 
 	public String getReviewed() {
 		return businessID;
-	}
-
-	public void setReviewed(String businessID) {
-		this.businessID = businessID;
 	}
 	
 	public Integer getVotes(String reaction) {

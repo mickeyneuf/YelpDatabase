@@ -23,12 +23,15 @@ public class YelpUser implements User {
 
 	}
 
-	public YelpUser(String json) {
+	public YelpUser(String json) throws InvalidInputException {
 		Pattern urlPat = Pattern.compile("\"url\": \"(.*?)\", \"votes\": ");
 		Matcher urlMat = urlPat.matcher(json);
-		urlMat.find();
-		this.url = urlMat.group(1);
-				
+		if(urlMat.find()) {
+			this.url = urlMat.group(1);
+		} else {
+			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find url\n"+json);
+			
+		}
 		Pattern votesPat = Pattern.compile("\"votes\": (.*?), \"review_count\": ");
 		Matcher votesMat = votesPat.matcher(json);
 		String voteStr = null;
