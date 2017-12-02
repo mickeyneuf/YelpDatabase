@@ -16,22 +16,29 @@ import ca.ece.ubc.cpen221.mp5.YelpUser;
 
 public class PredictorFunctionTest {
 
-	@Test
-	public void test0() throws IOException, InvalidInputException {
-		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
-		YelpUser user = new YelpUser(
-				"{\"url\": \"http://www.yelp.com/user_details?userid=wr3JF-LruJ9LBwQTuw7aUg\", \"votes\": {\"funny\": 2, \"useful\": 5, \"cool\": 3}, \"review_count\": 15, \"type\": \"user\", \"user_id\": \"wr3JF-LruJ9LBwQTuw7aUg\", \"name\": \"Katie W.\", \"average_stars\": 3.6}");
-		Restaurant rest = new Restaurant(
-				"{\"open\": true, \"url\": \"http://www.yelp.com/biz/la-vals-pizza-berkeley\", \"longitude\": -122.2603641, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"1CBs84C-a-cuA3vncXVSAw\", \"name\": \"La Val's Pizza\", \"categories\": [\"Pizza\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.5, \"city\": \"Berkeley\", \"full_address\": \"1834 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 218, \"photo_url\": \"http://s3-media2.ak.yelpcdn.com/bphoto/m7_y0Xsf_9yzli5aLEnquQ/ms.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8755322, \"price\": 1}");
-		String id = user.getUserID();
-		String restID = rest.getBusinessID();
+	/*@Test
+	public void test0() throws IOException {
+		YelpDb yelp = new YelpDb("data/restaurants.json", "data/reviews.json", "data/users.json");
+		String userID = "wr3JF-LruJ9LBwQTuw7aUg";
+		String restID = "1CBs84C-a-cuA3vncXVSAw";
 
 		yelp.removeRestaurant(restID);
 
-		PredictorFunction func = (PredictorFunction) yelp.getPredictorFunction(id);
+		PredictorFunction func = (PredictorFunction) yelp.getPredictorFunction(userID);
 
 		assertTrue(func.applyAsDouble(yelp, restID) == 3);
 
+	}*/
+	
+	
+	@Test
+	public void test1() throws IOException, InvalidInputException {
+		YelpDb yelp = new YelpDb("data/restaurantsTest.json", "data/reviewsTest.json", "data/usersTest.json");
+		String userID = "_NH7Cpq3qZkByP5xR4gXog";
+		PredictorFunction func = (PredictorFunction) yelp.getPredictorFunction(userID);
+		String restID = "loBOs5ruFXSNL-ZM29cTrA";
+		
+		assertTrue(func.applyAsDouble(yelp, restID) == 2);
 	}
 
 }
