@@ -158,8 +158,6 @@ public class YelpDb implements MP5Db<Restaurant> {
 	public ToDoubleBiFunction<MP5Db<Restaurant>, String> getPredictorFunction(String user) {
 		double sxx = 0;
 		double sxy = 0;
-		double avgx = 0;
-		double avgy = 0;
 
 		List<String> restID = reviewList.stream().filter(rev -> rev.getUser().equals(user))
 				.map(YelpReview::getReviewed).collect(Collectors.toList());
@@ -174,8 +172,8 @@ public class YelpDb implements MP5Db<Restaurant> {
 
 		int totalRating = ratings.stream().reduce(0, (x, y) -> x + y);
 
-		avgx = totalPrice / restID.size();
-		avgy = totalRating / restID.size();
+		double avgx = totalPrice / restID.size();
+		double avgy = totalRating / restID.size();
 
 		assert(prices.size() == ratings.size());
 		
@@ -287,7 +285,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	
 	public void removeRestaurant(String businessID) {
 		for (String userID : restaurantReviews.get(businessID)) {
-			this.getUser(userID).set()
+			this.getUser(userID).set();
 		}
 	}
 

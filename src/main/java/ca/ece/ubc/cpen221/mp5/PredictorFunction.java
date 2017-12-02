@@ -25,7 +25,7 @@ public class PredictorFunction implements ToDoubleBiFunction<MP5Db<Restaurant>, 
 			}
 		}
 
-		double rating = a * price + b;
+		double rating = b * price + a;
 		if (rating > 5) {
 			rating = 5;
 		}
