@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import ca.ece.ubc.cpen221.mp5.InvalidInputException;
 import ca.ece.ubc.cpen221.mp5.MP5Db;
 import ca.ece.ubc.cpen221.mp5.PredictorFunction;
 import ca.ece.ubc.cpen221.mp5.Restaurant;
@@ -16,7 +17,7 @@ import ca.ece.ubc.cpen221.mp5.YelpUser;
 public class PredictorFunctionTest {
 
 	@Test
-	public void test0() throws IOException {
+	public void test0() throws IOException, InvalidInputException {
 		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
 		YelpUser user = new YelpUser(
 				"{\"url\": \"http://www.yelp.com/user_details?userid=wr3JF-LruJ9LBwQTuw7aUg\", \"votes\": {\"funny\": 2, \"useful\": 5, \"cool\": 3}, \"review_count\": 15, \"type\": \"user\", \"user_id\": \"wr3JF-LruJ9LBwQTuw7aUg\", \"name\": \"Katie W.\", \"average_stars\": 3.6}");

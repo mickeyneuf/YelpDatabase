@@ -29,7 +29,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	private Integer reviewID;
 	private Integer businessID;
 
-	public YelpDb(String restaurantFile, String reviewFile, String userFile) throws IOException {
+	public YelpDb(String userFile, String restaurantFile, String reviewFile) throws IOException, InvalidInputException {
 		Scanner scanUser = new Scanner(new File(userFile));
 		Scanner scanRestaurant = new Scanner(new File(restaurantFile));
 		Scanner scanReview = new Scanner(new File(reviewFile));
@@ -105,7 +105,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 		// choosing centroids and putting them on map
 		// no clusters can be empty because we chose restaurant locations as centroids
 		for (int i = 0; i<k; i++) {
-			int n = rand.nextInt(this.restaurantList.size()-1)+0;
+			int n = rand.nextInt(this.restaurantList.size());
 			clusters.put(restaurantList.get(n).getBusinessID(), new ArrayList<String>());
 		}
 		
@@ -218,7 +218,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 		return this.getRestaurant(restaurantID).getJSON();
 	}
 	
-	public void addUserJSON(String json) {
+	public void addUserJSON(String json) throws InvalidInputException{
 		YelpUser user = new YelpUser(json);
 		this.userList.add(user);
 		this.userReviews.put(user.getUserID(), new ArrayList<String>());
@@ -249,7 +249,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	}
 	
 	
-	public void addReviewJSON(String json) {
+	public void addReviewJSON(String json) throws InvalidInputException{
 		YelpReview rev = new YelpReview(json);
 		this.getUser(rev.getUser()).setReviewCount(this.getUser(rev.getUser()).getReviewCount()+1);
 		this.getRestaurant(rev.getReviewed()).setReviewCount(this.getRestaurant(rev.getReviewed()).getReviewCount()+1);
@@ -287,7 +287,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	
 	public void removeRestaurant(String businessID) {
 		for (String userID : restaurantReviews.get(businessID)) {
-			this.getUser(userID).set()
+			this.getUser(userID);
 		}
 	}
 
