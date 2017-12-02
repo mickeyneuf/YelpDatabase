@@ -10,7 +10,6 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.function.ToDoubleBiFunction;
 import java.util.stream.Collectors;
 
@@ -169,7 +168,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 				.map(Restaurant::getPrice).collect(Collectors.toList());
 
 		int totalPrice = prices.stream().reduce(0, (x, y) -> x + y);
-
+		
 		List<Integer> ratings = reviewList.stream().filter(rev -> rev.getUser().equals(user))
 				.map(YelpReview::getRating).collect(Collectors.toList());
 
@@ -197,14 +196,26 @@ public class YelpDb implements MP5Db<Restaurant> {
 		return users.get(0);
 	}
 	
+	public String getUserJSON(String userID) {
+		return this.getUser(userID).getJSON();
+	}
+	
 	private YelpReview getReview(String reviewID) {
 		List<YelpReview> reviews = reviewList.stream().filter(review -> review.getReviewID().equals(reviewID)).collect(Collectors.toList());
 		return reviews.get(0);
 	}
 	
+	public String getReviewJSON(String reviewID) {
+		return this.getReview(reviewID).getJSON();
+	}
+	
 	private Restaurant getRestaurant(String businessID) {
 		List<Restaurant> restaurants = restaurantList.stream().filter(restaurant -> restaurant.getBusinessID().equals(businessID)).collect(Collectors.toList());
 		return restaurants.get(0);
+	}
+	
+	public String getRestaurantJSON(String restaurantID) {
+		return this.getRestaurant(restaurantID).getJSON();
 	}
 	
 	public void addUserJSON(String json) {
@@ -219,24 +230,65 @@ public class YelpDb implements MP5Db<Restaurant> {
 		this.userList.add(user);
 		this.userReviews.put(user.getUserID(), new ArrayList<String>());
 	}
-
+	
 	public void addReview(String date, String userID, String businessID, Integer rating) {
 		YelpReview rev = new YelpReview(reviewID.toString(), date, userID, businessID, rating);
 		this.getUser(userID).setReviewCount(this.getUser(userID).getReviewCount()+1);
 		this.getRestaurant(businessID).setReviewCount(this.getRestaurant(businessID).getReviewCount()+1);
 		this.reviewList.add(rev);
+		double tUserRatings = this.userReviews.get(userID).stream().mapToDouble(s -> this.getUser(s).getAvgStars()).sum();
+		double aUserRatings = (tUserRatings+rating)/this.getUser(userID).getReviewCount();
+		this.getUser(userID).setAvgStars(aUserRatings);
+		double tRestRatings = this.restaurantReviews.get(businessID).stream().mapToDouble(s -> this.getRestaurant(s).getStars()).sum();
+		double aRestRatings = (tRestRatings+rating)/this.getRestaurant(businessID).getReviewCount();
+		this.getRestaurant(businessID).setStars(aRestRatings);
 		this.reviewID += 1;
 		visitedBy.get(businessID.toString()).add(userID.toString());
 		this.restaurantReviews.get(businessID.toString()).add(reviewID.toString());
 		this.userReviews.get(userID.toString()).add(reviewID.toString());
 	}
 	
+	
+	public void addReviewJSON(String json) {
+		YelpReview rev = new YelpReview(json);
+		this.getUser(rev.getUser()).setReviewCount(this.getUser(rev.getUser()).getReviewCount()+1);
+		this.getRestaurant(rev.getReviewed()).setReviewCount(this.getRestaurant(rev.getReviewed()).getReviewCount()+1);
+		this.reviewList.add(rev);
+		double tUserRatings = this.userReviews.get(rev.getUser()).stream().mapToDouble(s -> this.getUser(s).getAvgStars()).sum();
+		double aUserRatings = (tUserRatings+rev.getRating())/this.getUser(rev.getUser()).getReviewCount();
+		this.getUser(rev.getUser()).setAvgStars(aUserRatings);
+		double tRestRatings = this.restaurantReviews.get(rev.getReviewed()).stream().mapToDouble(s -> this.getRestaurant(s).getStars()).sum();
+		double aRestRatings = (tRestRatings+rev.getRating())/this.getRestaurant(rev.getReviewed()).getReviewCount();
+		this.getRestaurant(rev.getReviewed()).setStars(aRestRatings);
+		visitedBy.get(rev.getReviewed()).add(rev.getUser());
+		this.restaurantReviews.get(rev.getReviewed()).add(rev.getReviewID());
+		this.userReviews.get(rev.getUser()).add(rev.getReviewID());
+		
+	}
 
-	public void addRestaurant(String longitude, String latitude) {
-
-		this.restaurantList.put(businessID.toString(), new Restaurant(businessID));
+	public void addRestaurant(String name) {
+		Restaurant rest = new Restaurant(this.businessID, name);
+		this.restaurantList.add(rest);
 		this.businessID += 1;
-
+		this.visitedBy.put(rest.getBusinessID(), new ArrayList<String>());
+		this.restaurantReviews.put(rest.getBusinessID(), new ArrayList<String>());
+	}
+	
+	public void addRestaurantJSON(String json) {
+		Restaurant rest = new Restaurant(json);
+		this.restaurantList.add(rest);
+		this.visitedBy.put(rest.getBusinessID(), new ArrayList<String>());
+		this.restaurantReviews.put(rest.getBusinessID(), new ArrayList<String>());
+	}
+	//COMPLETE THIS
+	public void removeUser(String userID) {
+		this.userList.remove(this.getUser(userID));
+	}
+	
+	public void removeRestaurant(String businessID) {
+		for (String userID : restaurantReviews.get(businessID)) {
+			this.getUser(userID).set()
+		}
 	}
 
 }

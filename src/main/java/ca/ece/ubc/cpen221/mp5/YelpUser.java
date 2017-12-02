@@ -62,16 +62,20 @@ public class YelpUser implements User {
 
 	@Override
 	public String getJSON() {
-		return "{\"url\": \""+this.url+"\", \"votes\": {\"funny\": "+this.votes.getVotes("funny")
-		+", \"useful\": "+this.votes.getVotes("useful")+", \"cool\": "+this.votes.getVotes("cool")
-		+"}, \"review_count\": "+this.reviewCount.toString()+", \"type\": \"user\", \"user_id\": \""
+		String json = "{\"url\": \""+this.url+"\", \"votes\": ";
+		if (this.reviewCount>0) {
+			json += "{\"funny\": "+this.votes.getVotes("funny")+", \"useful\": "+this.votes.getVotes("useful")+", \"cool\": "+this.votes.getVotes("cool")+"}";
+		}else{
+			json += "{}";
+		}
+		json+=", \"review_count\": "+this.reviewCount.toString()+", \"type\": \"user\", \"user_id\": \""
 		+this.userID+"\", \"name\": \""+this.name+"\", \"average_stars\": "+this.avgStars.toString()+"}";
+		return json;
 	}
 	
 	public String getUserID() {
 		return userID;
 	}
-
 
 	public String getURL() {
 		return url;
