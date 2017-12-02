@@ -57,6 +57,7 @@ public class YelpDbTest {
 		String string = "{\"url\": \"http://www.yelp.com/user_details?userid=_NH7Cpq3qZkByP5xR4gXog\", \"votes\": {\"funny\": 35, \"useful\": 21, \"cool\": 14}, \"review_count\": 29, \"type\": \"user\", \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"name\": \"Chris M.\", \"average_stars\": 3.89655172413793}";
 		YelpUser user1 = new YelpUser(string);
 		YelpUser user2 = new YelpUser(string);
+
 		assertTrue(user1.equals(user2));
 	}*/
 	
@@ -104,3 +105,4 @@ public class YelpDbTest {
 		Restaurant PekingExpress = new Restaurant(json);
 		assertEquals(json, PekingExpress.getJSON());*/
 	}
+
