@@ -3,6 +3,7 @@ package ca.ece.ubc.cpen221.mp5;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 
 import javax.json.*;
 
-public class YelpDb implements MP5Db {
+public class YelpDb implements MP5Db<Restaurant> {
 
 	private TreeMap<String, YelpUser> userList;
 	private TreeMap<String, Restaurant> restaurantList;
@@ -60,10 +61,31 @@ public class YelpDb implements MP5Db {
 
 	}
 
+	/**
+	 * Collects all objects inside the database that match the queryString
+	 * As of right now, it is assumed that queryString will be a businessID 
+	 * and getMatches will return the restaurant that matches the ID.
+	 * 
+	 * Returns an empty set of no restaurant with a matching ID can be found in
+	 * the database
+	 * 
+	 * @param queryString 
+	 *                    a businessID that we are trying to find the restaurant for
+	 * 
+	 * @return Set 
+	 *             the set of all objects that match the queryString; in this case,
+	 *             the restaurant with the matching ID
+	 * 
+	 */
 	@Override
 	public Set getMatches(String queryString) {
-
-		return null;
+		if (restaurantList.containsKey(queryString)) {
+			Set<Restaurant> set = new HashSet<Restaurant>();
+			set.add(restaurantList.get(queryString));
+			return set;
+		}
+		
+		return new HashSet();
 	}
 
 	@Override
@@ -73,8 +95,7 @@ public class YelpDb implements MP5Db {
 	}
 
 	@Override
-	public ToDoubleBiFunction<MP5Db, String> getPredictorFunction(String user) {
-		List<Restaurant> restaurants = visitedBy.get(userList.get(user));
+	public ToDoubleBiFunction<MP5Db<Restaurant>, String> getPredictorFunction(String user) {
 		double sxx = 0;
 		double sxy = 0;
 		double avgx = 0;
@@ -96,6 +117,8 @@ public class YelpDb implements MP5Db {
 		avgx = totalPrice / restID.size();
 		avgy = totalRating / restID.size();
 
+		assert(prices.size() == ratings.size());
+		
 		for (int i = 0; i < prices.size(); i++) {
 			sxx += Math.pow((prices.get(i) - avgx), 2);
 			sxy += (prices.get(i) - avgx) * (ratings.get(i) - avgy);
@@ -105,7 +128,7 @@ public class YelpDb implements MP5Db {
 		double b = sxy / sxx;
 		double a = avgy - (b * avgx);
 
-		return null;
+		return new PredictorFunction(a,b);
 	}
 
 	public void addUser() {

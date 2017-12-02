@@ -1,9 +1,10 @@
-package ca.ubc.ece.cpen221.mp5.tests;
+package ca.ece.ubc.cpen221.mp5.tests;
+
 import static org.junit.Assert.*;
 
 import java.io.IOException;
 
-//import javax.json.*;
+import javax.json.*;
 
 import org.junit.Test;
 
@@ -14,7 +15,7 @@ import ca.ece.ubc.cpen221.mp5.YelpUser;
 
 public class YelpDbTest {
 
-	/*@Test
+	@Test
 	public void test0() throws IOException {
 		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
 
@@ -45,7 +46,7 @@ public class YelpDbTest {
 		YelpReview rev2 = new YelpReview(string);
 		
 		assertTrue(rev1.equals(rev2));
-	}*/
+	}
 	
 	@Test
 	public void test4() {
@@ -68,4 +69,6 @@ public class YelpDbTest {
 		Restaurant PekingExpress = new Restaurant(json);
 		assertEquals(json, PekingExpress.getJSON());
 	}
+
+
 }
