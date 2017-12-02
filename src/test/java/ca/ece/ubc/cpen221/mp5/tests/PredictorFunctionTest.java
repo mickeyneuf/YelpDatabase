@@ -19,12 +19,12 @@ public class PredictorFunctionTest {
 	public void test0() throws IOException {
 		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
 		YelpUser user = new YelpUser(
-				"{\"url\": \"http://www.yelp.com/user_details?userid=_NH7Cpq3qZkByP5xR4gXog\", \"votes\": {\"funny\": 35, \"useful\": 21, \"cool\": 14}, \"review_count\": 29, \"type\": \"user\", \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"name\": \"Chris M.\", \"average_stars\": 3.89655172413793}");
+				"{\"url\": \"http://www.yelp.com/user_details?userid=wr3JF-LruJ9LBwQTuw7aUg\", \"votes\": {\"funny\": 2, \"useful\": 5, \"cool\": 3}, \"review_count\": 15, \"type\": \"user\", \"user_id\": \"wr3JF-LruJ9LBwQTuw7aUg\", \"name\": \"Katie W.\", \"average_stars\": 3.6}");
 		Restaurant rest = new Restaurant(
-				"{\"open\": true, \"url\": \"http://www.yelp.com/biz/cafe-3-berkeley\", \"longitude\": -122.260408, \"neighborhoods\": [\"Telegraph Ave\", \"UC Campus Area\"], \"business_id\": \"gclB3ED6uk6viWlolSb_uA\", \"name\": \"Cafe 3\", \"categories\": [\"Cafes\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 2.0, \"city\": \"Berkeley\", \"full_address\": \"2400 Durant Ave\\nTelegraph Ave\\nBerkeley, CA 94701\", \"review_count\": 9, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/bphoto/AaHq1UzXiT6zDBUYrJ2NKA/ms.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.867417, \"price\": 1}");
+				"{\"open\": true, \"url\": \"http://www.yelp.com/biz/la-vals-pizza-berkeley\", \"longitude\": -122.2603641, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"1CBs84C-a-cuA3vncXVSAw\", \"name\": \"La Val's Pizza\", \"categories\": [\"Pizza\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.5, \"city\": \"Berkeley\", \"full_address\": \"1834 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 218, \"photo_url\": \"http://s3-media2.ak.yelpcdn.com/bphoto/m7_y0Xsf_9yzli5aLEnquQ/ms.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8755322, \"price\": 1}");
 		String id = user.getUserID();
 		String restID = rest.getBusinessID();
-		
+
 		yelp.removeRestaurant(restID);
 
 		PredictorFunction func = (PredictorFunction) yelp.getPredictorFunction(id);
