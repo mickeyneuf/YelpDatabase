@@ -31,27 +31,25 @@ public class YelpDbTest {
 		while (scanUser.hasNext()) {
 			String thisLine1 = scanUser.nextLine();
 			YelpUser newUser = new YelpUser(thisLine1);
-			this.userList.add(newUser);
-			this.userReviews.put(newUser.getUserID(), new ArrayList<String>());
+			assertEquals(thisLine1, newUser.getJSON());
 		}
 		scanUser.close();
+		
+		while (scanReview.hasNext()) {
+			String thisLine3 = scanReview.nextLine();
+			YelpReview newReview = new YelpReview(thisLine3);
+			assertEquals(thisLine3, newReview.getJSON());
+			
+		}
+		scanReview.close();
 
 		while (scanRestaurant.hasNext()) {
-			Restaurant newRestaurant = new Restaurant(scanRestaurant.nextLine());
-			this.restaurantList.add(newRestaurant);
-			this.restaurantReviews.put(newRestaurant.getBusinessID(), new ArrayList<String>());
-			this.visitedBy.put(newRestaurant.getBusinessID(), new ArrayList<String>());
+			String thisLine2 = scanRestaurant.nextLine();
+			Restaurant newRestaurant = new Restaurant(thisLine2);
+			assertEquals(thisLine2, newRestaurant.getJSON());
 		}
 		scanRestaurant.close();
 
-		while (scanReview.hasNext()) {
-			YelpReview newReview = new YelpReview(scanReview.nextLine());
-			this.reviewList.add(newReview);
-			this.visitedBy.get(newReview.getReviewed()).add(newReview.getUser());
-			this.restaurantReviews.get(newReview.getReviewed()).add(newReview.getReviewID());
-			this.userReviews.get(newReview.getUser()).add(newReview.getReviewID());
-		}
-		scanReview.close();
 	}
 
 	/*@Test
@@ -59,6 +57,7 @@ public class YelpDbTest {
 		String string = "{\"url\": \"http://www.yelp.com/user_details?userid=_NH7Cpq3qZkByP5xR4gXog\", \"votes\": {\"funny\": 35, \"useful\": 21, \"cool\": 14}, \"review_count\": 29, \"type\": \"user\", \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"name\": \"Chris M.\", \"average_stars\": 3.89655172413793}";
 		YelpUser user1 = new YelpUser(string);
 		YelpUser user2 = new YelpUser(string);
+
 		assertTrue(user1.equals(user2));
 	}*/
 	
@@ -104,8 +103,6 @@ public class YelpDbTest {
 	public void test6() {
 		String json = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/peking-express-berkeley\", \"longitude\": -122.2581978, \"neighborhoods\": [\"Telegraph Ave\", \"UC Campus Area\"], \"business_id\": \"1E2MQLWfwpsId185Fs2gWw\", \"name\": \"Peking Express\", \"categories\": [\"Chinese\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.5, \"city\": \"Berkeley\", \"full_address\": \"2516 Durant Ave\\nTelegraph Ave\\nBerkeley, CA 94704\", \"review_count\": 10, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/bphoto/BPMBr2aiOEpVioLb-RurJQ/ms.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.867768, \"price\": 1}";
 		Restaurant PekingExpress = new Restaurant(json);
-		assertEquals(json, PekingExpress.getJSON());
-	}*/
+		assertEquals(json, PekingExpress.getJSON());*/
+	}
 
-
-}
