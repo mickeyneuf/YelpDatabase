@@ -1,21 +1,16 @@
 package ca.ece.ubc.cpen221.mp5.tests;
 
 import static org.junit.Assert.*;
-
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Scanner;
-
-import javax.json.*;
-
 import org.junit.Test;
-
 import ca.ece.ubc.cpen221.mp5.InvalidInputException;
 import ca.ece.ubc.cpen221.mp5.Restaurant;
 import ca.ece.ubc.cpen221.mp5.YelpDb;
 import ca.ece.ubc.cpen221.mp5.YelpReview;
 import ca.ece.ubc.cpen221.mp5.YelpUser;
+
 
 public class YelpDbTest {
 
