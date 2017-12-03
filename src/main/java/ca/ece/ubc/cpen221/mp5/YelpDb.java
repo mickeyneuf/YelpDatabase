@@ -1,5 +1,7 @@
 package ca.ece.ubc.cpen221.mp5;
 
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -109,46 +111,77 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * @return
 	 * 		A list of non-empty sets of restaurant IDs representing the clusters
 	 * @throws RestaurantNotFoundException
+	 * @throws InvalidInputException 
+	 * @throws ArrayIndexOutOfBoundsException 
 	 */
-	public synchronized ArrayList<HashSet<String>> kMeansClusters(int k) throws RestaurantNotFoundException {
+	public synchronized ArrayList<HashSet<String>> kMeansClusters(int k) throws RestaurantNotFoundException, ArrayIndexOutOfBoundsException {
 		Random rand = new Random();
-		HashMap<String, ArrayList<String>> clusters = new HashMap<String, ArrayList<String>>();
+		HashMap<ArrayList<Double>, ArrayList<String>> clusters = new HashMap<ArrayList<Double>, ArrayList<String>>();
 		ArrayList<HashSet<String>> clusterList = new ArrayList<HashSet<String>>();
-
 		// choosing centroids and putting them on map
 		// no clusters can be empty because we chose restaurant locations as centroids
 		while (clusters.keySet().size() < k) {
-			int n = rand.nextInt(this.restaurantList.size());
-			clusters.put(restaurantList.get(n).getBusinessID(), new ArrayList<String>());
+			int n = rand.nextInt(this.restaurantList.size()+1);
+			ArrayList<Double> centr = new ArrayList<Double>();
+			centr.add(restaurantList.get(n).getLocation().getLongitude());
+			centr.add(restaurantList.get(n).getLocation().getLatitude());
+			clusters.put(centr, new ArrayList<String>());
 		}
 		// make the centroid restaurants keys and non-centroid restaurants values of a map
 		// add non-centroid values to the centroid to which they are closest, by calculating
 		// euclidean distance with longitudes and latitudes
 		for (Restaurant r : this.restaurantList) {
-			String closest = null;
+			ArrayList<Double> closest = null;
 			double mindistance = Double.MAX_VALUE;
-			if (!clusters.keySet().contains(r.getBusinessID())) {
-				for (String centroid : clusters.keySet()) {
+				for (ArrayList<Double> centro : clusters.keySet()) {
 					double distance = Math.sqrt(Math.pow(
-							r.getLocation().getLatitude() - this.getRestaurant(centroid).getLocation().getLatitude(), 2)
+							r.getLocation().getLatitude() - centro.get(1), 2)
 							+ Math.pow(r.getLocation().getLongitude()
-									- this.getRestaurant(centroid).getLocation().getLongitude(), 2));
+									- centro.get(0), 2));
 					if (distance < mindistance) {
-						closest = centroid;
+						closest = centro;
 						mindistance = distance;
 					}
 				}
 				clusters.get(closest).add(r.getBusinessID());
 			}
-		}
-		// for each key, add the key to a set, and all its values to the same set
-		// add this set to a list
-		// return list, which should contain k-sets and include all restaurants in database only once in a set
-		for (String rest1 : clusters.keySet()) {
-			HashSet<String> cluster = new HashSet<String>();
-			cluster.add(rest1);
-			cluster.addAll(clusters.get(rest1));
-			clusterList.add(cluster);
+		
+		boolean good = true;
+		do {
+			good = true;
+			for (Restaurant r : this.restaurantList) {
+				double x = r.getLocation().getLongitude();
+				double y = r.getLocation().getLatitude();
+				double mindist = Double.MAX_VALUE;
+				ArrayList<Double> newCent = null;
+				for(ArrayList<Double> centroi : clusters.keySet()) {
+					if (Math.sqrt(Math.pow(x - centroi.get(0), 2)+ Math.pow(y - centroi.get(0), 2))<mindist){
+						mindist = Math.sqrt(Math.pow(x - centroi.get(0), 2)+ Math.pow(y- centroi.get(0), 2));
+						newCent = centroi;
+					}
+				}
+				if(clusters.get(newCent).contains(r.getBusinessID())){
+					clusters.get(newCent).remove(r.getBusinessID());
+					for(ArrayList<Double> a : clusters.keySet()) {
+						if(clusters.get(a).contains(r.getBusinessID())) {
+							clusters.get(a).remove(r.getBusinessID());
+							good = false;
+						}
+					}
+				}
+			}
+			for (ArrayList<Double> a : clusters.keySet()) {
+				if(clusters.get(a).isEmpty()) {
+					good = false;
+					break;
+				}
+			}
+		}while(!good);
+		
+		for (ArrayList<Double> a : clusters.keySet()) {
+			HashSet<String> clusterSet = new HashSet<String>();
+			clusterSet.addAll(clusters.get(a));
+			clusterList.add(clusterSet);
 		}
 		return clusterList;
 	}
