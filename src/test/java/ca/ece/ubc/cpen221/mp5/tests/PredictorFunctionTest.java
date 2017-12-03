@@ -84,4 +84,8 @@ public class PredictorFunctionTest {
 
 		assertTrue(func.applyAsDouble(yelp, restID) == 5);
 	}
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> cd6ef50181a6ecaabae4515b90500cdb17976379
