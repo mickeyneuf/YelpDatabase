@@ -101,8 +101,16 @@ public class YelpDb implements MP5Db<Restaurant> {
 		return new HashSet<>();
 
 	}
-
-	public ArrayList<HashSet<String>> kMeansClusters(int k) throws RestaurantNotFoundException {
+	/**
+	 * Method that computes and represents a k-means clustering of the restaurants in this database.
+	 * Helper method for kMeansClusters_json.
+	 * @param k
+	 * 		number of centroids/clusters
+	 * @return
+	 * 		A list of non-empty sets of restaurant IDs representing the clusters
+	 * @throws RestaurantNotFoundException
+	 */
+	public synchronized ArrayList<HashSet<String>> kMeansClusters(int k) throws RestaurantNotFoundException {
 		Random rand = new Random();
 		HashMap<String, ArrayList<String>> clusters = new HashMap<String, ArrayList<String>>();
 		ArrayList<HashSet<String>> clusterList = new ArrayList<HashSet<String>>();
@@ -113,6 +121,9 @@ public class YelpDb implements MP5Db<Restaurant> {
 			int n = rand.nextInt(this.restaurantList.size());
 			clusters.put(restaurantList.get(n).getBusinessID(), new ArrayList<String>());
 		}
+		// make the centroid restaurants keys and non-centroid restaurants values of a map
+		// add non-centroid values to the centroid to which they are closest, by calculating
+		// euclidean distance with longitudes and latitudes
 		for (Restaurant r : this.restaurantList) {
 			String closest = null;
 			double mindistance = Double.MAX_VALUE;
@@ -130,6 +141,9 @@ public class YelpDb implements MP5Db<Restaurant> {
 				clusters.get(closest).add(r.getBusinessID());
 			}
 		}
+		// for each key, add the key to a set, and all its values to the same set
+		// add this set to a list
+		// return list, which should contain k-sets and include all restaurants in database only once in a set
 		for (String rest1 : clusters.keySet()) {
 			HashSet<String> cluster = new HashSet<String>();
 			cluster.add(rest1);
@@ -138,15 +152,25 @@ public class YelpDb implements MP5Db<Restaurant> {
 		}
 		return clusterList;
 	}
+	
+	/**
+	 * Cluster objects into k clusters using k-means clustering
+	 * 
+	 * @param k
+	 *            number of clusters to create (0 < k <= number of objects)
+	 * @return a String, in JSON format, that represents the clusters, or null if a restaurant is no longer
+	 * 		   found in the database 
+	 */
 
 	@Override
-	public String kMeansClusters_json(int k) {
+	public synchronized String kMeansClusters_json(int k) {
 		ArrayList<HashSet<String>> setList;
 		try {
 			setList = this.kMeansClusters(k);
 			String json = "";
 			int c = 0;
 			int i = 0;
+			// for each set 
 			for (HashSet<String> cluster : setList) {
 				for (String r : cluster) {
 					json += "{\"x\": " + this.getRestaurant(r).getLocation().getLongitude() + ", \"y\": "

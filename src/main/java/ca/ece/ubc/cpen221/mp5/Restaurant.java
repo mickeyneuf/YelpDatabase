@@ -33,12 +33,13 @@ public class Restaurant implements Business {
 	 * 		- Represents a Yelp restaurant as an object with the restaurant's info as fields of either
 	 * 		  Strings, Integers, ArrayList of Strings, and a location object for restaurant's location
 	 * Rep Invariant:
-	 * 		- Requires that no fields are null
+	 * 		- Requires that no fields are null 
 	 * 		- businessID must be alphabetical or numerical characters
 	 * 		- name must be alphabetical characters
 	 * 		- price must be between 1 and 5
-	 * 		- stars must be between 1 and 5
-	 * 		- reviewCount must be >=0
+	 * 		- stars must be between 1 and 5, and correspond to reviews in this database
+	 * 		- reviewCount must be >=0, and correspond to the number of reviews of this restaurant located
+	 * 		  in the database
 	 * 		- photoURL and url must be in correct url format
 	 */
 	
@@ -282,6 +283,7 @@ public class Restaurant implements Business {
 	 * @return
 	 * 		String representing business' info in JSON
 	 */
+	@Override
 	public String getJSON() {
 		String json = "{\"open\": " + this.open + ", \"url\": \"" + this.url + "\", \"longitude\": "
 				+ this.location.getLongitude() + ", \"neighborhoods\": [";
@@ -317,6 +319,7 @@ public class Restaurant implements Business {
 	 * @return
 	 * 		String representing this business' ID
 	 */
+	@Override
 	public String getBusinessID() {
 		return this.businessID;
 	}
@@ -325,6 +328,7 @@ public class Restaurant implements Business {
 	 * @return
 	 * 		String representing this business' name
 	 */
+	@Override
 	public String getBusinessName() {
 		return this.name;
 	}
@@ -344,12 +348,14 @@ public class Restaurant implements Business {
 	 * @return
 	 * 		String representing url of this business
 	 */
+	@Override
 	public String getURL() {
 		return this.url;
 	}
 
 	/**
 	 * A setter method that sets the url of thisd business
+	 * Requires: url is in correct url format
 	 * @param url
 	 * 		new url of this business
 	 */
@@ -381,6 +387,7 @@ public class Restaurant implements Business {
 	 * @return
 	 * 		Location of this business
 	 */
+	@Override
 	public Location getLocation() {
 		return this.location;
 	}
@@ -399,6 +406,7 @@ public class Restaurant implements Business {
 	 * @return
 	 * 		true if open, false if closed
 	 */
+	@Override
 	public boolean isOpen() {
 		return open;
 	}
@@ -420,31 +428,73 @@ public class Restaurant implements Business {
 	public Double getStars() {
 		return stars;
 	}
-
+	
+	/**
+	 * Setter method to set the stars of this restaurant
+	 * Requires: Restaurant stars are not being changed without the appropriate
+	 * 			 review changes
+	 * @param stars
+	 * 		Double that we want to set this 
+	 */
 	public void setStars(Double stars) {
 		this.stars = stars;
 	}
-
+	
+	/**
+	 * Getter method that returns the number of reviews written for this restaurant
+	 * @return
+	 * 		Integer number of reviews of this restaurant, >=0
+	 */
 	public Integer getReviewCount() {
 		return reviewCount;
 	}
-
+	
+	/**
+	 * Setter method that sets the review count of this restaurant 
+	 * Requires: Restaurant reviews are being added/removed appropriately
+	 * @param reviewCount
+	 * 		Integer number of reviews of this restaurant, must be >=0
+	 */
 	public void setReviewCount(Integer reviewCount) {
 		this.reviewCount = reviewCount;
 	}
 
+	/**
+	 * Getter method that returns the url of this restaurant's photo
+	 * @return
+	 * 		String representing this restaurant's photoURL
+	 */
 	public String getPhotoURL() {
 		return photoURL;
 	}
-
+	
+	/**
+	 * Setter method that sets this restaurant's photoURL
+	 * Requires: url is in standard photoURL format
+	 * @param photoURL
+	 */
 	public void setPhotoURL(String photoURL) {
 		this.photoURL = photoURL;
 	}
 
+	/**
+	 * Setter methods that sets the name for this restaurant
+	 * @param name
+	 * 		String representing name of this restaurant
+	 */
 	public void setBusinessName(String name) {
 		this.name = name;
 	}
-
+	
+	/**
+	 * A method to check equality of this Business with another object
+	 * Two Businesses are defined as equal if their ID is equal
+	 * @param
+	 * 		other object to be compared
+	 * @return
+	 * 		true if this is equal to other, false otherwise
+	 */
+	@Override
 	public boolean equals(Object other) {
 		if (other instanceof Restaurant) {
 			return ((Restaurant) other).getBusinessID().equals(this.businessID);
@@ -452,6 +502,14 @@ public class Restaurant implements Business {
 		return false;
 	}
 
+	/**
+	 * A method to return hashCode of this business
+	 * A business' hashCode is represented by the sum of the numeric values
+	 * of the characters in its business ID
+	 * @return
+	 * 		int representing sum of numerical values of characters in this business' ID
+	 */
+	@Override
 	public int hashCode() {
 		return this.businessID.hashCode();
 	}
