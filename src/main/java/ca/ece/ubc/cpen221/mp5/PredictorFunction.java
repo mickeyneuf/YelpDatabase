@@ -5,6 +5,14 @@ import java.util.function.ToDoubleBiFunction;
 
 public class PredictorFunction implements ToDoubleBiFunction<MP5Db<Restaurant>, String> {
 
+	/**
+	 * A PredictorFunction takes in two parameters, a and b. It then applies these parameters to 
+	 * the price of a restaurant from the specified database to predict the rating a user may give
+	 * this restaurant, based on its price. The equation is: rating = b * price + a
+	 * 
+	 */
+	
+	
 	private double a;
 	private double b;
 
