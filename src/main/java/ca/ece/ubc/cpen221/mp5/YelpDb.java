@@ -391,14 +391,12 @@ public class YelpDb implements MP5Db<Restaurant> {
 		this.restaurantReviews.put(rest.getBusinessID(), new ArrayList<String>());
 	}
 
-	// COMPLETE THIS
 	public void removeUser(String userID) throws UserNotFoundException {
 		YelpUser user = getUser(userID);
 		this.userList.remove(user);
 		this.deletedUserList.add(user);
 		user.setAvgStars(0.0);
 		user.setReviewCount(0);
-
 	}
 
 	public void removeRestaurant(String businessID) throws RestaurantNotFoundException, ReviewNotFoundException, UserNotFoundException {
@@ -453,6 +451,36 @@ public class YelpDb implements MP5Db<Restaurant> {
 		this.restaurantReviews.get(rev.getReviewed()).remove(reviewID);
 		this.visitedBy.get(rev.getReviewed()).remove(rev.getUser());
 
+	}
+	
+	public boolean containsUser(String userID) {
+		for (YelpUser y : this.userList) {
+			if(y.getUserID().equals(userID)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean containsRestaurant(String businessID) {
+		for (Restaurant r : this.restaurantList) {
+			if(r.getBusinessID().equals(businessID)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public ArrayList<String> getReviewsUser(String userID) {
+		return new ArrayList<String>(this.userReviews.get(userID));
+	}
+	
+	public ArrayList<String> getReviewsRestaurant(String businessID) {
+		return new ArrayList<String>(this.restaurantReviews.get(businessID));
+	}
+	
+	public ArrayList<String> getUsersRestaurant(String businessID) {
+		return new ArrayList<String>(this.visitedBy.get(businessID));
 	}
 
 }

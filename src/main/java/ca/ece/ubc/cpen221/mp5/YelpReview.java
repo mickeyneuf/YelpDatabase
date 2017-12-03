@@ -66,7 +66,7 @@ public class YelpReview implements Review {
 		this.businessID = businessID;
 		this.rating = rating;
 		this.reviewID = reviewID;
-		this.votes = new YelpVotes();
+		this.votes = new YelpVotes(0, 0, 0);
 	}
 
 	/**

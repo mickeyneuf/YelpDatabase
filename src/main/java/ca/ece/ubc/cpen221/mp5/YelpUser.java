@@ -57,7 +57,7 @@ public class YelpUser implements User {
 		this.reviewCount = 0;
 		this.avgStars = 0.0;
 		this.name = name;
-		this.votes = new YelpVotes();
+		this.votes = new YelpVotes(0, 0, 0);
 	}
 	
 	/**
@@ -281,7 +281,6 @@ public class YelpUser implements User {
 	 * @return
 	 * 		int representing sum of numerical values of characters in this user's ID
 	 */	
-	@Override
 	public int hashCode() {
 		return this.userID.hashCode();
 	}

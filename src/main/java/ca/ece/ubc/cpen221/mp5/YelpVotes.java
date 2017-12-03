@@ -1,17 +1,32 @@
 package ca.ece.ubc.cpen221.mp5;
 
 import java.util.HashMap;
-
+/**
+ * This class represents the votes for the reactions "cool", "useful", and "funny" for
+ * a YelpReview or YelpUser, and implements the VotesMap interface. 
+ *
+ */
 public class YelpVotes implements VotesMap {
 	private HashMap <String, Integer> votes;
 	
-	public YelpVotes() {
-		this.votes = new HashMap<String, Integer>();
-		votes.put("cool", 0);
-		votes.put("useful", 0);
-		votes.put("funny", 0);
-	}
-	
+	/*
+	 * Abstraction Function: 
+	 * 			- Represents votes and reactions as a HashMap of Strings
+	 * 			  and Integers such that the reaction strings are keys and the 
+	 * 			  vote counts are values
+	 * Rep Invariant:
+	 * 			- Requires int cool, useful, and funny >=0, and correspond to the votes
+	 * 			  on reviews and users in the same database
+	 */
+	/**
+	 * Constructor for YelpVotes that creates a new YelpVotes object
+	 * @param cool
+	 * 		number of votes for "cool"
+	 * @param useful
+	 * 		number of votes for "useful"
+	 * @param funny
+	 * 		number of votes for "funny"
+	 */
 	public YelpVotes(int cool, int useful, int funny) {
 		this.votes = new HashMap<String, Integer>();
 		votes.put("cool", cool);
@@ -19,35 +34,52 @@ public class YelpVotes implements VotesMap {
 		votes.put("funny", funny);
 	}
 
-	public void setVotes(String candidate, Integer votes) {
-		this.votes.put(candidate, votes);
+	/**
+	 * A setter method to set the votes for a specified reaction
+	 * @param reaction
+	 * 		reaction to set votes for, must be either "cool", "useful", or "funny"
+	 * @param votes
+	 * 		number of votes to set for reaction, must correspond to votes on reviews IN the database
+	 */
+	@Override
+	public void setVotes(String reaction, Integer votes) {
+		this.votes.put(reaction, votes);
 	}
-
-	public Integer getVotes(String candidate) throws NullPointerException{
+	
+	/**
+	 * A getter method to get the votes for a specified reaction
+	 * @param reaction
+	 * 		String representing reaction to get votes for
+	 * @return
+	 * 		vote count for this reaction 		
+	 */
+	@Override
+	public Integer getVotes(String reaction) {
 		int votecount;
-		try{
-			votecount = votes.get(candidate);
-		} catch(NullPointerException e) {
-			return -1;
-		}
+		votecount = votes.get(reaction);
 		return votecount;
 	}
 
-	public void clear() {
-		for (String s : this.votes.keySet()) {
-			this.votes.put(s, 0);
-		}
-	}
-	
+	/**
+	 * Getter method that a copy of this YelpVotes votes HashMap,
+	 * mostly used for determining equality
+	 * @return
+	 * 		new HashMap of Strings and Integers that is equal to 
+	 * 		this YelpVotes' votes HashMap
+	 */
 	public HashMap<String, Integer> getMap(){
 		return new HashMap<String, Integer>(this.votes);
 	}
-	
-	@Override
-	public String toString() {
-		return getMap().toString();
-	}
 		
+	/**
+	 * A method to determine equality of this and another Object
+	 * Two VotesMaps are defined as equal if all keys and values 
+	 * are equal
+	 * @param other
+	 * 		Object to be compared
+	 * @return
+	 * 		true if equal, false otherwise		
+	 */
 	@Override
 	public boolean equals(Object other) {
 		if (other instanceof YelpVotes) {
@@ -56,6 +88,11 @@ public class YelpVotes implements VotesMap {
 		return false;
 	}
 	
+	/**
+	 * A method to return hashCode of this VotesMap
+	 * HashCode of a VotesMap is the hashCode of its representation
+	 * @return
+	 */
 	@Override
 	public int hashCode() {
 		return this.hashCode();
