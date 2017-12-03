@@ -338,7 +338,7 @@ public class Restaurant implements Business {
 	 * @param name
 	 * 		String representing new name of this restaurant
 	 */
-	public void setName(String name) {
+	public void setBusinessName(String name) {
 		this.name = name;
 		this.url = "http://www.yelp.com/biz/" + name.replaceAll(" ", "-");
 	}
@@ -475,15 +475,6 @@ public class Restaurant implements Business {
 	 */
 	public void setPhotoURL(String photoURL) {
 		this.photoURL = photoURL;
-	}
-
-	/**
-	 * Setter methods that sets the name for this restaurant
-	 * @param name
-	 * 		String representing name of this restaurant
-	 */
-	public void setBusinessName(String name) {
-		this.name = name;
 	}
 	
 	/**

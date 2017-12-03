@@ -1,30 +1,39 @@
 package ca.ece.ubc.cpen221.mp5.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import java.io.IOException;
+import java.util.function.ToDoubleBiFunction;
+
 import org.junit.Test;
 import ca.ece.ubc.cpen221.mp5.InvalidInputException;
+import ca.ece.ubc.cpen221.mp5.MP5Db;
 import ca.ece.ubc.cpen221.mp5.PredictorFunction;
+import ca.ece.ubc.cpen221.mp5.Restaurant;
+import ca.ece.ubc.cpen221.mp5.RestaurantNotFoundException;
+import ca.ece.ubc.cpen221.mp5.ReviewNotFoundException;
+import ca.ece.ubc.cpen221.mp5.UserNotFoundException;
 import ca.ece.ubc.cpen221.mp5.YelpDb;
-
 
 public class PredictorFunctionTest {
 
-	/*
-	 * @Test public void test0() throws IOException { YelpDb yelp = new
-	 * YelpDb("data/restaurants.json", "data/reviews.json", "data/users.json");
-	 * String userID = "wr3JF-LruJ9LBwQTuw7aUg"; String restID =
-	 * "1CBs84C-a-cuA3vncXVSAw";
-	 * 
-	 * yelp.removeRestaurant(restID);
-	 * 
-	 * PredictorFunction func = (PredictorFunction)
-	 * yelp.getPredictorFunction(userID);
-	 * 
-	 * assertTrue(func.applyAsDouble(yelp, restID) == 3);
-	 * 
-	 * }
-	 */
+	@Test
+	public void test0() throws IOException, InvalidInputException, RestaurantNotFoundException, ReviewNotFoundException, UserNotFoundException {
+		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
+		String userID = "1mdwR2US8Z_CBWYuFMWWNg";
+		String restID = "1CBs84C-a-cuA3vncXVSAw";
+		String reviewID = "0hrSPeBHXvtMV4aY0jzgPg";
+ 
+		yelp.removeRestaurant(restID);
+		
+		assertEquals(false, yelp.containsRestaurant(restID));
+		assertEquals(false, yelp.getReviewsUser(userID).contains(reviewID));
+
+		PredictorFunction func = (PredictorFunction) yelp.getPredictorFunction(userID);
+
+		assertTrue(func.applyAsDouble(yelp, restID) == 3);
+
+	}
 
 	@Test
 	public void test1() throws IOException, InvalidInputException {
@@ -74,7 +83,7 @@ public class PredictorFunctionTest {
 			// we expect an exception to be thrown here
 		}
 	}
-	
+
 	@Test
 	public void test5() throws IOException, InvalidInputException {
 		YelpDb yelp = new YelpDb("data/usersTest1.json", "data/restaurantsTest3.json", "data/reviewsTest3.json");
@@ -83,5 +92,12 @@ public class PredictorFunctionTest {
 		String restID = "rcu96dLkUGU4Naj7GqOHDQ";
 
 		assertTrue(func.applyAsDouble(yelp, restID) == 5);
+	}
+	
+	@Test
+	public void test6() throws IOException, InvalidInputException {
+		YelpDb test = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
+		ToDoubleBiFunction<MP5Db<Restaurant>, String> i = test.getPredictorFunction("Djk49JjpKl9HQNpmiX669Q");
+		assertTrue(i.applyAsDouble(test, "TUIDRJ_rUkdmYPSRAAEsPg") == 3.166666666666667);
 	}
 }

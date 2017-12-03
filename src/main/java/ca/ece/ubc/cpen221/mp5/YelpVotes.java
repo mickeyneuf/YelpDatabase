@@ -95,7 +95,7 @@ public class YelpVotes implements VotesMap {
 	 */
 	@Override
 	public int hashCode() {
-		return this.hashCode();
+		return votes.hashCode();
 	}
 	
 }

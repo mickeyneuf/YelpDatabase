@@ -27,6 +27,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	private Integer userID;
 	private Integer reviewID;
 	private Integer businessID;
+	
 
 	public YelpDb(String userFile, String restaurantFile, String reviewFile) throws IOException, InvalidInputException {
 		Scanner scanUser = new Scanner(new File(userFile));
@@ -397,6 +398,10 @@ public class YelpDb implements MP5Db<Restaurant> {
 		this.deletedUserList.add(user);
 		user.setAvgStars(0.0);
 		user.setReviewCount(0);
+		user.setUserName("Deleted User");
+		user.setVotes("cool", 0);
+		user.setVotes("funny", 0);
+		user.setVotes("useful", 0);
 	}
 
 	public void removeRestaurant(String businessID) throws RestaurantNotFoundException, ReviewNotFoundException, UserNotFoundException {
