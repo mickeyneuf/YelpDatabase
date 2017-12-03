@@ -137,6 +137,13 @@ public class YelpUser implements User {
 		}
 	}
 
+	
+	/**
+	 * A method for getting the JSON string for this user
+	 * 
+	 * @return the JSON string that represents this user
+	 * 
+	 */
 	@Override
 	public String getJSON() {
 		String json = "{\"url\": \""+this.url+"\", \"votes\": ";
