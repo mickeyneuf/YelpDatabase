@@ -15,6 +15,21 @@ import java.util.stream.Collectors;
 
 public class YelpDb implements MP5Db<Restaurant> {
 
+	/**
+	 * 
+	 * YelpDb is a database that contains YelpUsers, YelpReviews, and Restaurants.
+	 * It is represented by various maps and lists that contain the users, reviews
+	 * and restaurants and how they relate to one another, ie. which users have
+	 * written reviews for certain restaurants.
+	 * 
+	 * Requires: that no object being placed inside the database is null that the
+	 * files used to create the database are not empty or null and that they contain
+	 * proper JSON formatted strings
+	 * 
+	 * 
+	 * 
+	 */
+
 	private ArrayList<YelpUser> userList;
 	private ArrayList<Restaurant> restaurantList;
 	private ArrayList<YelpReview> reviewList;
@@ -27,7 +42,6 @@ public class YelpDb implements MP5Db<Restaurant> {
 	private Integer userID;
 	private Integer reviewID;
 	private Integer businessID;
-	
 
 	public YelpDb(String userFile, String restaurantFile, String reviewFile) throws IOException, InvalidInputException {
 		Scanner scanUser = new Scanner(new File(userFile));
@@ -102,13 +116,14 @@ public class YelpDb implements MP5Db<Restaurant> {
 		return new HashSet<>();
 
 	}
+
 	/**
-	 * Method that computes and represents a k-means clustering of the restaurants in this database.
-	 * Helper method for kMeansClusters_json.
+	 * Method that computes and represents a k-means clustering of the restaurants
+	 * in this database. Helper method for kMeansClusters_json.
+	 * 
 	 * @param k
-	 * 		number of centroids/clusters
-	 * @return
-	 * 		A list of non-empty sets of restaurant IDs representing the clusters
+	 *            number of centroids/clusters
+	 * @return A list of non-empty sets of restaurant IDs representing the clusters
 	 * @throws RestaurantNotFoundException
 	 */
 	public synchronized ArrayList<HashSet<String>> kMeansClusters(int k) throws RestaurantNotFoundException {
@@ -122,8 +137,10 @@ public class YelpDb implements MP5Db<Restaurant> {
 			int n = rand.nextInt(this.restaurantList.size());
 			clusters.put(restaurantList.get(n).getBusinessID(), new ArrayList<String>());
 		}
-		// make the centroid restaurants keys and non-centroid restaurants values of a map
-		// add non-centroid values to the centroid to which they are closest, by calculating
+		// make the centroid restaurants keys and non-centroid restaurants values of a
+		// map
+		// add non-centroid values to the centroid to which they are closest, by
+		// calculating
 		// euclidean distance with longitudes and latitudes
 		for (Restaurant r : this.restaurantList) {
 			String closest = null;
@@ -144,7 +161,8 @@ public class YelpDb implements MP5Db<Restaurant> {
 		}
 		// for each key, add the key to a set, and all its values to the same set
 		// add this set to a list
-		// return list, which should contain k-sets and include all restaurants in database only once in a set
+		// return list, which should contain k-sets and include all restaurants in
+		// database only once in a set
 		for (String rest1 : clusters.keySet()) {
 			HashSet<String> cluster = new HashSet<String>();
 			cluster.add(rest1);
@@ -153,14 +171,14 @@ public class YelpDb implements MP5Db<Restaurant> {
 		}
 		return clusterList;
 	}
-	
+
 	/**
 	 * Cluster objects into k clusters using k-means clustering
 	 * 
 	 * @param k
 	 *            number of clusters to create (0 < k <= number of objects)
-	 * @return a String, in JSON format, that represents the clusters, or null if a restaurant is no longer
-	 * 		   found in the database 
+	 * @return a String, in JSON format, that represents the clusters, or null if a
+	 *         restaurant is no longer found in the database
 	 */
 
 	@Override
@@ -171,7 +189,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 			String json = "";
 			int c = 0;
 			int i = 0;
-			// for each set 
+			// for each set
 			for (HashSet<String> cluster : setList) {
 				for (String r : cluster) {
 					json += "{\"x\": " + this.getRestaurant(r).getLocation().getLongitude() + ", \"y\": "
@@ -259,6 +277,15 @@ public class YelpDb implements MP5Db<Restaurant> {
 		return new PredictorFunction(a, b);
 	}
 
+	/**
+	 * 
+	 * @param userID
+	 *            the userID of the User we want to return
+	 * @return the user with a matching ID
+	 * @throws UserNotFoundException
+	 *             if the user does not exist in the database
+	 */
+
 	private YelpUser getUser(String userID) throws UserNotFoundException {
 		List<YelpUser> users = userList.stream().filter(user -> user.getUserID().equals(userID))
 				.collect(Collectors.toList());
@@ -268,10 +295,24 @@ public class YelpDb implements MP5Db<Restaurant> {
 		return users.get(0);
 	}
 
+	/**
+	 * @param userID
+	 *            the userID of the User whos JSON string we wish to return
+	 * @return the JSON string of the user
+	 * @throws UserNotFoundException
+	 *             if the user does not exist in the database
+	 */
 	public String getUserJSON(String userID) throws UserNotFoundException {
 		return this.getUser(userID).getJSON();
 	}
 
+	/**
+	 * @param reviewID
+	 *            the reviewID of the review we want to return
+	 * @return the review we want to return
+	 * @throws ReviewNotFoundException
+	 *             if the review does not exist in the database
+	 */
 	private YelpReview getReview(String reviewID) throws ReviewNotFoundException {
 		List<YelpReview> reviews = reviewList.stream().filter(review -> review.getReviewID().equals(reviewID))
 				.collect(Collectors.toList());
@@ -281,10 +322,24 @@ public class YelpDb implements MP5Db<Restaurant> {
 		return reviews.get(0);
 	}
 
+	/**
+	 * @param reviewID
+	 *            the reviewID of the review whos JSON string we wish to return
+	 * @return the JSON string of this review
+	 * @throws ReviewNotFoundException
+	 *             if this review does not exist in the database
+	 */
 	public String getReviewJSON(String reviewID) throws ReviewNotFoundException {
 		return this.getReview(reviewID).getJSON();
 	}
 
+	/**
+	 * @param businessID
+	 *            the businessID of the restaurant we want to return
+	 * @return the restaurant we want to return
+	 * @throws RestaurantNotFoundException
+	 *             if the restaurant does not exist in the database
+	 */
 	private Restaurant getRestaurant(String businessID) throws RestaurantNotFoundException {
 		List<Restaurant> restaurants = restaurantList.stream()
 				.filter(restaurant -> restaurant.getBusinessID().equals(businessID)).collect(Collectors.toList());
@@ -294,16 +349,34 @@ public class YelpDb implements MP5Db<Restaurant> {
 		return restaurants.get(0);
 	}
 
-	public String getRestaurantJSON(String restaurantID) throws RestaurantNotFoundException {
-		return this.getRestaurant(restaurantID).getJSON();
+	/**
+	 * @param businessID
+	 *            the businessID of the restaurant whos JSON string we wish to
+	 *            return
+	 * @return the JSON string of this restaurant
+	 * @throws RestaurantNotFoundException
+	 *             if the restaurant does not exist in the database
+	 */
+	public String getRestaurantJSON(String businessID) throws RestaurantNotFoundException {
+		return this.getRestaurant(businessID).getJSON();
 	}
 
+	/**
+	 * @param json
+	 *            the JSON formatted string of the user we wish to add
+	 * @throws InvalidInputException
+	 *             if the string is not proper JSON format
+	 */
 	public void addUserJSON(String json) throws InvalidInputException {
 		YelpUser user = new YelpUser(json);
 		this.userList.add(user);
 		this.userReviews.put(user.getUserID(), new ArrayList<String>());
 	}
 
+	/**
+	 * @param name
+	 *            the name of the user we wish to enter into the database
+	 */
 	public void addUser(String name) {
 		YelpUser user = new YelpUser(userID, name);
 		this.userID += 1;
@@ -311,6 +384,20 @@ public class YelpDb implements MP5Db<Restaurant> {
 		this.userReviews.put(user.getUserID(), new ArrayList<String>());
 	}
 
+	/**
+	 * @param date
+	 *            the date of this review
+	 * @param userID
+	 *            the userID of the user who wrote the review
+	 * @param businessID
+	 *            the businessID of the restaurant this review is written about
+	 * @param rating
+	 *            the rating this restaurant was given in this review
+	 * @throws UserNotFoundException
+	 *             if this user does not exist in the database
+	 * @throws RestaurantNotFoundException
+	 *             if this restaurant does not exist in the database
+	 */
 	public void addReview(String date, String userID, String businessID, Integer rating)
 			throws UserNotFoundException, RestaurantNotFoundException {
 		YelpReview rev = new YelpReview(reviewID.toString(), date, userID, businessID, rating);
@@ -346,6 +433,17 @@ public class YelpDb implements MP5Db<Restaurant> {
 		}
 	}
 
+	/**
+	 * @param json
+	 *            the JSON formatted string of the review we wish to add to the
+	 *            database
+	 * @throws InvalidInputException
+	 *             if this string is not in proper JSON format
+	 * @throws UserNotFoundException
+	 *             if this user does not exist in the database
+	 * @throws RestaurantNotFoundException
+	 *             if this restaurant does not exist in the database
+	 */
 	public void addReviewJSON(String json)
 			throws InvalidInputException, UserNotFoundException, RestaurantNotFoundException {
 		YelpReview rev = new YelpReview(json);
@@ -377,6 +475,10 @@ public class YelpDb implements MP5Db<Restaurant> {
 
 	}
 
+	/**
+	 * @param name
+	 *            the name of the restaurant we wish to add
+	 */
 	public void addRestaurant(String name) {
 		Restaurant rest = new Restaurant(this.businessID, name);
 		this.restaurantList.add(rest);
@@ -385,6 +487,12 @@ public class YelpDb implements MP5Db<Restaurant> {
 		this.restaurantReviews.put(rest.getBusinessID(), new ArrayList<String>());
 	}
 
+	/**
+	 * @param json
+	 *            the JSON formatted string of the restaurant we wish to add
+	 * @throws InvalidInputException
+	 *             if this string is not proper JSON format
+	 */
 	public void addRestaurantJSON(String json) throws InvalidInputException {
 		Restaurant rest = new Restaurant(json);
 		this.restaurantList.add(rest);
@@ -392,6 +500,20 @@ public class YelpDb implements MP5Db<Restaurant> {
 		this.restaurantReviews.put(rest.getBusinessID(), new ArrayList<String>());
 	}
 
+	/**
+	 * This method removes a user from the database. The users review count, average
+	 * stars, and votes are wiped to zero. The userName is changed to "Deleted User"
+	 * but the userID remains the same. The user is moved to a deletedUser list and
+	 * removed from the userList
+	 * 
+	 * All of the user's reviews remain in the database
+	 * 
+	 * 
+	 * @param userID
+	 *            the user we wish to remove from the database
+	 * @throws UserNotFoundException
+	 *             if this user did not exist in the database to begin with
+	 */
 	public void removeUser(String userID) throws UserNotFoundException {
 		YelpUser user = getUser(userID);
 		this.userList.remove(user);
@@ -404,7 +526,26 @@ public class YelpDb implements MP5Db<Restaurant> {
 		user.setVotes("useful", 0);
 	}
 
-	public void removeRestaurant(String businessID) throws RestaurantNotFoundException, ReviewNotFoundException, UserNotFoundException {
+	/**
+	 * This method removes a restaurant from the database. All reviews written about
+	 * this restaurant are removed from the database and the review count, average
+	 * stars and vote count of the users who wrote reviews about this restaurant are
+	 * adjusted.
+	 * 
+	 * This restaurant is removed from the restaurantList, the RestaurantReviewsList
+	 * and the visitedByList.
+	 * 
+	 * @param businessID
+	 *            the businessID of the business we wish to remove
+	 * @throws RestaurantNotFoundException
+	 *             if this restaurant did not exist to begin with
+	 * @throws ReviewNotFoundException
+	 *             if a review for this restaurant does not exist
+	 * @throws UserNotFoundException
+	 *             if a user who wrote a review for this restaurant does not exist
+	 */
+	public void removeRestaurant(String businessID)
+			throws RestaurantNotFoundException, ReviewNotFoundException, UserNotFoundException {
 		ArrayList<String> killList = new ArrayList<String>();
 		Restaurant rest = getRestaurant(businessID);
 		for (YelpReview r : reviewList) {
@@ -421,6 +562,24 @@ public class YelpDb implements MP5Db<Restaurant> {
 
 	}
 
+	/**
+	 * This method removes a review from the database. The review count, and average
+	 * stars are adjusted for the restaurant and user associated with this review,
+	 * as well as the votes for the user.
+	 * 
+	 * This review is removed from the reviewsList, restaurantReviewsList,
+	 * userReviewsList and the user and restaurant are removed from the
+	 * visitedByList
+	 * 
+	 * @param reviewID
+	 *            the review ID of the review we wish to remove
+	 * @throws ReviewNotFoundException
+	 *             if the review did not exist to begin with
+	 * @throws UserNotFoundException
+	 *             if the user does not exist
+	 * @throws RestaurantNotFoundException
+	 *             if the restaurant does not exist
+	 */
 	public void removeReview(String reviewID)
 			throws ReviewNotFoundException, UserNotFoundException, RestaurantNotFoundException {
 		YelpReview rev = getReview(reviewID);
@@ -457,33 +616,62 @@ public class YelpDb implements MP5Db<Restaurant> {
 		this.visitedBy.get(rev.getReviewed()).remove(rev.getUser());
 
 	}
-	
+
+	/**
+	 * @param userID
+	 *            the userID of the user we are checking to see if exists in the
+	 *            database
+	 * @return true if the user is in the database, false otherwise
+	 */
 	public boolean containsUser(String userID) {
 		for (YelpUser y : this.userList) {
-			if(y.getUserID().equals(userID)) {
+			if (y.getUserID().equals(userID)) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
+	/**
+	 * @param businessID
+	 *            the businessID of the restaurant we are checking to see if exists
+	 *            in the database
+	 * @return true if the restaurant exists, false otherwise
+	 */
 	public boolean containsRestaurant(String businessID) {
 		for (Restaurant r : this.restaurantList) {
-			if(r.getBusinessID().equals(businessID)) {
+			if (r.getBusinessID().equals(businessID)) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
+	/**
+	 * @param userID
+	 *            the userID of the user whos reviews we want
+	 * @return a list of the reviewIDs of reviews written by this user
+	 */
 	public ArrayList<String> getReviewsUser(String userID) {
 		return new ArrayList<String>(this.userReviews.get(userID));
 	}
-	
+
+	/**
+	 * @param businessID
+	 *            the businessID of the restaurant whos reviews we want
+	 * @return a list of reviewIDs of reviews written about this restaurant
+	 */
 	public ArrayList<String> getReviewsRestaurant(String businessID) {
 		return new ArrayList<String>(this.restaurantReviews.get(businessID));
 	}
-	
+
+	/**
+	 * @param businessID
+	 *            the businessID of the restaurant of which we are finding the users
+	 *            that have written a review about it
+	 * @return a list of userIDs of users who have written reviews about this
+	 *         restaurant
+	 */
 	public ArrayList<String> getUsersRestaurant(String businessID) {
 		return new ArrayList<String>(this.visitedBy.get(businessID));
 	}

@@ -41,10 +41,10 @@ public class PredictorFunction implements ToDoubleBiFunction<MP5Db<Restaurant>, 
 
 	
 	/**
-	 * @param t 
-	 *          An MP5Db<Restaurant> that contains the restaurant we wish to predict the rating of
-	 * @param u 
-	 *          The business ID of the restaurant we wish to predict the rating of
+	 * @param database 
+	 *                 An MP5Db<Restaurant> that contains the restaurant we wish to predict the rating of
+	 * @param businessID 
+	 *                   The business ID of the restaurant we wish to predict the rating of
 	 * 
 	 * @return 
 	 *          a double which is the predicted rating the user will give to the restaurant, as 
@@ -53,10 +53,10 @@ public class PredictorFunction implements ToDoubleBiFunction<MP5Db<Restaurant>, 
 	 * 
 	 */
 	@Override
-	public double applyAsDouble(MP5Db<Restaurant> t, String u) {
+	public double applyAsDouble(MP5Db<Restaurant> database, String businessID) {
 		int price = 0;
-		if (t instanceof YelpDb) {
-			Set<?> rest = ((YelpDb) t).getMatches(u);
+		if (database instanceof YelpDb) {
+			Set<?> rest = ((YelpDb) database).getMatches(businessID);
 			for (Object o : rest) {
 				if (o instanceof Restaurant) {
 					price = ((Restaurant) o).getPrice();

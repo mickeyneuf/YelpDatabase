@@ -2,6 +2,8 @@ package ca.ece.ubc.cpen221.mp5.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.util.function.ToDoubleBiFunction;
 
@@ -17,6 +19,10 @@ import ca.ece.ubc.cpen221.mp5.YelpDb;
 
 public class PredictorFunctionTest {
 
+	/*
+	 * Testing that the correct prediction is generated for a given restaurant when they entire database is used
+	 * 
+	 */
 	@Test
 	public void test0() throws IOException, InvalidInputException, RestaurantNotFoundException, ReviewNotFoundException, UserNotFoundException {
 		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
@@ -35,6 +41,11 @@ public class PredictorFunctionTest {
 
 	}
 
+	
+	/*
+	 * Testing that the correct prediction is generated for a small linear subset
+	 * 
+	 */
 	@Test
 	public void test1() throws IOException, InvalidInputException {
 		YelpDb yelp = new YelpDb("data/usersTest1.json", "data/restaurantsTest1.json", "data/reviewsTest1.json");
@@ -45,6 +56,11 @@ public class PredictorFunctionTest {
 		assertTrue(func.applyAsDouble(yelp, restID) == 2);
 	}
 
+	/*
+	 * Testing that the prediction is 1 if the data suggests it should be less than 1
+	 * 
+	 * 
+	 */
 	@Test
 	public void test2() throws IOException, InvalidInputException {
 		YelpDb yelp = new YelpDb("data/usersTest1.json", "data/restaurantsTest2.json", "data/reviewsTest2.json");
@@ -56,6 +72,12 @@ public class PredictorFunctionTest {
 
 	}
 
+	
+	/*
+	 * Testing that the prediction is 5 if the data suggests it should be more than 5 
+	 * 
+	 * 
+	 */
 	@Test
 	public void test3() throws IOException, InvalidInputException {
 		YelpDb yelp = new YelpDb("data/usersTest1.json", "data/restaurantsTest3.json", "data/reviewsTest3.json");
@@ -66,6 +88,10 @@ public class PredictorFunctionTest {
 		assertTrue(func.applyAsDouble(yelp, restID) == 5);
 	}
 
+	/*
+	 * Testing that an exception is thrown if the user has one or fewer reviews
+	 * 
+	 */
 	@Test
 	public void test4() throws IOException, InvalidInputException {
 		YelpDb yelp = new YelpDb("data/usersTest2.json", "data/restaurantsTest1.json", "data/reviewsTest1.json");
@@ -74,16 +100,22 @@ public class PredictorFunctionTest {
 
 		try {
 			yelp.getPredictorFunction(userID0);
+			fail("We expect an exception");
 		} catch (Exception e) {
 			// we expect an exception to be thrown here
 		}
 		try {
 			yelp.getPredictorFunction(userID1);
+			fail("We expect an exception");
 		} catch (Exception e) {
 			// we expect an exception to be thrown here
 		}
 	}
 
+	/*
+	 * A sanity check
+	 * 
+	 */
 	@Test
 	public void test5() throws IOException, InvalidInputException {
 		YelpDb yelp = new YelpDb("data/usersTest1.json", "data/restaurantsTest3.json", "data/reviewsTest3.json");
@@ -94,6 +126,11 @@ public class PredictorFunctionTest {
 		assertTrue(func.applyAsDouble(yelp, restID) == 5);
 	}
 	
+	
+	/*
+	 * Another sanity check
+	 * 
+	 */
 	@Test
 	public void test6() throws IOException, InvalidInputException {
 		YelpDb test = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
