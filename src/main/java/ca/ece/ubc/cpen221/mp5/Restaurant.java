@@ -386,25 +386,37 @@ public class Restaurant implements Business {
 	}
 	
 	/**
-	 * A getter method to 
+	 * A getter method to return list of categories this restaurant is in.
+	 * Clients can add to or remove from list
 	 * @return
+	 * 		list of categories of restaurant
 	 */
 	public ArrayList<String> getCategories() {
 		return categories;
 	}
-
-	public void setCategories(ArrayList<String> categories) {
-		this.categories = categories;
-	}
-
+	/**
+	 * Returns whether or not this restaurant is open
+	 * @return
+	 * 		true if open, false if closed
+	 */
 	public boolean isOpen() {
 		return open;
 	}
-
+	
+	/**
+	 * Setter method to set open status of restaurant
+	 * @param
+	 * 		boolean true or false to set open status to
+	 */
 	public void setOpen(boolean open) {
 		this.open = open;
 	}
 
+	/**
+	 * Getter method to return stars of this restaurant
+	 * @return
+	 * 		Double average stars of this restaurant
+	 */
 	public Double getStars() {
 		return stars;
 	}
