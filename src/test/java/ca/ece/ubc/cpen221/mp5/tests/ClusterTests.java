@@ -11,7 +11,7 @@ import ca.ece.ubc.cpen221.mp5.YelpDb;
 public class ClusterTests {
 	@Test
 	public void test0(){
-		
+		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
 	}
 	
 }

@@ -88,7 +88,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * 
 	 */
 	@Override
-	public Set<Restaurant> getMatches(String queryString) {
+	public synchronized Set<Restaurant> getMatches(String queryString) {
 		try {
 			if (restaurantList.contains(this.getRestaurant(queryString))) {
 				Set<Restaurant> set = new HashSet<Restaurant>();
@@ -213,7 +213,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * 
 	 */
 	@Override
-	public ToDoubleBiFunction<MP5Db<Restaurant>, String> getPredictorFunction(String user) {
+	public synchronized ToDoubleBiFunction<MP5Db<Restaurant>, String> getPredictorFunction(String user) {
 		double sxx = 0;
 		double sxy = 0;
 
@@ -258,7 +258,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 		return new PredictorFunction(a, b);
 	}
 
-	private YelpUser getUser(String userID) throws UserNotFoundException {
+	private synchronized YelpUser getUser(String userID) throws UserNotFoundException {
 		List<YelpUser> users = userList.stream().filter(user -> user.getUserID().equals(userID))
 				.collect(Collectors.toList());
 		if (users.isEmpty()) {
@@ -267,11 +267,11 @@ public class YelpDb implements MP5Db<Restaurant> {
 		return users.get(0);
 	}
 
-	public String getUserJSON(String userID) throws UserNotFoundException {
+	public synchronized String getUserJSON(String userID) throws UserNotFoundException {
 		return this.getUser(userID).getJSON();
 	}
 
-	private YelpReview getReview(String reviewID) throws ReviewNotFoundException {
+	private synchronized YelpReview getReview(String reviewID) throws ReviewNotFoundException {
 		List<YelpReview> reviews = reviewList.stream().filter(review -> review.getReviewID().equals(reviewID))
 				.collect(Collectors.toList());
 		if (reviews.isEmpty()) {
@@ -280,11 +280,11 @@ public class YelpDb implements MP5Db<Restaurant> {
 		return reviews.get(0);
 	}
 
-	public String getReviewJSON(String reviewID) throws ReviewNotFoundException {
+	public synchronized String getReviewJSON(String reviewID) throws ReviewNotFoundException {
 		return this.getReview(reviewID).getJSON();
 	}
 
-	private Restaurant getRestaurant(String businessID) throws RestaurantNotFoundException {
+	private synchronized Restaurant getRestaurant(String businessID) throws RestaurantNotFoundException {
 		List<Restaurant> restaurants = restaurantList.stream()
 				.filter(restaurant -> restaurant.getBusinessID().equals(businessID)).collect(Collectors.toList());
 		if (restaurants.isEmpty()) {
@@ -293,24 +293,24 @@ public class YelpDb implements MP5Db<Restaurant> {
 		return restaurants.get(0);
 	}
 
-	public String getRestaurantJSON(String restaurantID) throws RestaurantNotFoundException {
+	public synchronized String getRestaurantJSON(String restaurantID) throws RestaurantNotFoundException {
 		return this.getRestaurant(restaurantID).getJSON();
 	}
 
-	public void addUserJSON(String json) throws InvalidInputException {
+	public synchronized void addUserJSON(String json) throws InvalidInputException {
 		YelpUser user = new YelpUser(json);
 		this.userList.add(user);
 		this.userReviews.put(user.getUserID(), new ArrayList<String>());
 	}
 
-	public void addUser(String name) {
+	public synchronized void addUser(String name) {
 		YelpUser user = new YelpUser(userID, name);
 		this.userID += 1;
 		this.userList.add(user);
 		this.userReviews.put(user.getUserID(), new ArrayList<String>());
 	}
 
-	public void addReview(String date, String userID, String businessID, Integer rating)
+	public synchronized void addReview(String date, String userID, String businessID, Integer rating)
 			throws UserNotFoundException, RestaurantNotFoundException {
 		YelpReview rev = new YelpReview(reviewID.toString(), date, userID, businessID, rating);
 		this.getUser(userID).setReviewCount(this.getUser(userID).getReviewCount() + 1);
@@ -345,7 +345,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 		}
 	}
 
-	public void addReviewJSON(String json)
+	public synchronized void addReviewJSON(String json)
 			throws InvalidInputException, UserNotFoundException, RestaurantNotFoundException {
 		YelpReview rev = new YelpReview(json);
 		this.getUser(rev.getUser()).setReviewCount(this.getUser(rev.getUser()).getReviewCount() + 1);
@@ -376,7 +376,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 
 	}
 
-	public void addRestaurant(String name) {
+	public synchronized void addRestaurant(String name) {
 		Restaurant rest = new Restaurant(this.businessID, name);
 		this.restaurantList.add(rest);
 		this.businessID += 1;
@@ -399,7 +399,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 		user.setReviewCount(0);
 	}
 
-	public void removeRestaurant(String businessID) throws RestaurantNotFoundException, ReviewNotFoundException, UserNotFoundException {
+	public synchronized void removeRestaurant(String businessID) throws RestaurantNotFoundException, ReviewNotFoundException, UserNotFoundException {
 		ArrayList<String> killList = new ArrayList<String>();
 		Restaurant rest = getRestaurant(businessID);
 		for (YelpReview r : reviewList) {
@@ -416,7 +416,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 
 	}
 
-	public void removeReview(String reviewID)
+	public synchronized void removeReview(String reviewID)
 			throws ReviewNotFoundException, UserNotFoundException, RestaurantNotFoundException {
 		YelpReview rev = getReview(reviewID);
 		int rating = getReview(reviewID).getRating();
@@ -453,7 +453,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 
 	}
 	
-	public boolean containsUser(String userID) {
+	public synchronized boolean containsUser(String userID) {
 		for (YelpUser y : this.userList) {
 			if(y.getUserID().equals(userID)) {
 				return true;
@@ -462,7 +462,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 		return false;
 	}
 	
-	public boolean containsRestaurant(String businessID) {
+	public synchronized boolean containsRestaurant(String businessID) {
 		for (Restaurant r : this.restaurantList) {
 			if(r.getBusinessID().equals(businessID)) {
 				return true;
@@ -471,15 +471,15 @@ public class YelpDb implements MP5Db<Restaurant> {
 		return false;
 	}
 	
-	public ArrayList<String> getReviewsUser(String userID) {
+	public synchronized ArrayList<String> getReviewsUser(String userID) {
 		return new ArrayList<String>(this.userReviews.get(userID));
 	}
 	
-	public ArrayList<String> getReviewsRestaurant(String businessID) {
+	public synchronized ArrayList<String> getReviewsRestaurant(String businessID) {
 		return new ArrayList<String>(this.restaurantReviews.get(businessID));
 	}
 	
-	public ArrayList<String> getUsersRestaurant(String businessID) {
+	public synchronized ArrayList<String> getUsersRestaurant(String businessID) {
 		return new ArrayList<String>(this.visitedBy.get(businessID));
 	}
 
