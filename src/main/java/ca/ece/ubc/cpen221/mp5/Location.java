@@ -9,8 +9,8 @@ import java.util.ArrayList;
  *
  */
 public class Location extends Object {
-	private Double longitude;
-	private Double latitude;
+	private double longitude;
+	private double latitude;
 	private String state;
 	private String city;
 	private ArrayList<String> neighborhoods;
@@ -22,6 +22,8 @@ public class Location extends Object {
 	private String suite;
 	private String building;
 	private String room;
+	
+	
 	
 	public Location() {
 		this.longitude = 0.0;
@@ -36,26 +38,7 @@ public class Location extends Object {
 		this.areaCode = "no area code";
 		this.suite = "no suite";
 		this.building = "no building";
-		this.room = "no building";
-	}
-	
-	public Location(Double longitude, Double latitude, String state, String city, String neighborhood, String school,
-					String streetAddress, String street, String area, String areaCode, String suite, String building, String room) {
-		this.longitude = longitude;
-		this.latitude = latitude;
-		this.state = state;
-		this.city = city;
-		this.neighborhoods = new ArrayList<String>();
-		this.neighborhoods.add(neighborhood);
-		this.schools = new ArrayList<String>();
-		this.schools.add(school);
-		this.streetAddress = streetAddress.isEmpty() ? "no street address" : streetAddress;
-		this.street = street.isEmpty() ? "no street" : street;
-		this.area = area;
-		this.areaCode = areaCode;
-		this.suite = suite.isEmpty() ? "no suite" : suite;
-		this.building = building.isEmpty() ? "no building" : building;
-		this.room = room.isEmpty() ? "no room" : room;
+		this.room = "no room";
 	}
 	
 	public String getBuilding() {
@@ -148,10 +131,10 @@ public class Location extends Object {
 	public String getFullAddress() {
 		String json = "";
 		if(!this.room.equals("no room")) {
-			json+=this.room;
+			json+=this.room+"\\n";
 		}
 		if (!this.building.equals("no building")) {
-			json+=this.building;
+			json+=this.building+"\\n";
 		}
 		if (!this.streetAddress.equals("no street address")){
 			json+=this.streetAddress;
@@ -162,7 +145,10 @@ public class Location extends Object {
 		if (!this.suite.equals("no suite")) {
 			json+="\\n"+this.suite;
 		}
-		json+="\\n"+this.area+"\\n";
+		if(!json.isEmpty()) {
+			json+="\\n";
+		}
+		json+=this.area+"\\n";
 		return json+this.city+", "+this.state+" "+this.areaCode+"\"";
 	}
 	
@@ -188,6 +174,6 @@ public class Location extends Object {
 	}
 	@Override
 	public int hashCode() {
-		return this.longitude.hashCode();
+		return this.getFullAddress().hashCode();
 	}
 }

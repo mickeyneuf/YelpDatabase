@@ -42,6 +42,13 @@ public interface Review {
 	String getDate();
 	
 	/**
+	 * A method that returns review in JSON format
+	 * @return
+	 * 		String of review info in JSON format
+	 */
+	String getJSON();
+	
+	/**
 	 * A method to check equality of this Review with another object
 	 * Two reviews are defined as equal if their reviewID is equal
 	 * @param
@@ -61,5 +68,4 @@ public interface Review {
 	 */		
 	@Override
 	int hashCode();
-	
 }

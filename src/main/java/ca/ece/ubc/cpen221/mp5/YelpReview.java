@@ -23,9 +23,11 @@ public class YelpReview implements Review {
 	private Integer rating;
 	private YelpVotes votes;
 	
-	/* Abstraction Function:
-	 * 		-   Represents a Yelp review as an object with the review's info as fields, all of which
-	 * 			can be returned to clients and some of which can be set by clients.
+	/*
+	 *  Abstraction Function:
+	 * 		-   Represents a Yelp review as an object with the review's info as fields of either
+	 * 			Strings, or Integers (or a YelpVotes object for votes), all of which can be returned 
+	 * 			to clients and some of which can be set by clients.
 	 * 
 	 * Rep Invariant:
 	 * 		-   reviewID, userID, and businessID contains only alphabetical (upper or lower case)
@@ -44,6 +46,7 @@ public class YelpReview implements Review {
 	 *			- date is in MM/DD/YY format
 	 *			- 1<rating<5
 	 *			- no parameters null or empty
+	 *			- reviewID of this review is not the same as another review in the database
 	 * 
 	 * @param reviewID
 	 * 				String representing ID of this review
@@ -157,61 +160,142 @@ public class YelpReview implements Review {
 			throw new InvalidInputException();
 		}
 	}
-
+	/**
+	 * Method for returning JSON-formatted string representing this review
+	 * 
+	 * @return
+	 * 		this review as a JSON string
+	 */
+	@Override
 	public String getJSON() {
 		return "{\"type\": \"review\", \"business_id\": \""+this.businessID+
 				"\", \"votes\": {\"cool\": "+this.votes.getVotes("cool").toString()+
 				", \"useful\": "+this.votes.getVotes("useful").toString()+", \"funny\": "
 				+this.votes.getVotes("funny").toString()+"}, \"review_id\": \""+this.reviewID
 				+"\", \"text\": \""+this.review+"\", \"stars\": "+this.getRating().toString()
-				+", \"user_id\": \""+this.userID+"\", \"date\": \""+this.date+"\"}";
-				
+				+", \"user_id\": \""+this.userID+"\", \"date\": \""+this.date+"\"}";		
 	}
 	
+	/**
+	 * Getter method that returns this reviewID as a string
+	 * @return
+	 * 		String representing this reviewID
+	 */
+	@Override
 	public String getReviewID() {
 		return this.reviewID;
 	}
 	
+	/**
+	 * Getter method that returns this review's text
+	 * @return	
+	 * 		String representing text in this review
+	 */
+	@Override
 	public String getText() {
 		return review;
 	}
 
+	/**
+	 * Setter method that sets the text in this review
+	 * @param review
+	 * 		String representing text to go in this review
+	 */
 	public void setText(String review) {
 		this.review = review;
 	}
 
+	/**
+	 * Getter method that returns the ID of the user who posted this review
+	 * @return
+	 * 		String representing ID of poster
+	 */
+	@Override
 	public String getUser() {
 		return userID;
 	}
-
+	/**
+	 * Getter method that returns string representation of date review was posted
+	 * @return
+	 * 		String of date of review posting
+	 */
+	
+	@Override
 	public String getDate() {
 		return date;
 	}
-
+	
+	/**
+	 * Setter method that sets date this review was posted or updated
+	 * Requires: Date cannot be earlier than former date, and is in YYYY-MM-DD format
+	 * @param date
+	 * 		String representing date this review was posted or edited
+	 */
 	public void setDate(String date) {
 		this.date = date;
 	}
-
+	
+	/**
+	 * Getter method that returns Integer rating for this review
+	 * @return
+	 * 		this review's rating
+	 */
 	public Integer getRating() {
 		return rating;
 	}
-
+	
+	/**
+	 * Setter method that sets Integer rating for this review
+	 * @param 
+	 * 		rating to be set
+	 */
 	public void setRating(Integer rating) {
 		this.rating = rating;
 	}
 
+	/**
+	 * Getter method that returns ID of restaurant being reviewed
+	 * @return
+	 * 		String businessID representing restaurant of this review
+	 */
+	@Override
 	public String getReviewed() {
 		return businessID;
 	}
 	
+	/**
+	 * Getter method to return the vote count for a specified reaction of this review
+	 * Requires: reaction is one of "cool", "useful", or "funny", not including the ""
+	 * @param reaction
+	 * 		cool, useful, or funny
+	 * @return
+	 * 		Integer number of votes for this reaction for this review
+	 */
 	public Integer getVotes(String reaction) {
 		return this.votes.getVotes(reaction);
 	}
 	
+	/**
+	 * Setter method to set the vote count for a specified reaction of this review
+	 * Requires: - reaction is one of "cool", "useful", or "funny", not including the ""
+	 *  		 - votes>=0
+	 * @param reaction
+	 * 		cool, useful, or funny
+	 * @param votes
+	 * 		Integer number of votes for reaction of this review
+	 */
 	public void setVotes(String reaction, Integer votes) {
 		this.votes.setVotes(reaction, votes);
 	}
 	
+	/**
+	 * A method to check equality of this Business with another object
+	 * Two Businesses are defined as equal if their ID is equal
+	 * @param
+	 * 		other object to be compared
+	 * @return
+	 * 		true if this is equal to other, false otherwise
+	 */
 	@Override 
 	public boolean equals(Object other) {
 		if(other instanceof YelpReview) {
@@ -220,6 +304,13 @@ public class YelpReview implements Review {
 		return false;
 	}
 
+	/**
+	 * A method to return hashCode of this business
+	 * A business' hashCode is represented by the sum of the numeric values
+	 * of the characters in its business ID
+	 * @return
+	 * 		int representing sum of numerical values of characters in this business' ID
+	 */	
 	@Override
 	public int hashCode() {
 		return this.reviewID.hashCode();

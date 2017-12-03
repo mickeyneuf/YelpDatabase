@@ -20,47 +20,67 @@ public class YelpUser implements User {
 		this.avgStars = 0.0;
 		this.name = name;
 		this.votes = new YelpVotes();
-
 	}
 
-	public YelpUser(String json) throws InvalidInputException {
+	public YelpUser(String json) throws InvalidInputException, ArrayIndexOutOfBoundsException {
 		Pattern urlPat = Pattern.compile("\"url\": \"(.*?)\", \"votes\": ");
 		Matcher urlMat = urlPat.matcher(json);
 		if(urlMat.find()) {
 			this.url = urlMat.group(1);
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find url\n"+json);
-			
+			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find url");
+			throw new InvalidInputException();
 		}
 		Pattern votesPat = Pattern.compile("\"votes\": (.*?), \"review_count\": ");
 		Matcher votesMat = votesPat.matcher(json);
 		String voteStr = null;
-		votesMat.find();
-		voteStr = votesMat.group(1);
+		if(votesMat.find()) {
+				voteStr = votesMat.group(1);
+		} else {
+			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find votes");
+			throw new InvalidInputException();
+		}
 		String[] voteArr = voteStr.split(" ");
+		try {
 		this.votes = new YelpVotes(Integer.parseInt(voteArr[5].replaceAll("}", "")), 
 								   Integer.parseInt(voteArr[3].replaceAll(",", "")), 
 								   Integer.parseInt(voteArr[1].replaceAll(",", "")));
-		
+		} catch (ArrayIndexOutOfBoundsException e) {
+			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find votes");
+			throw new InvalidInputException();
+		}
 		Pattern reviewCountPat = Pattern.compile("\"review_count\": (.*?), \"type\": ");
 		Matcher reviewCountMat = reviewCountPat.matcher(json);
-		reviewCountMat.find();
-		this.reviewCount = Integer.parseInt(reviewCountMat.group(1));
-			
+		if(reviewCountMat.find()) {
+			this.reviewCount = Integer.parseInt(reviewCountMat.group(1));
+		} else {
+			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find review count");
+			throw new InvalidInputException();
+		}
 		Pattern userIDPat = Pattern.compile("\"user_id\": \"(.*?)\", \"name\": ");
 		Matcher userIDMat = userIDPat.matcher(json);
-		userIDMat.find();
-		this.userID = userIDMat.group(1);
-		
+		if(userIDMat.find()) {
+			this.userID = userIDMat.group(1);
+		} else {
+			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find userID");
+			throw new InvalidInputException();
+		}	
 		Pattern namePat = Pattern.compile("\"name\": \"(.*?)\", \"average_stars\": ");
 		Matcher nameMat = namePat.matcher(json);
-		nameMat.find();
-		this.name = nameMat.group(1);
-		
+		if(nameMat.find()) {
+			this.name = nameMat.group(1);
+		} else {
+			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find name");
+			throw new InvalidInputException();
+		}
 		Pattern starsPat = Pattern.compile("\"average_stars\": (.*?)}");
 		Matcher starsMat = starsPat.matcher(json);
-		starsMat.find();
-		this.avgStars = Double.parseDouble(starsMat.group(1));
+		if(starsMat.find()) {
+			this.avgStars = Double.parseDouble(starsMat.group(1));
+		} else {
+			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find average stars");
+			throw new InvalidInputException();
+		}
 	}
 
 	@Override

@@ -1,27 +1,25 @@
 package ca.ece.ubc.cpen221.mp5.tests;
 
 import static org.junit.Assert.*;
-
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Scanner;
-
-import javax.json.*;
-
 import org.junit.Test;
-
 import ca.ece.ubc.cpen221.mp5.InvalidInputException;
 import ca.ece.ubc.cpen221.mp5.Restaurant;
 import ca.ece.ubc.cpen221.mp5.YelpDb;
 import ca.ece.ubc.cpen221.mp5.YelpReview;
 import ca.ece.ubc.cpen221.mp5.YelpUser;
 
+
 public class YelpDbTest {
 
 	@Test
 	public void test0() throws IOException, InvalidInputException {
 		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
+		System.out.println(yelp.getRestaurantJSON("BOCJ5g4q1RhP8wikwwr3Ow"));
+		String json = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/cafe-durant-berkeley\", \"longitude\": -122.2583343, \"neighborhoods\": [\"Telegraph Ave\", \"UC Campus Area\"], \"business_id\": \"BOCJ5g4q1RhP8wikwwr3Ow\", \"name\": \"Cafe Durant\", \"categories\": [\"Breakfast & Brunch\", \"American (Traditional)\", \"Mexican\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.5, \"city\": \"Berkeley\", \"full_address\": \"2517 Durant Ave\\nSte C\\nTelegraph Ave\\nBerkeley, CA 94704\", \"review_count\": 233, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/bphoto/ngW3u47q-rmJacKI0g196g/ms.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8680114, \"price\": 2}";
+		assertEquals(json, yelp.getRestaurantJSON("BOCJ5g4q1RhP8wikwwr3Ow"));
 		Scanner scanUser = new Scanner(new File("data/users.json"));
 		Scanner scanRestaurant = new Scanner(new File("data/restaurants.json"));
 		Scanner scanReview = new Scanner(new File("data/reviews.json"));
@@ -54,7 +52,6 @@ public class YelpDbTest {
 		String string = "{\"url\": \"http://www.yelp.com/user_details?userid=_NH7Cpq3qZkByP5xR4gXog\", \"votes\": {\"funny\": 35, \"useful\": 21, \"cool\": 14}, \"review_count\": 29, \"type\": \"user\", \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"name\": \"Chris M.\", \"average_stars\": 3.89655172413793}";
 		YelpUser user1 = new YelpUser(string);
 		YelpUser user2 = new YelpUser(string);
-
 		assertTrue(user1.equals(user2));
 	}*/
 	
@@ -102,4 +99,3 @@ public class YelpDbTest {
 		Restaurant PekingExpress = new Restaurant(json);
 		assertEquals(json, PekingExpress.getJSON());*/
 	}
-

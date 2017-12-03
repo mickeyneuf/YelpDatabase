@@ -14,7 +14,13 @@ import java.util.function.ToDoubleBiFunction;
 import java.util.stream.Collectors;
 
 import javax.json.*;
-
+/**
+ * This class represents a database of Yelp's users, restaurants, and the user's reviews of those restaurants.
+ * It implements the generic interface MP5Db and contains many useful private and public methods that allow clients
+ * to search for restaurants, users, and reviews with certain attributes, as well as add, remove, and update review,
+ * user, and restaurant information with every connected piece of information updating at the same time. 
+ *
+ */
 public class YelpDb implements MP5Db<Restaurant> {
 
 	private ArrayList<YelpUser> userList;
@@ -104,11 +110,10 @@ public class YelpDb implements MP5Db<Restaurant> {
 		
 		// choosing centroids and putting them on map
 		// no clusters can be empty because we chose restaurant locations as centroids
-		for (int i = 0; i<k; i++) {
+		while(clusters.keySet().size()<k) {
 			int n = rand.nextInt(this.restaurantList.size());
 			clusters.put(restaurantList.get(n).getBusinessID(), new ArrayList<String>());
 		}
-		
 		for(Restaurant r : this.restaurantList) {
 			String closest = null;
 			double mindistance = Double.MAX_VALUE;
@@ -124,32 +129,32 @@ public class YelpDb implements MP5Db<Restaurant> {
 			clusters.get(closest).add(r.getBusinessID());
 			}
 		}
-		
 		for (String rest1 : clusters.keySet()) {
 			HashSet<String> cluster = new HashSet<String>();
 			cluster.add(rest1);
 			cluster.addAll(clusters.get(rest1));
 			clusterList.add(cluster);
 			}
-		
 		return clusterList;
 	}
 	
 	@Override
 	public String kMeansClusters_json(int k) {
 		ArrayList<HashSet<String>> setList = this.kMeansClusters(k);
-		String json = null;
+		String json = "";
 		int c = 0;
+		int i = 0;
 		for (HashSet<String> cluster : setList) {
 			for (String r : cluster) {
 				json+="{\"x\": "+this.getRestaurant(r).getLocation().getLongitude()
 					  +", \"y\": "+this.getRestaurant(r).getLocation().getLatitude()
-					  +", \"name\": \"cluster\": "+c+", \"weight\": 1.0}";
+					  +", \"name\": "+this.getRestaurant(r).getBusinessName()+"\", \"cluster\": "+c+", \"weight\": 1.0}";
+				if(i<restaurantList.size()-1) {
+					json+=", ";
+				}
+				i++;
 			}
 			c++;
-			if(c<setList.size()) {
-				json+=", ";
-			}
 		}
 		return json;
 	}
@@ -158,8 +163,6 @@ public class YelpDb implements MP5Db<Restaurant> {
 	public ToDoubleBiFunction<MP5Db<Restaurant>, String> getPredictorFunction(String user) {
 		double sxx = 0;
 		double sxy = 0;
-		double avgx = 0;
-		double avgy = 0;
 
 		List<String> restID = reviewList.stream().filter(rev -> rev.getUser().equals(user))
 				.map(YelpReview::getReviewed).collect(Collectors.toList());
@@ -174,8 +177,8 @@ public class YelpDb implements MP5Db<Restaurant> {
 
 		int totalRating = ratings.stream().reduce(0, (x, y) -> x + y);
 
-		avgx = totalPrice / restID.size();
-		avgy = totalRating / restID.size();
+		double avgx = totalPrice / restID.size();
+		double avgy = totalRating / restID.size();
 
 		assert(prices.size() == ratings.size());
 		
@@ -287,7 +290,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	
 	public void removeRestaurant(String businessID) {
 		for (String userID : restaurantReviews.get(businessID)) {
-			this.getUser(userID);
+
 		}
 	}
 
