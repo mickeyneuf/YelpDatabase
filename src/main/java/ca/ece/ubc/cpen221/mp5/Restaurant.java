@@ -300,7 +300,7 @@ public class Restaurant implements Business {
 				json += ", ";
 			}
 		}
-		json += "], \"state\": \"" + this.location.getState() + "\", \"type\": \"business\", \"stars\": " + this.stars
+		json += "], \"state\": \"" + this.location.getState() + "\", \"type\": \"business\", \"stars\": " + (this.stars==0.0 ? "0" : this.stars)
 				+ ", \"city\": \"" + this.location.getCity() + "\", \"full_address\": \""
 				+ this.location.getFullAddress() + ", \"review_count\": " + this.reviewCount + ", \"photo_url\": \""
 				+ this.photoURL + "\", \"schools\": [";

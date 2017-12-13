@@ -421,7 +421,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 
 	/**
 	 * @param businessID
-	 *            the businessID of the restaurant whos JSON string we wish to
+	 *            the businessID of the restaurant whose JSON string we wish to
 	 *            return
 	 * @return the JSON string of this restaurant
 	 * @throws RestaurantNotFoundException
@@ -759,43 +759,61 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * 			A string representing the response to the query
 	 * 
 	 */
-	public synchronized String queryProcessor(String queryString) throws RestaurantNotFoundException {
+	public synchronized String queryProcessor(String queryString) throws RestaurantNotFoundException, InvalidInputException, 
+	UserNotFoundException, ReviewNotFoundException {
+		// checking if this is a get restaurant query
 		Pattern gRestPat = Pattern.compile("GETRESTAURANT (.*?)");
 		Matcher gRestMat = gRestPat.matcher(queryString);
 		if (gRestMat.find()) {
 			try {
-				return this.getRestaurantJSON(gRestMat.group(1));
+				String ID = queryString.split(" ")[1];
+				return this.getRestaurantJSON(ID);
 			} catch (RestaurantNotFoundException e) {
 				return "ERR: NO_SUCH_RESTAURANT"; //idk if this should be returned here
 			}	
 		}
-		Pattern aUserPat = Pattern.compile("ADDUSER {(.*?)}");
+		// checking if this is an add user query
+		Pattern aUserPat = Pattern.compile("ADDUSER \\{(.*?)\\}");
 		Matcher aUserMat = aUserPat.matcher(queryString);
 		// need to figure out how to validate rest of json string
 		if (aUserMat.find()) {
-			String json = aUserMat.group(1);
-			Pattern namePat = Pattern.compile("\"name\":(.*?)");
+			String json = aUserMat.group(1); // validate this (check if extra info is in json format, then ignore it)
+			Pattern namePat = Pattern.compile("\"name\": \"(.*?)\"}");
 			Matcher nameMat = namePat.matcher(queryString);
-			if (nameMat.find()) {
+			// if string includes name+other info
+			Pattern namePat2 = Pattern.compile("\"name\": \"(.*?)\", ");
+			Matcher nameMat2 = namePat2.matcher(queryString);
+			if (nameMat2.find()) {
+				String ID = this.addUser(nameMat2.group(1)); //save generated id
+				try {
+					return this.getUserJSON(ID);
+				} catch (UserNotFoundException e) {
+				// do nothing, it will be there
+				}
+			} else if(nameMat.find()) {
 				String ID = this.addUser(nameMat.group(1));
 				try {
 					return this.getUserJSON(ID);
 				} catch (UserNotFoundException e) {
-				// do nothing
+				// do nothing, it will be there
 				}
 			} else {
+				// there was no correctly formatted name in the string, this should also be shown when json format invalid
 				return "ERR: INVALID_USER_STRING";
 			}
 		}
+		
+		// checks if this is an add restaurant query
 		Pattern aRestPat = Pattern.compile("ADDRESTAURANT {(.*?)}");
 		Matcher aRestMat = aRestPat.matcher(queryString);
 		if(aRestMat.find()) {
 			String json = aRestMat.group(1);
+			// ensures that json does not include business id or stars, we can add an option to ignore these if they were added though
 			if (!json.contains("\"business_id\": ")&&!json.contains("\"stars\": ")) {
 				json = json.split("\"name\": ")[0] + "\"business_id\": \"" + this.businessID + "\", " + "\"name\": " + json.split("\"name\": ")[1];
 				String ID = this.businessID.toString();
 				this.businessID++;
-				json = json.split("\"city\": ")[0] + "\"stars\": 0.0, " + "\"city\": " + json.split("\"city\": ")[1];
+				json = json.split("\"city\": ")[0] + "\"stars\": 0, " + "\"city\": " + json.split("\"city\": ")[1];
 				try {
 					this.addRestaurantJSON(json);
 					return this.getRestaurantJSON(ID);
@@ -804,10 +822,13 @@ public class YelpDb implements MP5Db<Restaurant> {
 				}
 			} else { return "ERR: INVALID_RESTAURANT_STRING";}
 		}
+		
+		// checks if this is an add review query
 		Pattern aRevPat = Pattern.compile("ADDREVIEW {(.*?)}");
 		Matcher aRevMat = aRevPat.matcher(queryString);
 		if(aRevMat.find()) {
 			String json = aRevMat.group(1);
+			// make sure a review_id was not included
 			if (!json.contains("\"review_id\": ")){
 				json = json.split("\"text\": ")[0] + "\"review_id\": \"" + this.reviewID + "\", " + "\"text\": " + json.split("\"text\": ");
 				String ID = this.reviewID.toString();
@@ -827,7 +848,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 					}
 				}
 			}	
-		}
+		} else {return "ERR: INVALID_REVIEW_STRING";}
 		return "ERR: INVALID_QUERY";
 	}		
 

@@ -153,7 +153,7 @@ public class YelpUser implements User {
 			json += "{}";
 		}
 		json+=", \"review_count\": "+this.reviewCount.toString()+", \"type\": \"user\", \"user_id\": \""
-		+this.userID+"\", \"name\": \""+this.name+"\", \"average_stars\": "+this.avgStars.toString()+"}";
+		+this.userID+"\", \"name\": \""+this.name+"\", \"average_stars\": "+(this.avgStars==0 ? "0" : this.avgStars.toString())+"}";
 		return json;
 	}
 	/**
