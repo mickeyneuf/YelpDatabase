@@ -2,6 +2,7 @@ package ca.ece.ubc.cpen221.mp5;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -782,6 +783,13 @@ public class YelpDb implements MP5Db<Restaurant> {
 		// need to figure out how to validate rest of json string
 		if (aUserMat.find()) {
 			String json = aUserMat.group(1); // validate this (check if extra info is in json format, then ignore it)
+			try {
+				JsonReader jsonReader = Json.createReader(new StringReader("{"+json+"}"));
+				 JsonObject object = jsonReader.readObject();
+				 jsonReader.close();
+			} catch (JsonException e) {
+				throw new InvalidUserStringException();
+			}
 			Pattern namePat = Pattern.compile("\"name\": \"(.*?)\"}");
 			Matcher nameMat = namePat.matcher(queryString);
 			// if string includes name+other info
@@ -812,6 +820,13 @@ public class YelpDb implements MP5Db<Restaurant> {
 		Matcher aRestMat = aRestPat.matcher(queryString);
 		if(aRestMat.find()) {
 			String json = aRestMat.group(1);
+			try {
+				JsonReader jsonReader = Json.createReader(new StringReader("{"+json+"}"));
+				 JsonObject object = jsonReader.readObject();
+				 jsonReader.close();
+			} catch (JsonException e) {
+				throw new InvalidRestaurantStringException();
+			}
 			// ensures that json does not include business id or stars, we can add an option to ignore these if they were added though
 			if (!json.contains("\"business_id\": ")&&!json.contains("\"stars\": ")) {
 				json = json.split("\"name\": ")[0] + "\"business_id\": \"" + this.businessID + "\", " + "\"name\": " + json.split("\"name\": ")[1];
@@ -832,6 +847,13 @@ public class YelpDb implements MP5Db<Restaurant> {
 		Matcher aRevMat = aRevPat.matcher(queryString);
 		if(aRevMat.find()) {
 			String json = aRevMat.group(1);
+			try {
+				JsonReader jsonReader = Json.createReader(new StringReader("{"+json+"}"));
+				 JsonObject object = jsonReader.readObject();
+				 jsonReader.close();
+			} catch (JsonException e) {
+				throw new InvalidReviewStringException();
+			}
 			// make sure a review_id was not included
 			if (!json.contains("\"review_id\": ")&&!json.contains("\"votes\": ")){
 				json = "{"+json.split("\"text\": ")[0] + "\"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": \"" + this.reviewID + "\", " + "\"text\": " + json.split("\"text\": ")[1]+"}";

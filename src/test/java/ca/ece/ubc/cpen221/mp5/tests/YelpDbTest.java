@@ -307,6 +307,17 @@ public class YelpDbTest {
 		assertEquals(yelp.getRestaurantJSON("WXKx2I2SEzBpeUGtDMCS8A"), yelp.queryProcessor("GETRESTAURANT WXKx2I2SEzBpeUGtDMCS8A"));
 		assertEquals("{\"open\": true, \"url\": \"http://www.yelp.com/biz/pancake\", \"longitude\": -121.53281948723, \"neighborhoods\": [\"Downtown Berkeley\", \"UC Campus Area\"], \"business_id\": \"0\", \"name\": \"pancake store\", \"categories\": [\"pancake\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 0, \"city\": \"Berkeley\", \"full_address\": \"9999 pancake St\\nDowntown Berkeley\\nBerkeley, CA 99999\", \"review_count\": 0, \"photo_url\": \"http://s3-media3.ak.yelpcdn.com/bphoto/pancake.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 32.342895435, \"price\": 1}", yelp.queryProcessor("ADDRESTAURANT {\"open\": true, \"url\": \"http://www.yelp.com/biz/pancake\", \"longitude\": -121.53281948723, \"neighborhoods\": [\"Downtown Berkeley\", \"UC Campus Area\"], \"name\": \"pancake store\", \"categories\": [\"pancake\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"city\": \"Berkeley\", \"full_address\": \"9999 pancake St\\nDowntown Berkeley\\nBerkeley, CA 99999\", \"review_count\": 0, \"photo_url\": \"http://s3-media3.ak.yelpcdn.com/bphoto/pancake.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 32.342895435, \"price\": 1}"));
 		assertEquals("{\"type\": \"review\", \"business_id\": \"0\", \"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": \"0\", \"text\": \"it was pretty good\", \"stars\": 5, \"user_id\": \"0\", \"date\": \"2017-12-13\"}", yelp.queryProcessor("ADDREVIEW {\"type\": \"review\", \"business_id\": \"0\", \"text\": \"it was pretty good\", \"stars\": 5, \"user_id\": \"0\", \"date\": \"2017-12-13\"}"));
+		try {
+			yelp.queryProcessor("ADDUSER {\"name\": \"mike w.\", favorite food: eggs}");
+			fail("Exception expected!");
+		} catch (InvalidUserStringException e) {
+			//do nothing
+		}
+		try {
+			yelp.queryProcessor("ADDUSER {\"name\": \"mike w.\", \"favorite food\": \"eggs\"}");
+		} catch (InvalidUserStringException e) {
+			fail("No Exception expected!");
+		}
 	}
 
 }
