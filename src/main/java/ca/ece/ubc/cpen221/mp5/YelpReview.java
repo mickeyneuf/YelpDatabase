@@ -89,7 +89,6 @@ public class YelpReview implements Review {
 		if(businessIDmat.find()) {
 			this.businessID = businessIDmat.group(1);
 		} else {
-			System.out.println("Please enter Yelp Review info in valid JSON format:\nCould not find BusinessID");
 			throw new InvalidInputException();
 		}
 		// locates and stores votes in a YelpVotes object based on JSON grammar and format
@@ -100,7 +99,6 @@ public class YelpReview implements Review {
 		if(votesMat.find()) {
 			voteStr = votesMat.group(1);
 		} else {
-			System.out.println("Please enter Yelp Review info in valid JSON format:\nCould not find votes");
 			throw new InvalidInputException();
 		}
 		// storing "cool", "useful", funny votes in a YelpVotes object by parsing integers
@@ -111,7 +109,6 @@ public class YelpReview implements Review {
 								   Integer.parseInt(voteArr[3].replaceAll(",", "")), 
 								   Integer.parseInt(voteArr[5].replaceAll("}", "")));
 		}catch(ArrayIndexOutOfBoundsException e) {
-			System.out.println("Please enter Yelp Review info in valid JSON format:\nCould not find votes");
 			throw new InvalidInputException();
 		}
 		// storing reviewID
@@ -120,7 +117,6 @@ public class YelpReview implements Review {
 		if(reviewIDmat.find()) {
 			this.reviewID = reviewIDmat.group(1);	
 		} else {
-			System.out.println("Please enter Yelp Review info in valid JSON format:\nCould not find review ID");
 			throw new InvalidInputException();
 		}
 		// storing review text
@@ -129,7 +125,6 @@ public class YelpReview implements Review {
 		if(textMat.find()) {
 			this.review = textMat.group(1);
 		} else {
-			System.out.println("Please enter Yelp Review info in valid JSON format:\nCould not find review text");
 			throw new InvalidInputException();
 		}
 		// storing rating
@@ -138,7 +133,6 @@ public class YelpReview implements Review {
 		if(starsMat.find()) {
 			this.rating = Integer.parseInt(starsMat.group(1));
 		} else {
-			System.out.println("Please enter Yelp Review info in valid JSON format:\nCould not find rating");
 			throw new InvalidInputException();
 		}
 		//storing user ID
@@ -147,7 +141,6 @@ public class YelpReview implements Review {
 		if(userIDmat.find()) {
 			this.userID = userIDmat.group(1);
 		} else {
-			System.out.println("Please enter Yelp Review info in valid JSON format:\nCould not find userID");
 			throw new InvalidInputException();
 		}
 		// storing review date
@@ -156,7 +149,6 @@ public class YelpReview implements Review {
 		if(dateMat.find()) {
 			this.date = dateMat.group(1);
 		} else {
-			System.out.println("Please enter Yelp Review info in valid JSON format:\nCould not find date");
 			throw new InvalidInputException();
 		}
 	}

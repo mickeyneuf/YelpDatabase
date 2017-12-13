@@ -757,10 +757,14 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * 			A string representing the query to be processed
 	 * @return responseString
 	 * 			A string representing the response to the query
+	 * @throws InvalidReviewStringException 
+	 * @throws InvalidUserStringException 
+	 * @throws InvalidRestaurantStringException 
+	 * @throws InvalidQueryException 
 	 * 
 	 */
 	public synchronized String queryProcessor(String queryString) throws RestaurantNotFoundException, InvalidInputException, 
-	UserNotFoundException, ReviewNotFoundException {
+	UserNotFoundException, ReviewNotFoundException, InvalidReviewStringException, InvalidUserStringException, InvalidRestaurantStringException, InvalidQueryException {
 		// checking if this is a get restaurant query
 		Pattern gRestPat = Pattern.compile("GETRESTAURANT (.*?)");
 		Matcher gRestMat = gRestPat.matcher(queryString);
@@ -769,7 +773,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 				String ID = queryString.split(" ")[1];
 				return this.getRestaurantJSON(ID);
 			} catch (RestaurantNotFoundException e) {
-				return "ERR: NO_SUCH_RESTAURANT"; //idk if this should be returned here
+				throw new RestaurantNotFoundException();
 			}	
 		}
 		// checking if this is an add user query
@@ -799,12 +803,12 @@ public class YelpDb implements MP5Db<Restaurant> {
 				}
 			} else {
 				// there was no correctly formatted name in the string, this should also be shown when json format invalid
-				return "ERR: INVALID_USER_STRING";
+				throw new InvalidUserStringException();
 			}
 		}
 		
 		// checks if this is an add restaurant query
-		Pattern aRestPat = Pattern.compile("ADDRESTAURANT {(.*?)}");
+		Pattern aRestPat = Pattern.compile("ADDRESTAURANT \\{(.*?)\\}");
 		Matcher aRestMat = aRestPat.matcher(queryString);
 		if(aRestMat.find()) {
 			String json = aRestMat.group(1);
@@ -813,43 +817,43 @@ public class YelpDb implements MP5Db<Restaurant> {
 				json = json.split("\"name\": ")[0] + "\"business_id\": \"" + this.businessID + "\", " + "\"name\": " + json.split("\"name\": ")[1];
 				String ID = this.businessID.toString();
 				this.businessID++;
-				json = json.split("\"city\": ")[0] + "\"stars\": 0, " + "\"city\": " + json.split("\"city\": ")[1];
+				json = "{"+json.split("\"city\": ")[0] + "\"stars\": 0, " + "\"city\": " + json.split("\"city\": ")[1]+"}";
 				try {
 					this.addRestaurantJSON(json);
 					return this.getRestaurantJSON(ID);
 				} catch (InvalidInputException e) {
-					return "ERR: INVALID_RESTAURANT_STRING";
+					throw new InvalidRestaurantStringException();
 				}
-			} else { return "ERR: INVALID_RESTAURANT_STRING";}
+			} else {throw new InvalidRestaurantStringException();}
 		}
 		
 		// checks if this is an add review query
-		Pattern aRevPat = Pattern.compile("ADDREVIEW {(.*?)}");
+		Pattern aRevPat = Pattern.compile("ADDREVIEW \\{(.*?)\\}");
 		Matcher aRevMat = aRevPat.matcher(queryString);
 		if(aRevMat.find()) {
 			String json = aRevMat.group(1);
 			// make sure a review_id was not included
-			if (!json.contains("\"review_id\": ")){
-				json = json.split("\"text\": ")[0] + "\"review_id\": \"" + this.reviewID + "\", " + "\"text\": " + json.split("\"text\": ");
+			if (!json.contains("\"review_id\": ")&&!json.contains("\"votes\": ")){
+				json = "{"+json.split("\"text\": ")[0] + "\"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": \"" + this.reviewID + "\", " + "\"text\": " + json.split("\"text\": ")[1]+"}";
 				String ID = this.reviewID.toString();
 				this.reviewID++;
 				try {
-					this.addReviewJSON(ID);
+					this.addReviewJSON(json);
 					return this.getReviewJSON(ID);
 				} catch (InvalidInputException | UserNotFoundException | RestaurantNotFoundException | ReviewNotFoundException e) {
 					if (e instanceof InvalidInputException) {
-						return "ERR: INVALID_REVIEW_STRING";
+						throw new InvalidReviewStringException();
 					}
 					if (e instanceof UserNotFoundException) {
-						return "ERR: NO_SUCH_USER";
+						throw new UserNotFoundException();
 					}
 					if (e instanceof RestaurantNotFoundException) {
-						return "ERR: NO_SUCH_RESTAURANT";
+						throw new RestaurantNotFoundException();
 					}
 				}
-			}	
-		} else {return "ERR: INVALID_REVIEW_STRING";}
-		return "ERR: INVALID_QUERY";
+			} else {throw new InvalidReviewStringException();}
+		} else {throw new InvalidReviewStringException();}
+		throw new InvalidQueryException();
 	}		
 
 }

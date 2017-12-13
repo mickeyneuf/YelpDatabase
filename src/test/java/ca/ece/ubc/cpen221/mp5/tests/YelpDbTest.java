@@ -8,6 +8,10 @@ import java.util.HashSet;
 import java.util.Scanner;
 import org.junit.Test;
 import ca.ece.ubc.cpen221.mp5.InvalidInputException;
+import ca.ece.ubc.cpen221.mp5.InvalidQueryException;
+import ca.ece.ubc.cpen221.mp5.InvalidRestaurantStringException;
+import ca.ece.ubc.cpen221.mp5.InvalidReviewStringException;
+import ca.ece.ubc.cpen221.mp5.InvalidUserStringException;
 import ca.ece.ubc.cpen221.mp5.Restaurant;
 import ca.ece.ubc.cpen221.mp5.RestaurantNotFoundException;
 import ca.ece.ubc.cpen221.mp5.Review;
@@ -297,10 +301,12 @@ public class YelpDbTest {
 	}
 	
 	@Test 
-	public void test13() throws IOException, InvalidInputException, RestaurantNotFoundException, UserNotFoundException, ReviewNotFoundException {
+	public void test13() throws IOException, InvalidInputException, RestaurantNotFoundException, UserNotFoundException, ReviewNotFoundException, InvalidReviewStringException, InvalidUserStringException, InvalidRestaurantStringException, InvalidQueryException {
 		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
 		assertEquals("{\"url\": \"http://www.yelp.com/user_details?userid=0\", \"votes\": {}, \"review_count\": 0, \"type\": \"user\", \"user_id\": \"0\", \"name\": \"Sathish G.\", \"average_stars\": 0}", yelp.queryProcessor("ADDUSER {\"favorite color\": \"yellow\", \"name\": \"Sathish G.\", \"hobbies\": \"golf\", \"favorite food\": \"egg\"}"));
 		assertEquals(yelp.getRestaurantJSON("WXKx2I2SEzBpeUGtDMCS8A"), yelp.queryProcessor("GETRESTAURANT WXKx2I2SEzBpeUGtDMCS8A"));
+		assertEquals("{\"open\": true, \"url\": \"http://www.yelp.com/biz/pancake\", \"longitude\": -121.53281948723, \"neighborhoods\": [\"Downtown Berkeley\", \"UC Campus Area\"], \"business_id\": \"0\", \"name\": \"pancake store\", \"categories\": [\"pancake\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 0, \"city\": \"Berkeley\", \"full_address\": \"9999 pancake St\\nDowntown Berkeley\\nBerkeley, CA 99999\", \"review_count\": 0, \"photo_url\": \"http://s3-media3.ak.yelpcdn.com/bphoto/pancake.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 32.342895435, \"price\": 1}", yelp.queryProcessor("ADDRESTAURANT {\"open\": true, \"url\": \"http://www.yelp.com/biz/pancake\", \"longitude\": -121.53281948723, \"neighborhoods\": [\"Downtown Berkeley\", \"UC Campus Area\"], \"name\": \"pancake store\", \"categories\": [\"pancake\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"city\": \"Berkeley\", \"full_address\": \"9999 pancake St\\nDowntown Berkeley\\nBerkeley, CA 99999\", \"review_count\": 0, \"photo_url\": \"http://s3-media3.ak.yelpcdn.com/bphoto/pancake.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 32.342895435, \"price\": 1}"));
+		assertEquals("{\"type\": \"review\", \"business_id\": \"0\", \"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": \"0\", \"text\": \"it was pretty good\", \"stars\": 5, \"user_id\": \"0\", \"date\": \"2017-12-13\"}", yelp.queryProcessor("ADDREVIEW {\"type\": \"review\", \"business_id\": \"0\", \"text\": \"it was pretty good\", \"stars\": 5, \"user_id\": \"0\", \"date\": \"2017-12-13\"}"));
 	}
 
 }
