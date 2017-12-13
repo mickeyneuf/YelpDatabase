@@ -815,7 +815,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 				try {
 					this.addReviewJSON(ID);
 					return this.getReviewJSON(ID);
-				} catch (InvalidInputException | UserNotFoundException | RestaurantNotFoundException e) {
+				} catch (InvalidInputException | UserNotFoundException | RestaurantNotFoundException | ReviewNotFoundException e) {
 					if (e instanceof InvalidInputException) {
 						return "ERR: INVALID_REVIEW_STRING";
 					}
@@ -829,6 +829,6 @@ public class YelpDb implements MP5Db<Restaurant> {
 			}	
 		}
 		return "ERR: INVALID_QUERY";
-		
+	}		
 
 }
