@@ -77,7 +77,6 @@ public class YelpUser implements User {
 		if(urlMat.find()) {
 			this.url = urlMat.group(1);
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find url");
 			throw new InvalidInputException();
 		}
 		// storing votes
@@ -87,7 +86,6 @@ public class YelpUser implements User {
 		if(votesMat.find()) {
 				voteStr = votesMat.group(1);
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find votes");
 			throw new InvalidInputException();
 		}
 		String[] voteArr = voteStr.split(" ");
@@ -96,7 +94,6 @@ public class YelpUser implements User {
 								   Integer.parseInt(voteArr[3].replaceAll(",", "")), 
 								   Integer.parseInt(voteArr[1].replaceAll(",", "")));
 		} catch (ArrayIndexOutOfBoundsException e) {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find votes");
 			throw new InvalidInputException();
 		}
 		// storing review count
@@ -105,7 +102,6 @@ public class YelpUser implements User {
 		if(reviewCountMat.find()) {
 			this.reviewCount = Integer.parseInt(reviewCountMat.group(1));
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find review count");
 			throw new InvalidInputException();
 		}
 		// storing userID
@@ -114,7 +110,6 @@ public class YelpUser implements User {
 		if(userIDMat.find()) {
 			this.userID = userIDMat.group(1);
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find userID");
 			throw new InvalidInputException();
 		}	
 		// storing name
@@ -123,7 +118,6 @@ public class YelpUser implements User {
 		if(nameMat.find()) {
 			this.name = nameMat.group(1);
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find name");
 			throw new InvalidInputException();
 		}
 		// storing stars
@@ -132,7 +126,6 @@ public class YelpUser implements User {
 		if(starsMat.find()) {
 			this.avgStars = Double.parseDouble(starsMat.group(1));
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find average stars");
 			throw new InvalidInputException();
 		}
 	}
@@ -153,7 +146,7 @@ public class YelpUser implements User {
 			json += "{}";
 		}
 		json+=", \"review_count\": "+this.reviewCount.toString()+", \"type\": \"user\", \"user_id\": \""
-		+this.userID+"\", \"name\": \""+this.name+"\", \"average_stars\": "+this.avgStars.toString()+"}";
+		+this.userID+"\", \"name\": \""+this.name+"\", \"average_stars\": "+(this.avgStars==0 ? "0" : this.avgStars.toString())+"}";
 		return json;
 	}
 	/**

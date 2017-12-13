@@ -82,7 +82,6 @@ public class Restaurant implements Business {
 		if (openMat.find()) {
 			this.open = Boolean.parseBoolean(openMat.group(1));
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find open status");
 			throw new InvalidInputException();
 		}
 		// storing url
@@ -91,7 +90,6 @@ public class Restaurant implements Business {
 		if (urlMat.find()) {
 			this.url = urlMat.group(1);
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find URL");
 			throw new InvalidInputException();
 		}
 		// storing longPat
@@ -101,7 +99,6 @@ public class Restaurant implements Business {
 		if (longMat.find()) {
 			this.location.setLongitude(Double.parseDouble(longMat.group(1)));
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find longitude");
 			throw new InvalidInputException();
 		}
 		// storing neighborhood
@@ -111,7 +108,6 @@ public class Restaurant implements Business {
 		if (neighMat.find()) {
 			neighStr = neighMat.group(1);
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find neighborhood");
 			throw new InvalidInputException();
 		}
 		String[] neighArr = neighStr.split(", ");
@@ -124,7 +120,6 @@ public class Restaurant implements Business {
 		if (businessIDmat.find()) {
 			this.businessID = businessIDmat.group(1);
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find business ID");
 			throw new InvalidInputException();
 		}
 		// storing name
@@ -133,7 +128,6 @@ public class Restaurant implements Business {
 		if (nameMat.find()) {
 			this.name = nameMat.group(1);
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find name");
 			throw new InvalidInputException();
 		}
 		// storing categories
@@ -143,7 +137,6 @@ public class Restaurant implements Business {
 		if (catMat.find()) {
 			catStr = catMat.group(1);
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find categories");
 			throw new InvalidInputException();
 		}
 		String[] catArr = catStr.split("\", \"");
@@ -157,7 +150,6 @@ public class Restaurant implements Business {
 		if (stateMat.find()) {
 			this.location.setState(stateMat.group(1));
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find state");
 			throw new InvalidInputException();
 		}
 		// storing stars
@@ -166,7 +158,6 @@ public class Restaurant implements Business {
 		if (starsMat.find()) {
 			this.stars = Double.parseDouble(starsMat.group(1));
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find stars");
 			throw new InvalidInputException();
 		}
 		// storing city
@@ -175,7 +166,6 @@ public class Restaurant implements Business {
 		if (cityMat.find()) {
 			this.location.setCity(cityMat.group(1));
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find city");
 			throw new InvalidInputException();
 		}
 		// storing fullAddress
@@ -185,7 +175,6 @@ public class Restaurant implements Business {
 		if (fullAddrMat.find()) {
 			fullAddrStr = fullAddrMat.group(1);
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find full address");
 			throw new InvalidInputException();
 		}
 		String[] fullAddrArr = fullAddrStr.split(Pattern.quote("\\n"));
@@ -225,7 +214,6 @@ public class Restaurant implements Business {
 				this.location.setAreaCode(addr2[addr2.length - 1]);
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-			System.out.println("Please enter restaurant info in valid JSON format:\nCould not find full address");
 			throw new InvalidInputException();
 		}
 		// storing reviewCount
@@ -234,7 +222,6 @@ public class Restaurant implements Business {
 		if (reviewCountMat.find()) {
 			this.reviewCount = Integer.parseInt(reviewCountMat.group(1));
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find review count");
 			throw new InvalidInputException();
 		}
 		// storing photoURL
@@ -243,7 +230,6 @@ public class Restaurant implements Business {
 		if (photoURLmat.find()) {
 			this.photoURL = photoURLmat.group(1);
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find photo url");
 			throw new InvalidInputException();
 		}
 		// storing schools
@@ -253,7 +239,6 @@ public class Restaurant implements Business {
 		if (schoolsMat.find()) {
 			schoolArr = schoolsMat.group(1).split(", ");
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find schools");
 			throw new InvalidInputException();
 		}
 		for (String s : schoolArr) {
@@ -265,7 +250,6 @@ public class Restaurant implements Business {
 		if (latMat.find()) {
 			this.location.setLatitude(Double.parseDouble(latMat.group(1)));
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find latitude");
 			throw new InvalidInputException();
 		}
 		// storing price
@@ -274,7 +258,6 @@ public class Restaurant implements Business {
 		if (priceMat.find()) {
 			this.price = Integer.parseInt(priceMat.group(1));
 		} else {
-			System.out.println("Please enter Yelp User info in valid JSON format:\nCould not find price");
 			throw new InvalidInputException();
 		}
 	}
@@ -300,7 +283,7 @@ public class Restaurant implements Business {
 				json += ", ";
 			}
 		}
-		json += "], \"state\": \"" + this.location.getState() + "\", \"type\": \"business\", \"stars\": " + this.stars
+		json += "], \"state\": \"" + this.location.getState() + "\", \"type\": \"business\", \"stars\": " + (this.stars==0.0 ? "0" : this.stars)
 				+ ", \"city\": \"" + this.location.getCity() + "\", \"full_address\": \""
 				+ this.location.getFullAddress() + ", \"review_count\": " + this.reviewCount + ", \"photo_url\": \""
 				+ this.photoURL + "\", \"schools\": [";
