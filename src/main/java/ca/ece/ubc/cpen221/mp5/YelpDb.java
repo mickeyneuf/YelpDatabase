@@ -935,6 +935,10 @@ public class YelpDb implements MP5Db<Restaurant> {
 	public synchronized HashSet<String> queryHelper(String conditions) throws InvalidQueryException, NoMatchException {
 		HashSet<Restaurant> curPool = new HashSet<Restaurant>(this.restaurantList);
 		String queryString = conditions;
+		// one level of format checking: checks that there are spaces on either side of each double ampersand
+		if (conditions.split("&&").length!=conditions.split(" && ").length){
+			throw new InvalidQueryException();
+		}
 		// We process the query one subquery at a time, and remove each one from the
 		// queryString once we have
 		// appropriately filtered the restaurant list
@@ -945,14 +949,25 @@ public class YelpDb implements MP5Db<Restaurant> {
 			// save and remove current subquery from query string
 			String newQuery = queryString.replace(toReplace, "");
 			queryString = newQuery;
-			// if subquery contains an "or" s
+			// if subquery contains an "or"
 			if (curCond.contains("||")) {
+				// checks that spaces are included around ||
+				if (!curCond.contains(" || ")) {
+					throw new InvalidQueryException();
+				}
 				String[] orConds = curCond.split(" \\|\\| ");
 				HashSet<Restaurant> newPool = new HashSet<Restaurant>();
 				// for all conditions in or statement, filter current restaurant set, then add
 				// them to a new pool
 				for (int i = 0; i < orConds.length; i++) {
-					HashSet<Restaurant> condPool = (HashSet<Restaurant>) oneQuery(orConds[i], curPool);
+					String thisCond = orConds[i];
+					if (i==0 && thisCond.startsWith("(")) {
+						thisCond = thisCond.substring(1, thisCond.length());
+					}
+					else if (i==orConds.length-1 && thisCond.endsWith("))")) {
+						thisCond = thisCond.substring(0, thisCond.length()-1);
+					}
+					HashSet<Restaurant> condPool = (HashSet<Restaurant>) oneQuery(thisCond, curPool);
 					newPool.addAll(condPool);
 				}
 				curPool = newPool;
@@ -984,11 +999,14 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 *            current restaurant pool
 	 * @return new restaurant pool after filtering
 	 * @throws InvalidQueryException
+	 * 			If query not in correct format
 	 */
 	private Set<Restaurant> oneQuery(String condition, Set<Restaurant> pool) throws InvalidQueryException {
 		// checks if this is a category condition, and checks that it is formatted
 		// correctly
-		if (condition.contains("category(") && condition.split("\\) ").length == 1) {
+		if (condition.contains("category(") && condition.split("\\) ").length == 1 &&
+			condition.split("\\(")[0].replaceAll("\\(", "").equals("category") && 
+			condition.endsWith(")")) {
 			Pattern catPat = Pattern.compile("category\\((.*?)\\)");
 			Matcher catMat = catPat.matcher(condition);
 			if (catMat.find()) {
@@ -1003,7 +1021,9 @@ public class YelpDb implements MP5Db<Restaurant> {
 
 		}
 		// checks if this is a name condition, and checks that it is formatted correctly
-		if (condition.contains("name(") && condition.split("\\) ").length == 1) {
+		if (condition.contains("name(") && condition.split("\\) ").length == 1 &&
+			condition.split("\\(")[0].replaceAll("\\(", "").equals("name") && 
+			condition.endsWith(")")) {
 			Pattern namePat = Pattern.compile("name\\((.*?)\\)");
 			Matcher nameMat = namePat.matcher(condition);
 			if (nameMat.find()) {
@@ -1017,7 +1037,9 @@ public class YelpDb implements MP5Db<Restaurant> {
 			}
 		}
 		// checks if this is an in condition, and checks that it is formatted correctly
-		if (condition.contains("in(") && condition.split("\\) ").length == 1) {
+		if (condition.contains("in(") && condition.split("\\) ").length == 1 &&
+			condition.split("\\(")[0].replaceAll("\\(", "").equals("in") && 
+			condition.endsWith(")")) {
 			Pattern inPat = Pattern.compile("in\\((.*?)\\)");
 			Matcher inMat = inPat.matcher(condition);
 			if (inMat.find()) {
@@ -1035,13 +1057,16 @@ public class YelpDb implements MP5Db<Restaurant> {
 			String[] conditionArr = condition.split(" ");
 			// partially checks format of condition, throwing exception if this condition
 			// violated
-			if (conditionArr.length != 3) {
+			if (conditionArr.length != 3 && !conditionArr[0].replaceAll("\\(", "").equals("rating")) {
 				throw new InvalidQueryException();
 			}
 			try {
 				// retrieves rating integer from string (exception is thrown if expected
 				// location of rating is not an integer)
 				Integer rating = Integer.parseInt(conditionArr[2].replaceAll("\\)", ""));
+				if (rating > 5 | rating < 1) {
+					throw new InvalidQueryException();
+				}
 				// filters pool based on rating being in specified range depending on symbol
 				if (conditionArr[1].equals(">=")) {
 					return pool.stream().filter(restaurant -> restaurant.getStars() >= rating)
@@ -1073,13 +1098,16 @@ public class YelpDb implements MP5Db<Restaurant> {
 			String[] conditionArr = condition.split(" ");
 			// partially checks format of condition, throwing exception if this condition
 			// violated
-			if (conditionArr.length != 3) {
+			if (conditionArr.length != 3 && !conditionArr[0].replaceAll("\\(", "").equals("price")) {
 				throw new InvalidQueryException();
 			}
 			try {
 				// retrieves price integer from string (exception is thrown if expected location
 				// of price is not an integer)
 				Integer price = Integer.parseInt(conditionArr[2].replaceAll("\\)", ""));
+				if (price > 5 | price < 1) {
+					throw new InvalidQueryException();
+				}
 				// filters pool based on price being in specified range depending on symbol
 				if (conditionArr[1].equals(">=")) {
 					return pool.stream().filter(restaurant -> restaurant.getPrice() >= price)

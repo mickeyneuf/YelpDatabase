@@ -322,6 +322,7 @@ public class YelpDbTest {
 		System.out.println(yelp.queryProcessor("in(Telegraph Ave) && (category(Chinese) || category(Italian)) && price <= 2"));
 		System.out.println(yelp.queryProcessor("category(Sandwiches) && price < 2 && rating > 4"));
 		System.out.println(yelp.queryProcessor("category(Mexican) && price < 2 && rating >= 4"));
+		System.out.println(yelp.queryProcessor("category(Chinese) || category(Mexican)"));
 		try {
 			System.out.println(yelp.queryProcessor("GETUSER ksadasd"));
 			
