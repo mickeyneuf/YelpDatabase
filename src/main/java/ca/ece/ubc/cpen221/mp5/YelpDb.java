@@ -500,9 +500,9 @@ public class YelpDb implements MP5Db<Restaurant> {
 			this.getRestaurant(businessID).setStars(aRestRatings);
 			reviewID = this.reviewID.toString();
 			this.reviewID += 1;
-			visitedBy.get(businessID.toString()).add(userID.toString());
-			this.restaurantReviews.get(businessID.toString()).add(reviewID.toString());
-			this.userReviews.get(userID.toString()).add(reviewID.toString());
+			visitedBy.get(businessID.toString()).add(userID);
+			this.restaurantReviews.get(businessID).add(reviewID);
+			this.userReviews.get(userID).add(reviewID);
 		} catch (Exception e) {
 
 		}
@@ -787,7 +787,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 				JsonReader jsonReader = Json.createReader(new StringReader("{"+json+"}"));
 				 JsonObject object = jsonReader.readObject();
 				 jsonReader.close();
-			} catch (JsonException e) {
+			} catch (Exception e) {
 				throw new InvalidUserStringException();
 			}
 			Pattern namePat = Pattern.compile("\"name\": \"(.*?)\"}");
@@ -824,7 +824,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 				JsonReader jsonReader = Json.createReader(new StringReader("{"+json+"}"));
 				 JsonObject object = jsonReader.readObject();
 				 jsonReader.close();
-			} catch (JsonException e) {
+			} catch (Exception e) {
 				throw new InvalidRestaurantStringException();
 			}
 			// ensures that json does not include business id or stars, we can add an option to ignore these if they were added though
@@ -851,7 +851,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 				JsonReader jsonReader = Json.createReader(new StringReader("{"+json+"}"));
 				 JsonObject object = jsonReader.readObject();
 				 jsonReader.close();
-			} catch (JsonException e) {
+			} catch (Exception e) {
 				throw new InvalidReviewStringException();
 			}
 			// make sure a review_id was not included

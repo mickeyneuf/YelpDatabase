@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * its methods, or it can be created with parameters representing all of its fields.
  *
  */
-public class Location extends Object {
+public class Location {
 	private double longitude;
 	private double latitude;
 	private String state;

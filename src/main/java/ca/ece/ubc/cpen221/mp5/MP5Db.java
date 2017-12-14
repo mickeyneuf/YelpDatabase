@@ -1,7 +1,7 @@
 package ca.ece.ubc.cpen221.mp5;
 
 import java.util.Set;
-import java.util.function.ToDoubleBiFunction;;
+import java.util.function.ToDoubleBiFunction;
 
 // This interface represents a database of objects of type T. 
 // It supports querying for objects from the database as well

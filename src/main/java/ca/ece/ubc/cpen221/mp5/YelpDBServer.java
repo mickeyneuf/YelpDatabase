@@ -3,7 +3,6 @@ package ca.ece.ubc.cpen221.mp5;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
 
 
 /**
@@ -37,9 +36,8 @@ public class YelpDBServer{
 	 *            port number, requires 0 <= port <= 65535
 	 * @throws InvalidInputException 
 	 */
-	public YelpDBServer(int port) throws IOException, InvalidInputException {
+	public YelpDBServer(int port, YelpDb yelp) throws IOException, InvalidInputException {
 		serverSocket = new ServerSocket(port);
-		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
 		this.yelp = yelp;
 	}
 
@@ -140,7 +138,8 @@ public class YelpDBServer{
 	 */
 	public static void main(String[] args) {
 		try {
-			YelpDBServer server = new YelpDBServer(YELPDB_PORT);
+			YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
+			YelpDBServer server = new YelpDBServer(YELPDB_PORT, yelp);
 			server.serve();
 		} catch (IOException | InvalidInputException e1) {
 			e1.printStackTrace();
