@@ -324,6 +324,18 @@ public class YelpDbTest {
 		System.out.println(yelp.queryProcessor("category(Mexican) && price < 2 && rating >= 4"));
 		System.out.println(yelp.queryProcessor("category(Chinese) || category(Mexican)"));
 		try {
+			yelp.queryProcessor("category(Chinese)|| category(Mexican)");
+			fail("exception expected!");
+		} catch (InvalidQueryException e) {
+			// do nothing
+		}
+		try {
+			yelp.queryProcessor("category(alien) && category(Mexican)");
+			fail("exception expected!");
+		} catch (NoMatchException e) {
+			//do nothing
+		}
+		try {
 			System.out.println(yelp.queryProcessor("GETUSER ksadasd"));
 			
 			fail("expected an exception");

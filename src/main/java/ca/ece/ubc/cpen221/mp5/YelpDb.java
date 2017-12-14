@@ -109,15 +109,13 @@ public class YelpDb implements MP5Db<Restaurant> {
 	@Override
 	public Set<Restaurant> getMatches(String queryString) {
 		try {
-			if (restaurantList.contains(this.getRestaurant(queryString))) {
-				Set<Restaurant> set = new HashSet<Restaurant>();
-				set.add(this.getRestaurant(queryString));
-				return set;
-			}
+			return this.queryHelper(queryString);
 		} catch (Exception e) {
-			return new HashSet<>();
+			if (e instanceof NoMatchException) {
+				return new HashSet<Restaurant>();
+			}
+			return null;
 		}
-		return new HashSet<>();
 
 	}
 
@@ -788,39 +786,25 @@ public class YelpDb implements MP5Db<Restaurant> {
 		// need to figure out how to validate rest of json string
 		if (aUserMat.find()) {
 			String json = aUserMat.group(1); // validate this (check if extra info is in json format, then ignore it)
+			JsonObject object = null;
+			// checks for everything in json format
 			try {
 				JsonReader jsonReader = Json.createReader(new StringReader("{" + json + "}"));
-				JsonObject object = jsonReader.readObject();
+				object = jsonReader.readObject();
 				jsonReader.close();
 			} catch (Exception e) {
 				throw new InvalidUserStringException();
 			}
-			Pattern namePat = Pattern.compile("\"name\": \"(.*?)\"}");
-			Matcher nameMat = namePat.matcher(queryString);
-			// if string includes name+other info
-			Pattern namePat2 = Pattern.compile("\"name\": \"(.*?)\", ");
-			Matcher nameMat2 = namePat2.matcher(queryString);
-			if (nameMat2.find()) {
-				String ID = this.addUser(nameMat2.group(1)); // save generated id
-				try {
-					return this.getUserJSON(ID);
-				} catch (UserNotFoundException e) {
-					// do nothing, it will be there
-				}
-			} else if (nameMat.find()) {
-				String ID = this.addUser(nameMat.group(1));
-				try {
-					return this.getUserJSON(ID);
-				} catch (UserNotFoundException e) {
-					// do nothing, it will be there
-				}
-			} else {
-				// there was no correctly formatted name in the string, this should also be
-				// shown when json format invalid
+			// checks for name field, throws exception if not there
+			try {
+				// save the current database userID that this user will get
+				String ID = this.userID.toString();
+				this.addUser(object.get("name").toString().replaceAll("\"", ""));
+				return this.getUserJSON(ID);
+			} catch (Exception e) {
 				throw new InvalidUserStringException();
 			}
 		}
-
 		// checks if this is an add restaurant query
 		Pattern aRestPat = Pattern.compile("ADDRESTAURANT \\{(.*?)\\}");
 		Matcher aRestMat = aRestPat.matcher(queryString);
@@ -872,7 +856,6 @@ public class YelpDb implements MP5Db<Restaurant> {
 				throw new InvalidRestaurantStringException();
 			}
 		}
-
 		// checks if this is an add review query
 		Pattern aRevPat = Pattern.compile("ADDREVIEW \\{(.*?)\\}");
 		Matcher aRevMat = aRevPat.matcher(queryString);
@@ -912,8 +895,20 @@ public class YelpDb implements MP5Db<Restaurant> {
 				}
 			}
 		} else if (queryString.contains("in(") | queryString.contains("category(") | queryString.contains("price")
-				| queryString.contains("rating")) {
-			return queryHelper(queryString).toString();
+				| queryString.contains("rating") | queryString.contains("name(")) {
+			try {
+				HashSet<Restaurant> matches = (HashSet<Restaurant>) this.getMatches(queryString);
+				if (matches.isEmpty()) {
+					throw new NoMatchException();
+				}
+				HashSet<String> jsonPool = new HashSet<String>();
+				for (Restaurant r : matches) {
+					jsonPool.add(r.getJSON());
+				}
+				return jsonPool.toString();
+			} catch (NullPointerException e) {
+				throw new InvalidQueryException();
+			}
 		} else {
 			throw new InvalidQueryException();
 		}
@@ -932,11 +927,13 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * @throws InvalidQueryException
 	 * @throws NoMatchException
 	 */
-	public synchronized HashSet<String> queryHelper(String conditions) throws InvalidQueryException, NoMatchException {
+	public synchronized HashSet<Restaurant> queryHelper(String conditions)
+			throws InvalidQueryException, NoMatchException {
 		HashSet<Restaurant> curPool = new HashSet<Restaurant>(this.restaurantList);
 		String queryString = conditions;
-		// one level of format checking: checks that there are spaces on either side of each double ampersand
-		if (conditions.split("&&").length!=conditions.split(" && ").length){
+		// one level of format checking: checks that there are spaces on either side of
+		// each double ampersand
+		if (conditions.split("&&").length != conditions.split(" && ").length) {
 			throw new InvalidQueryException();
 		}
 		// We process the query one subquery at a time, and remove each one from the
@@ -961,11 +958,10 @@ public class YelpDb implements MP5Db<Restaurant> {
 				// them to a new pool
 				for (int i = 0; i < orConds.length; i++) {
 					String thisCond = orConds[i];
-					if (i==0 && thisCond.startsWith("(")) {
+					if (i == 0 && thisCond.startsWith("(")) {
 						thisCond = thisCond.substring(1, thisCond.length());
-					}
-					else if (i==orConds.length-1 && thisCond.endsWith("))")) {
-						thisCond = thisCond.substring(0, thisCond.length()-1);
+					} else if (i == orConds.length - 1 && thisCond.endsWith("))")) {
+						thisCond = thisCond.substring(0, thisCond.length() - 1);
 					}
 					HashSet<Restaurant> condPool = (HashSet<Restaurant>) oneQuery(thisCond, curPool);
 					newPool.addAll(condPool);
@@ -982,11 +978,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 		}
 		// take current pool of restaurants and add json strings of each restaurant to a
 		// new set
-		HashSet<String> jsonPool = new HashSet<String>();
-		for (Restaurant r : curPool) {
-			jsonPool.add(r.getJSON());
-		}
-		return jsonPool;
+		return curPool;
 	}
 
 	/**
@@ -999,14 +991,13 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 *            current restaurant pool
 	 * @return new restaurant pool after filtering
 	 * @throws InvalidQueryException
-	 * 			If query not in correct format
+	 *             If query not in correct format
 	 */
 	private Set<Restaurant> oneQuery(String condition, Set<Restaurant> pool) throws InvalidQueryException {
 		// checks if this is a category condition, and checks that it is formatted
 		// correctly
-		if (condition.contains("category(") && condition.split("\\) ").length == 1 &&
-			condition.split("\\(")[0].replaceAll("\\(", "").equals("category") && 
-			condition.endsWith(")")) {
+		if (condition.contains("category(") && condition.split("\\) ").length == 1
+				&& condition.split("\\(")[0].replaceAll("\\(", "").equals("category") && condition.endsWith(")")) {
 			Pattern catPat = Pattern.compile("category\\((.*?)\\)");
 			Matcher catMat = catPat.matcher(condition);
 			if (catMat.find()) {
@@ -1021,9 +1012,8 @@ public class YelpDb implements MP5Db<Restaurant> {
 
 		}
 		// checks if this is a name condition, and checks that it is formatted correctly
-		if (condition.contains("name(") && condition.split("\\) ").length == 1 &&
-			condition.split("\\(")[0].replaceAll("\\(", "").equals("name") && 
-			condition.endsWith(")")) {
+		if (condition.contains("name(") && condition.split("\\) ").length == 1
+				&& condition.split("\\(")[0].replaceAll("\\(", "").equals("name") && condition.endsWith(")")) {
 			Pattern namePat = Pattern.compile("name\\((.*?)\\)");
 			Matcher nameMat = namePat.matcher(condition);
 			if (nameMat.find()) {
@@ -1037,9 +1027,8 @@ public class YelpDb implements MP5Db<Restaurant> {
 			}
 		}
 		// checks if this is an in condition, and checks that it is formatted correctly
-		if (condition.contains("in(") && condition.split("\\) ").length == 1 &&
-			condition.split("\\(")[0].replaceAll("\\(", "").equals("in") && 
-			condition.endsWith(")")) {
+		if (condition.contains("in(") && condition.split("\\) ").length == 1
+				&& condition.split("\\(")[0].replaceAll("\\(", "").equals("in") && condition.endsWith(")")) {
 			Pattern inPat = Pattern.compile("in\\((.*?)\\)");
 			Matcher inMat = inPat.matcher(condition);
 			if (inMat.find()) {
@@ -1139,5 +1128,3 @@ public class YelpDb implements MP5Db<Restaurant> {
 	}
 
 }
-
-
