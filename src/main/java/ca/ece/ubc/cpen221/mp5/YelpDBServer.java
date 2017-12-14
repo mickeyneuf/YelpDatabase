@@ -3,6 +3,8 @@ package ca.ece.ubc.cpen221.mp5;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
+
 
 /**
  * FibonacciServerMulti is a server that finds the n^th Fibonacci number given
@@ -12,7 +14,7 @@ import java.net.Socket;
  * indicate a misformatted request. FinbonacciServerMulti can handle multiple
  * concurrent clients.
  */
-public class YelpDBServer {
+public class YelpDBServer{
 	/** Default port number where the server listens for connections. */
 	public static final int YELPDB_PORT = 4949;
 
@@ -33,9 +35,11 @@ public class YelpDBServer {
 	 * 
 	 * @param port
 	 *            port number, requires 0 <= port <= 65535
+	 * @throws InvalidInputException 
 	 */
-	public YelpDBServer(int port, YelpDb yelp) throws IOException {
+	public YelpDBServer(int port) throws IOException, InvalidInputException {
 		serverSocket = new ServerSocket(port);
+		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
 		this.yelp = yelp;
 	}
 
@@ -99,10 +103,30 @@ public class YelpDBServer {
 				System.err.println("request: " + line);
 				try {
 					System.err.println(yelp.queryProcessor(line));
-				}
-
-				catch (RestaurantNotFoundException e) {
-
+				} catch (InvalidInputException e) {
+					System.err.println("Reply: ERR: INVALID_REQUEST");
+					out.println("ERR\n");
+				} catch (ReviewNotFoundException e) {
+					// This exception should not ever be thrown since we cannot look for a review,
+					// but we must catch it anyway
+				} catch (UserNotFoundException e) {
+					System.err.println("Reply: ERR: NO_SUCH_USER");
+					out.println("ERR\n");
+				} catch (RestaurantNotFoundException e) {
+					System.err.println("Reply: ERR: NO_SUCH_RESTAURANT");
+					out.println("ERR\n");
+				} catch (InvalidReviewStringException e) {
+					System.err.println("Reply: ERR: INVALID_REVIEW_STRING");
+					out.println("ERR\n");
+				} catch (InvalidUserStringException e) {
+					System.err.println("Reply: ERR: INVALID_USER_STRING");
+					out.println("ERR\n");
+				} catch (InvalidRestaurantStringException e) {
+					System.err.println("Reply: ERR: INVALID_RESTAURANT_STRING");
+					out.println("ERR\n");
+				} catch (InvalidQueryException e) {
+					System.err.println("Reply: ERR: INVALID_REQUEST");
+					out.println("ERR\n");
 				}
 			}
 		} finally {
@@ -111,4 +135,15 @@ public class YelpDBServer {
 		}
 	}
 
+	/**
+	 * Start a FibonacciServerMulti running on the default port.
+	 */
+	public static void main(String[] args) {
+		try {
+			YelpDBServer server = new YelpDBServer(YELPDB_PORT);
+			server.serve();
+		} catch (IOException | InvalidInputException e1) {
+			e1.printStackTrace();
+		}
+	}
 }
