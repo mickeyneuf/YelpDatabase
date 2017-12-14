@@ -103,7 +103,7 @@ public class YelpDBServer{
 				try {
 					String reply = yelp.queryProcessor(line);
 					System.err.println("Reply: " + reply);
-					out.println(reply + "\n");
+					out.println("\n" + reply + "\n");
 				} catch (InvalidInputException e) {
 					System.err.println("Reply: ERR: INVALID_REQUEST");
 					out.println("ERR: INVALID REQUEST\n");
