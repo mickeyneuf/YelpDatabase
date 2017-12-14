@@ -156,7 +156,7 @@ public class Restaurant implements Business {
 		Pattern starsPat = Pattern.compile("\"stars\": (.*?), \"city\": ");
 		Matcher starsMat = starsPat.matcher(json);
 		if (starsMat.find()) {
-			this.stars = Double.parseDouble(starsMat.group(1));
+			this.stars = Double.parseDouble(starsMat.group(1).replaceAll(",", ""));
 		} else {
 			throw new InvalidInputException();
 		}

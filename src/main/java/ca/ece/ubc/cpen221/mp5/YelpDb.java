@@ -158,7 +158,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 				centro.add(restaurantList.get(n).getLocation().getLatitude());
 				clusters.put(centro, new ArrayList<String>());
 			}
-			
+
 			// make the centroid restaurants keys and non-centroid restaurants values of a
 			// map
 			// add non-centroid values to the centroid to which they are closest, by
@@ -183,7 +183,6 @@ public class YelpDb implements MP5Db<Restaurant> {
 				for (ArrayList<Double> centro : clusters.keySet()) {
 					double avgX = 0;
 					double avgY = 0;
-					System.out.println(centro);
 					for (String rest : clusters.get(centro)) {
 						avgX += this.getRestaurant(rest).getLocation().getLongitude();
 						avgY += this.getRestaurant(rest).getLocation().getLatitude();
@@ -193,27 +192,22 @@ public class YelpDb implements MP5Db<Restaurant> {
 					centro = new ArrayList<Double>();
 					centro.add(avgX);
 					centro.add(avgY);
-					System.out.println(centro);
-					}
+				}
 				for (Restaurant rest : this.restaurantList) {
 					double mindist = Double.MAX_VALUE;
 					ArrayList<Double> closest = null;
 					for (ArrayList<Double> centro : clusters.keySet()) {
 						double distance = Math.sqrt(Math.pow(rest.getLocation().getLatitude() - centro.get(1), 2)
 								+ Math.pow(rest.getLocation().getLongitude() - centro.get(0), 2));
-						if (distance<mindist) {
+						if (distance < mindist) {
 							closest = centro;
 							mindist = distance;
 						}
 					}
-					if(clusters.get(closest).contains(rest.getBusinessID())) {
-						System.out.println("closest point is: "+closest.toString());
-						System.out.println(clusters.get(closest));
-						System.out.println(rest.getBusinessID());
+					if (clusters.get(closest).contains(rest.getBusinessID())) {
 					}
 					if (!clusters.get(closest).contains(rest.getBusinessID())) {
 						good = false;
-						System.out.println("moving");
 						for (ArrayList<Double> centro : clusters.keySet()) {
 							if (clusters.get(centro).contains(rest.getBusinessID())) {
 								clusters.get(centro).remove(rest.getBusinessID());
@@ -224,9 +218,8 @@ public class YelpDb implements MP5Db<Restaurant> {
 				}
 			} while (!good);
 			for (ArrayList<Double> centro : clusters.keySet()) {
-				if (clusters.get(centro).isEmpty()){
+				if (clusters.get(centro).isEmpty()) {
 					noEmpty = false;
-					System.out.println("empty");
 					break;
 				}
 			}
@@ -752,20 +745,32 @@ public class YelpDb implements MP5Db<Restaurant> {
 	public synchronized ArrayList<String> getUsersRestaurant(String businessID) {
 		return new ArrayList<String>(this.visitedBy.get(businessID));
 	}
-	
-	/** 
+
+	/**
+	 * A method called by a server to process queries from clients. Currently
+	 * supports GETRESTAURANT, ADDUSER, ADDRESTAURANT and ADDREVIEW queries, as well
+	 * as structured queries to search for restaurants that conform to certain
+	 * conditions
+	 * 
 	 * @param queryString
-	 * 			A string representing the query to be processed
-	 * @return responseString
-	 * 			A string representing the response to the query
-	 * @throws InvalidReviewStringException 
-	 * @throws InvalidUserStringException 
-	 * @throws InvalidRestaurantStringException 
-	 * @throws InvalidQueryException 
+	 *            A string representing the query to be processed
+	 * @return responseString A string representing the response to the query
+	 * 
+	 * @throws RestaurantNotFoundException
+	 * @throws InvalidInputException
+	 * @throws UserNotFoundException
+	 * @throws ReviewNotFoundException
+	 * @throws InvalidReviewStringException
+	 * @throws InvalidUserStringException
+	 * @throws InvalidRestaurantStringException
+	 * @throws InvalidQueryException
+	 * @throws NoMatchException
 	 * 
 	 */
-	public synchronized String queryProcessor(String queryString) throws RestaurantNotFoundException, InvalidInputException, 
-	UserNotFoundException, ReviewNotFoundException, InvalidReviewStringException, InvalidUserStringException, InvalidRestaurantStringException, InvalidQueryException {
+	public synchronized String queryProcessor(String queryString)
+			throws RestaurantNotFoundException, InvalidInputException, UserNotFoundException, ReviewNotFoundException,
+			InvalidReviewStringException, InvalidUserStringException, InvalidRestaurantStringException,
+			InvalidQueryException, JsonException, NoMatchException {
 		// checking if this is a get restaurant query
 		Pattern gRestPat = Pattern.compile("GETRESTAURANT (.*?)");
 		Matcher gRestMat = gRestPat.matcher(queryString);
@@ -775,7 +780,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 				return this.getRestaurantJSON(ID);
 			} catch (RestaurantNotFoundException e) {
 				throw new RestaurantNotFoundException();
-			}	
+			}
 		}
 		// checking if this is an add user query
 		Pattern aUserPat = Pattern.compile("ADDUSER \\{(.*?)\\}");
@@ -784,10 +789,10 @@ public class YelpDb implements MP5Db<Restaurant> {
 		if (aUserMat.find()) {
 			String json = aUserMat.group(1); // validate this (check if extra info is in json format, then ignore it)
 			try {
-				JsonReader jsonReader = Json.createReader(new StringReader("{"+json+"}"));
-				 JsonObject object = jsonReader.readObject();
-				 jsonReader.close();
-			} catch (JsonException e) {
+				JsonReader jsonReader = Json.createReader(new StringReader("{" + json + "}"));
+				JsonObject object = jsonReader.readObject();
+				jsonReader.close();
+			} catch (Exception e) {
 				throw new InvalidUserStringException();
 			}
 			Pattern namePat = Pattern.compile("\"name\": \"(.*?)\"}");
@@ -796,86 +801,312 @@ public class YelpDb implements MP5Db<Restaurant> {
 			Pattern namePat2 = Pattern.compile("\"name\": \"(.*?)\", ");
 			Matcher nameMat2 = namePat2.matcher(queryString);
 			if (nameMat2.find()) {
-				String ID = this.addUser(nameMat2.group(1)); //save generated id
+				String ID = this.addUser(nameMat2.group(1)); // save generated id
 				try {
 					return this.getUserJSON(ID);
 				} catch (UserNotFoundException e) {
-				// do nothing, it will be there
+					// do nothing, it will be there
 				}
-			} else if(nameMat.find()) {
+			} else if (nameMat.find()) {
 				String ID = this.addUser(nameMat.group(1));
 				try {
 					return this.getUserJSON(ID);
 				} catch (UserNotFoundException e) {
-				// do nothing, it will be there
+					// do nothing, it will be there
 				}
 			} else {
-				// there was no correctly formatted name in the string, this should also be shown when json format invalid
+				// there was no correctly formatted name in the string, this should also be
+				// shown when json format invalid
 				throw new InvalidUserStringException();
 			}
 		}
-		
+
 		// checks if this is an add restaurant query
 		Pattern aRestPat = Pattern.compile("ADDRESTAURANT \\{(.*?)\\}");
 		Matcher aRestMat = aRestPat.matcher(queryString);
-		if(aRestMat.find()) {
+		if (aRestMat.find()) {
 			String json = aRestMat.group(1);
+			JsonObject object = null;
 			try {
-				JsonReader jsonReader = Json.createReader(new StringReader("{"+json+"}"));
-				 JsonObject object = jsonReader.readObject();
-				 jsonReader.close();
-			} catch (JsonException e) {
+				JsonReader jsonReader = Json.createReader(new StringReader("{" + json + "}"));
+				object = jsonReader.readObject();
+				jsonReader.close();
+			} catch (Exception e) {
 				throw new InvalidRestaurantStringException();
 			}
-			// ensures that json does not include business id or stars, we can add an option to ignore these if they were added though
-			if (!json.contains("\"business_id\": ")&&!json.contains("\"stars\": ")) {
-				json = json.split("\"name\": ")[0] + "\"business_id\": \"" + this.businessID + "\", " + "\"name\": " + json.split("\"name\": ")[1];
-				String ID = this.businessID.toString();
-				this.businessID++;
-				json = "{"+json.split("\"city\": ")[0] + "\"stars\": 0, " + "\"city\": " + json.split("\"city\": ")[1]+"}";
-				try {
-					this.addRestaurantJSON(json);
-					return this.getRestaurantJSON(ID);
-				} catch (InvalidInputException e) {
-					throw new InvalidRestaurantStringException();
+			// ensures that json does not include business id or stars, we can add an option
+			// to ignore these if they were added though
+			try {
+				json = "{\"open\": " + object.get("open") + ", \"url\": \"" + object.getString("url")
+						+ "\", \"longitude\": " + object.get("longitude") + ", \"neighborhoods\": [";
+				for (JsonValue j : (JsonArray) object.get("neighborhoods")) {
+					json += j;
+					if (((JsonArray) object.get("neighborhoods"))
+							.indexOf(j) != ((JsonArray) object.get("neighborhoods")).size() - 1) {
+						json += ", ";
+					}
 				}
-			} else {throw new InvalidRestaurantStringException();}
+				json += "], \"business_id\": \"" + this.businessID + "\", \"name\": " + object.get("name")
+						+ ", \"categories\": [";
+				for (JsonValue s : (JsonArray) object.get("categories")) {
+					json += s;
+					if (((JsonArray) object.get("categories"))
+							.indexOf(s) != ((JsonArray) object.get("categories")).size() - 1) {
+						json += ", ";
+					}
+				}
+				json += "], \"state\": \"CA\", \"type\": \"business\", \"stars\": 0, \"city\": \"Berkeley\", \"full_address\": "
+						+ object.get("full_address") + ", \"review_count\": " + object.getInt("review_count")
+						+ ", \"photo_url\": " + object.get("photo_url")
+						+ ", \"schools\": [\"University of California at Berkeley\"], \"latitude\": "
+						+ object.get("latitude") + ", \"price\": " + object.getInt("price") + "}";
+			} catch (Exception e) {
+				throw new InvalidRestaurantStringException();
+			}
+			String ID = this.businessID.toString();
+			this.businessID++;
+			try {
+				this.addRestaurantJSON(json);
+				return this.getRestaurantJSON(ID);
+			} catch (InvalidInputException e) {
+				throw new InvalidRestaurantStringException();
+			}
 		}
-		
+
 		// checks if this is an add review query
 		Pattern aRevPat = Pattern.compile("ADDREVIEW \\{(.*?)\\}");
 		Matcher aRevMat = aRevPat.matcher(queryString);
-		if(aRevMat.find()) {
+		if (aRevMat.find()) {
 			String json = aRevMat.group(1);
+			JsonObject object = null;
 			try {
-				JsonReader jsonReader = Json.createReader(new StringReader("{"+json+"}"));
-				 JsonObject object = jsonReader.readObject();
-				 jsonReader.close();
-			} catch (JsonException e) {
+				JsonReader jsonReader = Json.createReader(new StringReader("{" + json + "}"));
+				object = jsonReader.readObject();
+				jsonReader.close();
+			} catch (Exception e) {
 				throw new InvalidReviewStringException();
 			}
-			// make sure a review_id was not included
-			if (!json.contains("\"review_id\": ")&&!json.contains("\"votes\": ")){
-				json = "{"+json.split("\"text\": ")[0] + "\"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": \"" + this.reviewID + "\", " + "\"text\": " + json.split("\"text\": ")[1]+"}";
-				String ID = this.reviewID.toString();
-				this.reviewID++;
-				try {
-					this.addReviewJSON(json);
-					return this.getReviewJSON(ID);
-				} catch (InvalidInputException | UserNotFoundException | RestaurantNotFoundException | ReviewNotFoundException e) {
-					if (e instanceof InvalidInputException) {
-						throw new InvalidReviewStringException();
-					}
-					if (e instanceof UserNotFoundException) {
-						throw new UserNotFoundException();
-					}
-					if (e instanceof RestaurantNotFoundException) {
-						throw new RestaurantNotFoundException();
-					}
+			try {
+				json = "{\"type\": \"review\", \"business_id\": " + object.get("business_id")
+						+ ", \"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": \"" + this.reviewID
+						+ "\", \"text\": " + object.get("text") + ", \"stars\": " + object.get("stars")
+						+ ", \"user_id\": " + object.get("user_id") + ", \"date\": " + object.get("date") + "}";
+			} catch (Exception e) {
+				throw new InvalidReviewStringException();
+			}
+			String ID = this.reviewID.toString();
+			this.reviewID++;
+			try {
+				this.addReviewJSON(json);
+				return this.getReviewJSON(ID);
+			} catch (InvalidInputException | UserNotFoundException | RestaurantNotFoundException
+					| ReviewNotFoundException e) {
+				if (e instanceof InvalidInputException) {
+					throw new InvalidReviewStringException();
 				}
-			} else {throw new InvalidReviewStringException();}
-		} else {throw new InvalidReviewStringException();}
+				if (e instanceof UserNotFoundException) {
+					throw new UserNotFoundException();
+				}
+				if (e instanceof RestaurantNotFoundException) {
+					throw new RestaurantNotFoundException();
+				}
+			}
+		} else if (queryString.contains("in(") | queryString.contains("category(") | queryString.contains("price")
+				| queryString.contains("rating")) {
+			return queryHelper(queryString).toString();
+		} else {
+			throw new InvalidQueryException();
+		}
 		throw new InvalidQueryException();
-	}		
+	}
 
+	/**
+	 * This method will parse a structured query string and return a set of
+	 * restaurants that is a subset of this database' restaurantList that conforms
+	 * to conditions specified in the input strings
+	 * 
+	 * @param conditions
+	 *            queryString that outline the conditions of the desired restaurants
+	 * @return jsonPool a set of json-formatted strings containing all the info of
+	 *         the restauarants conforming to the conditions
+	 * @throws InvalidQueryException
+	 * @throws NoMatchException
+	 */
+	public synchronized HashSet<String> queryHelper(String conditions) throws InvalidQueryException, NoMatchException {
+		HashSet<Restaurant> curPool = new HashSet<Restaurant>(this.restaurantList);
+		String queryString = conditions;
+		// We process the query one subquery at a time, and remove each one from the
+		// queryString once we have
+		// appropriately filtered the restaurant list
+		while (!queryString.equals("")) {
+			// split subqueries based on double ampersand
+			String curCond = queryString.split(" && ")[0];
+			String toReplace = queryString.contains("&&") ? curCond + " && " : curCond;
+			// save and remove current subquery from query string
+			String newQuery = queryString.replace(toReplace, "");
+			queryString = newQuery;
+			// if subquery contains an "or" s
+			if (curCond.contains("||")) {
+				String[] orConds = curCond.split(" \\|\\| ");
+				HashSet<Restaurant> newPool = new HashSet<Restaurant>();
+				// for all conditions in or statement, filter current restaurant set, then add
+				// them to a new pool
+				for (int i = 0; i < orConds.length; i++) {
+					HashSet<Restaurant> condPool = (HashSet<Restaurant>) oneQuery(orConds[i], curPool);
+					newPool.addAll(condPool);
+				}
+				curPool = newPool;
+			} else {
+				// if not or statement, then subquery requires just a single filter
+				curPool = (HashSet<Restaurant>) oneQuery(curCond, curPool);
+			}
+			// if we've filtered set down to 0, we can give up
+			if (curPool.size() == 0) {
+				throw new NoMatchException();
+			}
+		}
+		// take current pool of restaurants and add json strings of each restaurant to a
+		// new set
+		HashSet<String> jsonPool = new HashSet<String>();
+		for (Restaurant r : curPool) {
+			jsonPool.add(r.getJSON());
+		}
+		return jsonPool;
+	}
+
+	/**
+	 * A helper method that processes one query and filters a pool based on the
+	 * condition in that query, returning a new pool
+	 * 
+	 * @param condition
+	 *            query string containing filtering condition
+	 * @param pool
+	 *            current restaurant pool
+	 * @return new restaurant pool after filtering
+	 * @throws InvalidQueryException
+	 */
+	private Set<Restaurant> oneQuery(String condition, Set<Restaurant> pool) throws InvalidQueryException {
+		// checks if this is a category condition, and checks that it is formatted
+		// correctly
+		if (condition.contains("category(") && condition.split("\\) ").length == 1) {
+			Pattern catPat = Pattern.compile("category\\((.*?)\\)");
+			Matcher catMat = catPat.matcher(condition);
+			if (catMat.find()) {
+				String category = catMat.group(1);
+				// filters all restaurants in current pool that are in specified category
+				return pool.stream().filter(restaurant -> restaurant.getCategories().contains(category))
+						.collect(Collectors.toSet());
+			} else {
+				// if the condition does not match this pattern, throw exception
+				throw new InvalidQueryException();
+			}
+
+		}
+		// checks if this is a name condition, and checks that it is formatted correctly
+		if (condition.contains("name(") && condition.split("\\) ").length == 1) {
+			Pattern namePat = Pattern.compile("name\\((.*?)\\)");
+			Matcher nameMat = namePat.matcher(condition);
+			if (nameMat.find()) {
+				String name = nameMat.group(1);
+				// filters all restaurants in current pool that have specified name
+				return pool.stream().filter(restaurant -> restaurant.getBusinessName().equals(name))
+						.collect(Collectors.toSet());
+			} else {
+				// if the condition does not match this pattern, throw exception
+				throw new InvalidQueryException();
+			}
+		}
+		// checks if this is an in condition, and checks that it is formatted correctly
+		if (condition.contains("in(") && condition.split("\\) ").length == 1) {
+			Pattern inPat = Pattern.compile("in\\((.*?)\\)");
+			Matcher inMat = inPat.matcher(condition);
+			if (inMat.find()) {
+				String area = condition.split("\\(")[1].replaceAll("\\)", "");
+				// filters current pool for restaurants in specified neighborhood
+				return pool.stream().filter(restaurant -> restaurant.getLocation().getNeighborhoods().contains(area))
+						.collect(Collectors.toSet());
+			} else {
+				// if the condition does not match this pattern, throw exception
+				throw new InvalidQueryException();
+			}
+		}
+		// checks if this is a rating condition
+		if (condition.contains("rating")) {
+			String[] conditionArr = condition.split(" ");
+			// partially checks format of condition, throwing exception if this condition
+			// violated
+			if (conditionArr.length != 3) {
+				throw new InvalidQueryException();
+			}
+			try {
+				// retrieves rating integer from string (exception is thrown if expected
+				// location of rating is not an integer)
+				Integer rating = Integer.parseInt(conditionArr[2].replaceAll("\\)", ""));
+				// filters pool based on rating being in specified range depending on symbol
+				if (conditionArr[1].equals(">=")) {
+					return pool.stream().filter(restaurant -> restaurant.getStars() >= rating)
+							.collect(Collectors.toSet());
+				}
+				if (conditionArr[1].equals("<=")) {
+					return pool.stream().filter(restaurant -> restaurant.getStars() <= rating)
+							.collect(Collectors.toSet());
+				}
+				if (conditionArr[1].equals(">")) {
+					return pool.stream().filter(restaurant -> restaurant.getStars() > rating)
+							.collect(Collectors.toSet());
+				}
+				if (conditionArr[1].equals("<")) {
+					return pool.stream().filter(restaurant -> restaurant.getStars() < rating)
+							.collect(Collectors.toSet());
+				}
+				if (conditionArr[1].equals("=")) {
+					return pool.stream().filter(restaurant -> restaurant.getStars() == (double) rating)
+							.collect(Collectors.toSet());
+				}
+			} catch (NumberFormatException e) {
+				// if we tried to parse a rating that wasn't an integer, throw an exception
+				throw new InvalidQueryException();
+			}
+		}
+		// checks if this is a price condition
+		if (condition.contains("price")) {
+			String[] conditionArr = condition.split(" ");
+			// partially checks format of condition, throwing exception if this condition
+			// violated
+			if (conditionArr.length != 3) {
+				throw new InvalidQueryException();
+			}
+			try {
+				// retrieves price integer from string (exception is thrown if expected location
+				// of price is not an integer)
+				Integer price = Integer.parseInt(conditionArr[2].replaceAll("\\)", ""));
+				// filters pool based on price being in specified range depending on symbol
+				if (conditionArr[1].equals(">=")) {
+					return pool.stream().filter(restaurant -> restaurant.getPrice() >= price)
+							.collect(Collectors.toSet());
+				}
+				if (conditionArr[1].equals("<=")) {
+					return pool.stream().filter(restaurant -> restaurant.getPrice() <= price)
+							.collect(Collectors.toSet());
+				}
+				if (conditionArr[1].equals(">")) {
+					return pool.stream().filter(restaurant -> restaurant.getPrice() > price)
+							.collect(Collectors.toSet());
+				}
+				if (conditionArr[1].equals("<")) {
+					return pool.stream().filter(restaurant -> restaurant.getPrice() < price)
+							.collect(Collectors.toSet());
+				}
+				if (conditionArr[1].equals("=")) {
+					return pool.stream().filter(restaurant -> restaurant.getPrice() == (double) price)
+							.collect(Collectors.toSet());
+				}
+			} catch (NumberFormatException e) {
+				// if we tried to parse a price that wasn't an integer, throw an exception
+				throw new InvalidQueryException();
+			}
+		}
+		// if the condition did not meet any of these descriptions, throw exception
+		throw new InvalidQueryException();
+	}
 }
