@@ -1109,4 +1109,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 		// if the condition did not meet any of these descriptions, throw exception
 		throw new InvalidQueryException();
 	}
+
 }
+
+
