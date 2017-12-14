@@ -3,7 +3,6 @@ package ca.ece.ubc.cpen221.mp5;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
 
 
 /**
@@ -100,33 +99,35 @@ public class YelpDBServer{
 		try {
 			// each request is a single line containing a request
 			for (String line = in.readLine(); line != null; line = in.readLine()) {
-				System.err.println("request: " + line);
+				System.err.println("Request: " + line);
 				try {
-					System.err.println(yelp.queryProcessor(line));
+					String reply = yelp.queryProcessor(line);
+					System.err.println("Reply: " + reply);
+					out.println("\n" + reply + "\n");
 				} catch (InvalidInputException e) {
 					System.err.println("Reply: ERR: INVALID_REQUEST");
-					out.println("ERR\n");
+					out.println("ERR: INVALID REQUEST\n");
 				} catch (ReviewNotFoundException e) {
 					// This exception should not ever be thrown since we cannot look for a review,
 					// but we must catch it anyway
 				} catch (UserNotFoundException e) {
 					System.err.println("Reply: ERR: NO_SUCH_USER");
-					out.println("ERR\n");
+					out.println("ERR: NO SUCH USER\n");
 				} catch (RestaurantNotFoundException e) {
 					System.err.println("Reply: ERR: NO_SUCH_RESTAURANT");
-					out.println("ERR\n");
+					out.println("ERR: NO SUCH RESTAURANT\n");
 				} catch (InvalidReviewStringException e) {
 					System.err.println("Reply: ERR: INVALID_REVIEW_STRING");
-					out.println("ERR\n");
+					out.println("ERR: INVALID REVIEW STRING\n");
 				} catch (InvalidUserStringException e) {
 					System.err.println("Reply: ERR: INVALID_USER_STRING");
-					out.println("ERR\n");
+					out.println("ERR: INVALID USER STRING\n");
 				} catch (InvalidRestaurantStringException e) {
 					System.err.println("Reply: ERR: INVALID_RESTAURANT_STRING");
-					out.println("ERR\n");
+					out.println("ERR: INVALID RESTAURANT STRING\n");
 				} catch (InvalidQueryException e) {
 					System.err.println("Reply: ERR: INVALID_REQUEST");
-					out.println("ERR\n");
+					out.println("ERR: INVALID REQUEST\n");
 				}
 			}
 		} finally {
