@@ -1094,7 +1094,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 				// retrieves price integer from string (exception is thrown if expected location
 				// of price is not an integer)
 				Integer price = Integer.parseInt(conditionArr[2].replaceAll("\\)", ""));
-				if (price > 5 | price < 1) {
+				if (price > 4 | price < 1) {
 					throw new InvalidQueryException();
 				}
 				// filters pool based on price being in specified range depending on symbol

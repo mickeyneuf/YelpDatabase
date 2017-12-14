@@ -36,7 +36,7 @@ public class Restaurant implements Business {
 	 * 		- Requires that no fields are null 
 	 * 		- businessID must be alphabetical or numerical characters
 	 * 		- name must be alphabetical characters
-	 * 		- price must be between 1 and 5
+	 * 		- price must be between 1 and 4
 	 * 		- stars must be between 1 and 5, and correspond to reviews in this database
 	 * 		- reviewCount must be >=0, and correspond to the number of reviews of this restaurant located
 	 * 		  in the database
