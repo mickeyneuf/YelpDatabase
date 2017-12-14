@@ -271,7 +271,7 @@ public class YelpDbTest {
 	public void test12() throws IOException, InvalidInputException, UserNotFoundException, ReviewNotFoundException,
 			RestaurantNotFoundException {
 		YelpDb yelp = new YelpDb("data/usersTest1.json", "data/restaurantsTest1.json", "data/reviewsTest1.json");
-		assertEquals(new HashSet<>(), yelp.getMatches("247377"));
+		assertEquals(null, yelp.getMatches("247377"));
 		assertEquals(
 				"{\"url\": \"http://www.yelp.com/user_details?userid=_NH7Cpq3qZkByP5xR4gXog\", \"votes\": {\"funny\": 35, \"useful\": 21, \"cool\": 14}, \"review_count\": 29, \"type\": \"user\", \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"name\": \"Chris M.\", \"average_stars\": 3.89655172413793}",
 				yelp.getUserJSON("_NH7Cpq3qZkByP5xR4gXog"));
@@ -297,7 +297,6 @@ public class YelpDbTest {
 		yelp.addReviewJSON(
 				"{\"type\": \"review\", \"business_id\": \"PC-x4Om-XXGqFn0ludTykw\", \"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": \"mEfgf8MzFl6YitoVprh71w\", \"text\": \"Food was nice. I got a Bacon avacoda omelette. The price is a little high but you get a decent amount of food. They are a bit forgetful on somethings. My main gripe with the place is the flies. I spent more time swatting than eating.\", \"stars\": 3, \"user_id\": \"HJctT_mE9kGJSdaMo5PD5w\", \"date\": \"2012-09-03\"}");
 
-		//assertTrue(yelp.getReviewsRestaurant("tzRNk1hqooBV3i-Q_yKP7g").contains("1"));
 
 	}
 	

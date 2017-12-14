@@ -20,28 +20,28 @@ import ca.ece.ubc.cpen221.mp5.YelpDb;
 public class PredictorFunctionTest {
 
 	/*
-	 * Testing that the correct prediction is generated for a given restaurant when they entire database is used
+	 * Testing that the correct prediction is generated for a given restaurant when
+	 * they entire database is used
 	 * 
 	 */
 	@Test
-	public void test0() throws IOException, InvalidInputException, RestaurantNotFoundException, ReviewNotFoundException, UserNotFoundException {
+	public void test0() throws IOException, InvalidInputException, RestaurantNotFoundException, ReviewNotFoundException,
+			UserNotFoundException {
 		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
 		String userID = "1mdwR2US8Z_CBWYuFMWWNg";
 		String restID = "1CBs84C-a-cuA3vncXVSAw";
 		String reviewID = "0hrSPeBHXvtMV4aY0jzgPg";
- 
-		yelp.removeRestaurant(restID);
-		
-		assertEquals(false, yelp.containsRestaurant(restID));
-		assertEquals(false, yelp.getReviewsUser(userID).contains(reviewID));
 
 		PredictorFunction func = (PredictorFunction) yelp.getPredictorFunction(userID);
 
 		assertTrue(func.applyAsDouble(yelp, restID) == 3);
 
+		yelp.removeRestaurant(restID);
+
+		assertEquals(false, yelp.containsRestaurant(restID));
+		assertEquals(false, yelp.getReviewsUser(userID).contains(reviewID));
 	}
 
-	
 	/*
 	 * Testing that the correct prediction is generated for a small linear subset
 	 * 
@@ -57,7 +57,8 @@ public class PredictorFunctionTest {
 	}
 
 	/*
-	 * Testing that the prediction is 1 if the data suggests it should be less than 1
+	 * Testing that the prediction is 1 if the data suggests it should be less than
+	 * 1
 	 * 
 	 * 
 	 */
@@ -72,9 +73,9 @@ public class PredictorFunctionTest {
 
 	}
 
-	
 	/*
-	 * Testing that the prediction is 5 if the data suggests it should be more than 5 
+	 * Testing that the prediction is 5 if the data suggests it should be more than
+	 * 5
 	 * 
 	 * 
 	 */
@@ -125,8 +126,7 @@ public class PredictorFunctionTest {
 
 		assertTrue(func.applyAsDouble(yelp, restID) == 5);
 	}
-	
-	
+
 	/*
 	 * Another sanity check
 	 * 

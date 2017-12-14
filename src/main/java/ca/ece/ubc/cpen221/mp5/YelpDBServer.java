@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import javax.json.JsonException;
+
 
 /**
  * FibonacciServerMulti is a server that finds the n^th Fibonacci number given
@@ -83,7 +85,7 @@ public class YelpDBServer{
 	 *             if connection encounters an error
 	 */
 	private void handle(Socket socket) throws IOException {
-		System.err.println("client connected");
+		System.err.println("Client connected");
 
 		// get the socket's input stream, and wrap converters around it
 		// that convert it from a byte stream to a character stream,
@@ -103,34 +105,46 @@ public class YelpDBServer{
 				try {
 					String reply = yelp.queryProcessor(line);
 					System.err.println("Reply: " + reply);
-					out.println("\n" + reply + "\n");
+					out.println(reply);
+					
 				} catch (InvalidInputException e) {
 					System.err.println("Reply: ERR: INVALID_REQUEST");
 					out.println("ERR: INVALID REQUEST\n");
+					
 				} catch (ReviewNotFoundException e) {
 					// This exception should not ever be thrown since we cannot look for a review,
 					// but we must catch it anyway
+					
 				} catch (UserNotFoundException e) {
 					System.err.println("Reply: ERR: NO_SUCH_USER");
 					out.println("ERR: NO SUCH USER\n");
+					
 				} catch (RestaurantNotFoundException e) {
 					System.err.println("Reply: ERR: NO_SUCH_RESTAURANT");
 					out.println("ERR: NO SUCH RESTAURANT\n");
+					
 				} catch (InvalidReviewStringException e) {
 					System.err.println("Reply: ERR: INVALID_REVIEW_STRING");
 					out.println("ERR: INVALID REVIEW STRING\n");
 				} catch (InvalidUserStringException e) {
 					System.err.println("Reply: ERR: INVALID_USER_STRING");
 					out.println("ERR: INVALID USER STRING\n");
+					
 				} catch (InvalidRestaurantStringException e) {
 					System.err.println("Reply: ERR: INVALID_RESTAURANT_STRING");
 					out.println("ERR: INVALID RESTAURANT STRING\n");
+					
 				} catch (InvalidQueryException e) {
 					System.err.println("Reply: ERR: INVALID_REQUEST");
 					out.println("ERR: INVALID REQUEST\n");
+					
+				} catch (NoMatchException e) {
+					System.err.println("Reply: ERR: NO_MATCH");
+					out.println("ERR: NO MATCH");
 				}
 			}
 		} finally {
+			System.err.println("Client disconnected");
 			out.close();
 			in.close();
 		}

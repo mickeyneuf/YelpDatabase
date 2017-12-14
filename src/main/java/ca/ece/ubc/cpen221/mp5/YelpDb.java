@@ -402,7 +402,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * @throws RestaurantNotFoundException
 	 *             if the restaurant does not exist in the database
 	 */
-	private synchronized Restaurant getRestaurant(String businessID) throws RestaurantNotFoundException {
+	public synchronized Restaurant getRestaurant(String businessID) throws RestaurantNotFoundException {
 		List<Restaurant> restaurants = restaurantList.stream()
 				.filter(restaurant -> restaurant.getBusinessID().equals(businessID)).collect(Collectors.toList());
 		if (restaurants.isEmpty()) {
