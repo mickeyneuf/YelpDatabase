@@ -316,18 +316,18 @@ public class YelpDbTest {
 		} catch (InvalidUserStringException e) {
 			fail("No Exception expected!");
 		}
-		System.out.println(yelp.queryProcessor("in(Telegraph Ave) && (category(Chinese) || category(Italian)) && price <= 2"));
-		System.out.println(yelp.queryProcessor("category(Sandwiches) && price < 2 && rating > 4"));
-		System.out.println(yelp.queryProcessor("category(Mexican) && price < 2 && rating >= 4"));
-		System.out.println(yelp.queryProcessor("category(Chinese) || category(Mexican)"));
+		System.out.println(yelp.queryProcessor("QUERY in(Telegraph Ave) && (category(Chinese) || category(Italian)) && price <= 2"));
+		System.out.println(yelp.queryProcessor("QUERY category(Sandwiches) && price < 2 && rating > 4"));
+		System.out.println(yelp.queryProcessor("QUERY category(Mexican) && price < 2 && rating >= 4"));
+		System.out.println(yelp.queryProcessor("QUERY category(Chinese) || category(Mexican)"));
 		try {
-			yelp.queryProcessor("category(Chinese)|| category(Mexican)");
+			yelp.queryProcessor("QUERY category(Chinese)|| category(Mexican)");
 			fail("exception expected!");
 		} catch (InvalidQueryException e) {
 			// do nothing
 		}
 		try {
-			yelp.queryProcessor("category(alien) && category(Mexican)");
+			yelp.queryProcessor("QUERY category(alien) && category(Mexican)");
 			fail("exception expected!");
 		} catch (NoMatchException e) {
 			//do nothing
