@@ -135,13 +135,9 @@ public class YelpDBServer {
 					System.err.println("Reply: " + reply);
 					out.println(reply);
 
-				} catch (InvalidInputException e) {
-					System.err.println("Reply: ERR: INVALID_REQUEST");
-					out.println("ERR: INVALID REQUEST\n");
-
-				} catch (ReviewNotFoundException e) {
-					// This exception should not ever be thrown since we cannot look for a review,
-					// but we must catch it anyway
+				} catch (InvalidInputException | ReviewNotFoundException e) {
+					// These exceptions should not ever be thrown since we cannot look for a review
+					// and the input exception should be handled elsewhere, but we must catch it anyway
 
 				} catch (UserNotFoundException e) {
 					System.err.println("Reply: ERR: NO_SUCH_USER");
