@@ -56,7 +56,7 @@ public class PredictorFunction implements ToDoubleBiFunction<MP5Db<Restaurant>, 
 		int price = 0;
 		if (database instanceof YelpDb) {
 			Restaurant rest;
-			try {
+	 	try {
 				rest = ((YelpDb) database).getRestaurant(businessID);
 				price = rest.getPrice();
 			} catch (RestaurantNotFoundException e) {

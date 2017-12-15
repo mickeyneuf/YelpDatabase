@@ -5,12 +5,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Scanner;
+
+import javax.json.JsonException;
+
 import org.junit.Test;
 import ca.ece.ubc.cpen221.mp5.InvalidInputException;
 import ca.ece.ubc.cpen221.mp5.InvalidQueryException;
 import ca.ece.ubc.cpen221.mp5.InvalidRestaurantStringException;
 import ca.ece.ubc.cpen221.mp5.InvalidReviewStringException;
 import ca.ece.ubc.cpen221.mp5.InvalidUserStringException;
+import ca.ece.ubc.cpen221.mp5.Location;
 import ca.ece.ubc.cpen221.mp5.NoMatchException;
 import ca.ece.ubc.cpen221.mp5.Restaurant;
 import ca.ece.ubc.cpen221.mp5.RestaurantNotFoundException;
@@ -128,6 +132,10 @@ public class YelpDbTest {
 		assertEquals(json, elise.getJSON());
 	}
 
+	/*
+	 * Testing that we can return the correct JSON string for restaurants
+	 * 
+	 */
 	@Test
 	public void test6() throws InvalidInputException {
 		String json = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/peking-express-berkeley\", \"longitude\": -122.2581978, \"neighborhoods\": [\"Telegraph Ave\", \"UC Campus Area\"], \"business_id\": \"1E2MQLWfwpsId185Fs2gWw\", \"name\": \"Peking Express\", \"categories\": [\"Chinese\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.5, \"city\": \"Berkeley\", \"full_address\": \"2516 Durant Ave\\nTelegraph Ave\\nBerkeley, CA 94704\", \"review_count\": 10, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/bphoto/BPMBr2aiOEpVioLb-RurJQ/ms.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.867768, \"price\": 1}";
@@ -137,8 +145,6 @@ public class YelpDbTest {
 
 	/*
 	 * Testing that we can remove a user and that they are no longer in the database
-	 * 
-	 * 
 	 */
 	@Test
 	public void test7() throws IOException, InvalidInputException, UserNotFoundException {
@@ -298,6 +304,12 @@ public class YelpDbTest {
 
 	}
 	
+	
+	/*
+	 * Testing that various queries return the correct answer and that the correct exceptions are thrown for 
+	 * different types of invalid requests. 
+	 * 
+	 */
 	@Test 
 	public void test13() throws IOException, InvalidInputException, RestaurantNotFoundException, UserNotFoundException, ReviewNotFoundException, InvalidReviewStringException, InvalidUserStringException, InvalidRestaurantStringException, InvalidQueryException, NoMatchException {
 		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
@@ -316,10 +328,10 @@ public class YelpDbTest {
 		} catch (InvalidUserStringException e) {
 			fail("No Exception expected!");
 		}
-		System.out.println(yelp.queryProcessor("QUERY in(Telegraph Ave) && (category(Chinese) || category(Italian)) && price <= 2"));
-		System.out.println(yelp.queryProcessor("QUERY category(Sandwiches) && price < 2 && rating > 4"));
-		System.out.println(yelp.queryProcessor("QUERY category(Mexican) && price < 2 && rating >= 4"));
-		System.out.println(yelp.queryProcessor("QUERY category(Chinese) || category(Mexican)"));
+		yelp.queryProcessor("QUERY in(Telegraph Ave) && (category(Chinese) || category(Italian)) && price <= 2");
+		yelp.queryProcessor("QUERY category(Sandwiches) && price < 2 && rating > 4");
+		yelp.queryProcessor("QUERY category(Mexican) && price < 2 && rating >= 4");
+		yelp.queryProcessor("QUERY category(Chinese) || category(Mexican)");
 		try {
 			yelp.queryProcessor("QUERY category(Chinese)|| category(Mexican)");
 			fail("exception expected!");
@@ -333,12 +345,440 @@ public class YelpDbTest {
 			//do nothing
 		}
 		try {
-			System.out.println(yelp.queryProcessor("GETUSER ksadasd"));
+			yelp.queryProcessor("GETUSER ksadasd");
 			
 			fail("expected an exception");
 		} catch (InvalidQueryException e) {
 			//do nothing
 		}
 	}
+	
+	
+	/*
+	 * Testing that various Location methods function correctly
+	 * 
+	 */
+	@Test
+	public void test14() throws InvalidInputException {
+		Location here = new Location();
+		Restaurant rest = new Restaurant("{\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-VEmJ3GQyKlfSVO3Zg\", \"name\": \"Hummingbird Express\", \"categories\": [\"Greek\", \"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/assets/2/www/img/924a6444ca6c/gfx/blank_biz_medium.gif\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8755024, \"price\": 2}");
+		Location there = rest.getLocation();
+		assertEquals(false, there.equals(here));
+		
+		here.setLongitude(there.getLongitude());
+		assertEquals(false, there.equals(here));
+		
+		here.setLatitude(there.getLatitude());
+		assertEquals(false, there.equals(here));
+		
+		here.setState(there.getState());
+		assertEquals(false, there.equals(here));
+		
+		here.setCity(there.getCity());
+		assertEquals(false, there.equals(here));
+		
+		here.setNeighborhoods(there.getNeighborhoods());
+		assertEquals(false, there.equals(here));
+		
+		here.setSchools(there.getSchools());
+		assertEquals(false, there.equals(here));
+		
+		here.setArea(there.getArea());
+		assertEquals(false, there.equals(here));
+		
+		here.setAreaCode(there.getAreaCode());
+		assertEquals(false, there.equals(here));
+		
+		here.setBuilding(there.getBuilding());
+		assertEquals(false, there.equals(here));
+		
+		here.setRoom(there.getRoom());
+		assertEquals(false, there.equals(here));
+		
+		here.setStreet(there.getStreet());
+		assertEquals(false, there.equals(here));
+		
+		here.setStreetAddress(there.getStreetAddress());		
+		here.setSuite(there.getSuite());
+		
+		assertEquals(there.hashCode(), here.hashCode());
+		assertTrue(there.equals(here));
+		assertEquals(false, there.equals(rest));	
+	}
 
+	/*
+	 * Testing Restaurant constructor to see if the correct exceptions are thrown for various format
+	 * errors.
+	 */
+	@Test
+	public void test15() {
+		String test1 = "{\"open: true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-VEmJ3GQyKlfSVO3Zg\", \"name\": \"Hummingbird Express\", \"categories\": [\"Greek\", \"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/assets/2/www/img/924a6444ca6c/gfx/blank_biz_medium.gif\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8755024, \"price\": 2}";
+		String test2 = "{\"open\": true, \"ul\": \"w45678iolkjnbvc\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-VEmJ3GQyKlfSVO3Zg\", \"name\": \"Hummingbird Express\", \"categories\": [\"Greek\", \"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/assets/2/www/img/924a6444ca6c/gfx/blank_biz_medium.gif\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8755024, \"price\": 2}";
+		String test3 = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"lonitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-VEmJ3GQyKlfSVO3Zg\", \"name\": \"Hummingbird Express\", \"categories\": [\"Greek\", \"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/assets/2/www/img/924a6444ca6c/gfx/blank_biz_medium.gif\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8755024, \"price\": 2}";
+		String test4 = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": \"UC Campus Area\"], \"business_id\": \"LqVC-VEmJ3GQyKlfSVO3Zg\", \"name\": \"Hummingbird Express\", \"categories\": [\"Greek\", \"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/assets/2/www/img/924a6444ca6c/gfx/blank_biz_medium.gif\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8755024, \"price\": 2}";
+		String test5 = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id: \"!!!!!\", \"name\": \"Hummingbird Express\", \"categories\": [\"Greek\", \"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/assets/2/www/img/924a6444ca6c/gfx/blank_biz_medium.gif\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8755024, \"price\": 2}";
+		String test6 = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-VEmJ3GQyKlfSVO3Zg\", \"name\" \"Hummingbird Express\", \"categories\": [\"Greek\", \"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/assets/2/www/img/924a6444ca6c/gfx/blank_biz_medium.gif\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8755024, \"price\": 2}";
+		String test7 = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-VEmJ3GQyKlfSVO3Zg\", \"name\": \"Hummingbird Express\", \"categories\": \"Mediterranean\" \"Sandwiches\" \"Restaurants\", \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/assets/2/www/img/924a6444ca6c/gfx/blank_biz_medium.gif\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8755024, \"price\": 2}";
+		String test8 = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-VEmJ3GQyKlfSVO3Zg\", \"name\": \"Hummingbird Express\", \"categories\": [\"Greek\", \"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": , \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/assets/2/www/img/924a6444ca6c/gfx/blank_biz_medium.gif\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8755024, \"price\": 2}";
+		String test9 = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-VEmJ3GQyKlfSVO3Zg\", \"name\": \"Hummingbird Express\", \"categories\": [\"Greek\", \"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/assets/2/www/img/924a6444ca6c/gfx/blank_biz_medium.gif\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8755024, \"price\": 2}";
+		String test10 = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-VEmJ3GQyKlfSVO3Zg\", \"name\": \"Hummingbird Express\", \"categories\": [\"Greek\", \"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": Berkeley, \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/assets/2/www/img/924a6444ca6c/gfx/blank_biz_medium.gif\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8755024, \"price\": 2}";
+		String test11 = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-VEmJ3GQyKlfSVO3Zg\", \"name\": \"Hummingbird Express\", \"categories\": [\"Greek\", \"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\nUC Campus AreaBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/assets/2/www/img/924a6444ca6c/gfx/blank_biz_medium.gif\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8755024, \"price\": 2}";
+		String test12 = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-VEmJ3GQyKlfSVO3Zg\", \"name\": \"Hummingbird Express\", \"categories\": [\"Greek\", \"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review count\": 16, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/assets/2/www/img/924a6444ca6c/gfx/blank_biz_medium.gif\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8755024, \"price\": 2}";
+		String test13 = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-VEmJ3GQyKlfSVO3Zg\", \"name\": \"Hummingbird Express\", \"categories\": [\"Greek\", \"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo url\": \"http://s3-mn.com/assets/2gif\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8755024, \"price\": 2}";
+		String test14 = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-VEmJ3GQyKlfSVO3Zg\", \"name\": \"Hummingbird Express\", \"categories\": [\"Greek\", \"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/assets/2/www/img/924a6444ca6c/gfx/blank_biz_medium.gif\", \"schools\": University of California at Berkeley, \"latitude\": 37.8755024, \"price\": 2}";
+		String test15 = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-VEmJ3GQyKlfSVO3Zg\", \"name\": \"Hummingbird Express\", \"categories\": [\"Greek\", \"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/assets/2/www/img/924a6444ca6c/gfx/blank_biz_medium.gif\", \"schools\": [\"University of California at Berkeley\"], \"tude\": 37.8755024, \"price\": 2}";
+		String test16 = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-VEmJ3GQyKlfSVO3Zg\", \"name\": \"Hummingbird Express\", \"categories\": [\"Greek\", \"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://s3-media1.ak.yelpcdn.com/assets/2/www/img/924a6444ca6c/gfx/blank_biz_medium.gif\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.8755024}";
+		
+		try {
+			Restaurant rest = new Restaurant(test1);
+			fail("We expect an exception since the \"open\" part of the JSON string is incorrect.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		try {
+			Restaurant rest = new Restaurant(test2);
+			fail("We expect an exception since the \"url\" string is formatted incorrectly.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		try {
+			Restaurant rest = new Restaurant(test3);
+			fail("We expect an exception since longitute is not supposed to have quotation marks.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		try {
+			Restaurant rest = new Restaurant(test4);
+			fail("We expect an exception since the neighborhood section is missing a \"[\".");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		try {
+			Restaurant rest = new Restaurant(test5);
+			fail("We expect an exception since the businessID part of the JSON string is incorrect.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		try {
+			Restaurant rest = new Restaurant(test6);
+			fail("We expect an exception since the \"name\" part of the JSON string is incorrect.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		try {
+			Restaurant rest = new Restaurant(test7);
+			fail("We expect an exception since the \"categories\" part of the JSON string is incorrect.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		try {
+			Restaurant rest = new Restaurant(test8);
+			fail("We expect an exception since the \"state\" part of the JSON string is incorrect.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		try {
+			Restaurant rest = new Restaurant(test9);
+			fail("We expect an exception since the \"stars\" part of the JSON string is incorrect.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		try {
+			Restaurant rest = new Restaurant(test10);
+			fail("We expect an exception since the \"city\" part of the JSON string is incorrect.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		try {
+			Restaurant rest = new Restaurant(test11);
+			fail("We expect an exception since the \"full address\" part of the JSON string is incorrect.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		try {
+			Restaurant rest = new Restaurant(test12);
+			fail("We expect an exception since the \"review count\" part of the JSON string is incorrect.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		try {
+			Restaurant rest = new Restaurant(test13);
+			fail("We expect an exception since the \"photo url\" part of the JSON string is incorrect.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		try {
+			Restaurant rest = new Restaurant(test14);
+			fail("We expect an exception since the \"schools\" part of the JSON string is incorrect.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		try {
+			Restaurant rest = new Restaurant(test15);
+			fail("We expect an exception since the \"latitude\" part of the JSON string is incorrect.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		try {
+			Restaurant rest = new Restaurant(test16);
+			fail("We expect an exception since the \"price\" part of the JSON string is incorrect.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+	}
+	
+	/*
+	 * Testing that the correct types of exceptions are thrown for various formatting errors
+	 * when creating a new YelpReview
+	 */
+	@Test
+	public void test16() {
+		String review1 = "{\"type\": \"review\", \"business_id\": \"22yTwTUyMBY3SFu_Hj4NOQ\", \"votes\": \"cool 1 useful 0,, \"review_id\": \"0FG_vswO_VDgsQakXya0AQ\", \"text\": \"$8-9 short ribs!!!!!\\nso goooood!!!!!!\\nI crave it all the time\", \"stars\": 5, \"user_id\": \"ZZbp8uff4biD8avUalPMeQ\", \"date\": \"2011-03-12\"}";
+		String review2 = "{\"type\": \"review\", \"business_id\": \"22yTwTUyMBY3SFu_Hj4NOQ\", \"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": 5678ij\", \"text\": \"$8-9 short ribs!!!!!\\nso goooood!!!!!!\\nI crave it all the time\", \"stars\": 5, \"user_id\": \"ZZbp8uff4biD8avUalPMeQ\", \"date\": \"2011-03-12\"}";
+		String review3 = "{\"type\": \"review\", \"business_id\": \"22yTwTUyMBY3SFu_Hj4NOQ\", \"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": \"0FG_vswO_VDgsQakXya0AQ\", \"text\": dfghj\", \"stars\": 5, \"user_id\": \"ZZbp8uff4biD8avUalPMeQ\", \"date\": \"2011-03-12\"}";
+		String review4 = "{\"type\": \"review\", \"business_id\": \"22yTwTUyMBY3SFu_Hj4NOQ\", \"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": \"0FG_vswO_VDgsQakXya0AQ\", \"text\": \"$8-9 short ribs!!!!!\\nso goooood!!!!!!\\nI crave it all the time\", \"stars\"5, \"user_id\": \"ZZbp8uff4biD8avUalPMeQ\", \"date\": \"2011-03-12\"}";
+		String review5 = "{\"type\": \"review\", \"business_id\": \"22yTwTUyMBY3SFu_Hj4NOQ\", \"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": \"0FG_vswO_VDgsQakXya0AQ\", \"text\": \"$8-9 short ribs!!!!!\\nso goooood!!!!!!\\nI crave it all the time\", \"stars\": 5, \"user_id\": !!!!!\", \"date\": \"2011-03-12\"}";
+		String review6 = "{\"type\": \"review\", \"business_id\": \"22yTwTUyMBY3SFu_Hj4NOQ\", \"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": \"0FG_vswO_VDgsQakXya0AQ\", \"text\": \"$8-9 short ribs!!!!!\\nso goooood!!!!!!\\nI crave it all the time\", \"stars\": 5, \"user_id\": \"ZZbp8uff4biD8avUalPMeQ\", \"date\": 2011\"}";
+		
+		try {
+			YelpReview review = new YelpReview(review1);
+			fail("We expected an exception because the votes part of the JSON string is incorrect.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		
+		try {
+			YelpReview review = new YelpReview(review2);
+			fail("We expect an exception because the review ID is wrong.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		
+		try {
+			YelpReview review = new YelpReview(review3);
+			fail("We expect an exception because the text is wrong.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		
+		try {
+			YelpReview review = new YelpReview(review4);
+			fail("We expect an exception because the rating is wrong.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		
+		try {
+			YelpReview review = new YelpReview(review5);
+			fail("We expect an exception because the user ID is wrong.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+		
+		try {
+			YelpReview review = new YelpReview(review6);
+			fail("We expect an exception because the date is wrong.");
+		} catch (InvalidInputException e) {
+			//We expect this
+		}
+	}
+	
+	/*
+	 * Testing various queries for the correct outputs/exceptions
+	 * 
+	 */
+	@Test
+	public void test17() throws IOException, InvalidInputException {
+		YelpDb yelp = new YelpDb("data/usersTest1.json", "data/restaurantsTest1.json", "data/reviewsTest1.json");
+		YelpDb yelp2 = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
+		
+		try { //trying to get a restaurant that doesn't exist in the database
+			yelp.queryProcessor("GETRESTAURANT zqcTeWwRe7HjbwDaWJGjCw");
+			fail("We expect a RestaurantNotFoundException here.");
+		} catch (RestaurantNotFoundException e) {
+			//We expect this exception
+		} catch (Exception e) {
+			// We don't expect any other type of exception
+			fail("Wrong exception was thrown.");
+		}
+		
+		try { //trying to add a review for a user that does not exist
+			yelp.queryProcessor("ADDREVIEW {\"business_id\": \"gclB3ED6uk6viWlolSb_uA\", \"text\": \"The pizza is terrible, but if you need a place to watch a game or just down some pitchers, this place works.\\n\\nOh, and the pasta is even worse than the pizza.\", \"stars\": 1, \"user_id\": \"_NH7Cpq\", \"date\": \"2006-07-26\"}");
+			fail("An exception should have been thrown.");
+		} catch (UserNotFoundException e) {
+			
+		} catch (Exception e) {
+			fail("Wrong exception was thrown.");
+		}
+		
+		try { //trying to add a review for a restaurant that does not exist
+			yelp.queryProcessor("ADDREVIEW {\"business_id\": \"lolSb_uA\", \"text\": \"The pizza is terrible, but if you need a place to watch a game or just down some pitchers, this place works.\\n\\nOh, and the pasta is even worse than the pizza.\", \"stars\": 1, \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"date\": \"2006-07-26\"}");
+			fail("We expect an exception here.");
+		} catch (RestaurantNotFoundException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong type of exception was thrown.");
+		}
+		
+		try { //trying to add a user with an invalid user string
+			yelp.queryProcessor("ADDUSER {\"name\": \"Mikayla\", yedsdf}");
+			fail("We expect an exception here.");
+		} catch (InvalidUserStringException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong type of exception thrown.");
+		}
+		
+		try { //trying to add a restaurant with an invalid restaurant string
+			yelp.queryProcessor("ADDRESTAURANT {\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-mJ3GQyKg\", \"name\": \"Hummingbird Express\", \"categories\": [\"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://ak.yelpcdn.com/gfx/blank_biz_medium.gif\", \"schools\": University of California at Berkeley, \"latitude\": 37.8755024, \"price\": 2}");
+			fail("We expect an exception here.");
+		} catch (InvalidRestaurantStringException e) {
+			//we expect this
+		} catch (Exception e) {
+			fail("Wrong exception was thrown.");
+		}
+		
+		try { //trying to add an invalid review
+			yelp.queryProcessor("ADDREVIEW {\"type\": \"review\", \"business_id\": \"gclB3ED6uk6viWlolSb_uA\", \"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": \"0a-pCW4guXIlWNpVeBHChg\", \"text\": \"The pizza is terrible, but if you need a place to watch a game or just down some pitchers, this place works.\\n\\nOh, and the pasta is even worse than the pizza.\", \"stars\": 1, \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"date\": \"2006-07-26}");
+			fail("We expect an exception.");
+		} catch (InvalidReviewStringException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong type of exception.");
+		}
+		
+		try { //trying a query without spaces beside the "&&"
+			yelp.queryProcessor("QUERY price = 4&&rating = 2");
+			fail("We expect an exception.");
+		} catch (InvalidQueryException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong exception.");
+		}
+		
+		try { //trying a query without spaces beside the "||"
+			yelp.queryProcessor("QUERY name(\"Hummingbird Express\")||in(\"UC Campus Area\")");
+			fail("We expect an exception/");
+		} catch (InvalidQueryException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong type of exception.");
+		}
+		
+		try { //a query with a name condition, price >= 2, and a rating of <=2. Should yield no results
+			yelp.queryProcessor("QUERY (price >= 2 || rating <= 2) && name(Yelp)");
+			fail("We expect no matches.");
+		} catch (NoMatchException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong exception.");
+		}
+		
+		try { //a query with an invalid name request
+			yelp.queryProcessor("QUERY name(hdjlsa && price < 0");
+			fail("We expect an exception.");
+		} catch (InvalidQueryException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong exception thrown.");
+		}
+		
+		try { //a query with an invalid in request
+			yelp.queryProcessor("QUERY in(Alabama");
+			fail("We expect an exception");
+		} catch (InvalidQueryException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong exception thrown.");
+		}
+		
+		try { //a query with rating > 6
+			yelp.queryProcessor("QUERY (rating > 6)");
+			fail("We expect an exception");
+		} catch (InvalidQueryException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong exception thrown.");
+		}
+
+		try { //a query with a rating < 0
+			yelp.queryProcessor("QUERY rating < 0");
+			fail("We expect an exception");
+		} catch (InvalidQueryException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong exception thrown.");
+		}
+		
+		try { //a query with a rating that is not a number
+			yelp.queryProcessor("QUERY rating = a");
+			fail("We expect an exception");
+		} catch (InvalidQueryException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong exception thrown.");
+		}
+		
+		try { //a query with price > 5
+			yelp.queryProcessor("QUERY price > 5");
+			fail("We expect an exception");
+		} catch (InvalidQueryException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong exception thrown.");
+		}
+		
+		try { //a query with price < 0 
+			yelp.queryProcessor("QUERY price < 0");
+			fail("We expect an exception");
+		} catch (InvalidQueryException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong exception thrown.");
+		}
+		
+		try { //a query with price > 2 and rating < 4
+			yelp.queryProcessor("QUERY price > 2 && rating < 4");
+			//we don't expect any exceptions
+		} catch (Exception e) {
+			fail("We don't expect an exception.");
+		}
+		
+		try {//a query with a price = 4 and a rating = 4
+			yelp2.queryProcessor("QUERY price = 4 && rating = 4");
+		} catch (Exception e) {
+			fail("We don't expect any exceptions to be thrown here.");
+		}
+		
+		try {//a query with a price that is not a number
+			yelp.queryProcessor("QUERY price <= t");
+			fail("We expect an exception");
+		} catch (InvalidQueryException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong exception thrown.");
+		}
+	}
+	
+	/*
+	 * Testing that we get a RestaurantNotFoundException if we try to return the JSON string of a
+	 * Restaurant that does not exist in the database and the same for a review that does not
+	 * exist
+	 */
+	@Test
+	public void test18() throws IOException, InvalidInputException {
+		YelpDb yelp = new YelpDb("data/usersTest1.json", "data/restaurantsTest1.json", "data/reviewsTest1.json");
+		try {
+			yelp.getRestaurantJSON("zqcTeWwRe7HjbwDaWJGjCw");
+			fail("We expect a RestaurantNotFoundException here.");
+		} catch (RestaurantNotFoundException e) {
+			//We expect this exception
+		}
+		try {
+			yelp.getReviewJSON("74839ie");
+			fail("We expect an exception.");
+		} catch (ReviewNotFoundException e) {
+			//We expect this
+		}
+	}
 }

@@ -75,7 +75,7 @@ public class Restaurant implements Business {
 	 * @param name
 	 * 		String representing name of business
 	 */
-	public Restaurant(String json) throws InvalidInputException, ArrayIndexOutOfBoundsException {
+	public Restaurant(String json) throws InvalidInputException {
 		// storing open status
 		Pattern openPat = Pattern.compile("\"open\": (.*?), \"url\": ");
 		Matcher openMat = openPat.matcher(json);

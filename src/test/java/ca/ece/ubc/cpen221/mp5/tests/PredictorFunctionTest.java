@@ -21,7 +21,8 @@ public class PredictorFunctionTest {
 
 	/*
 	 * Testing that the correct prediction is generated for a given restaurant when
-	 * they entire database is used
+	 * the entire database is used and testing that an exception is thrown if the restaurant
+	 * we want a prediction for is not in the database. 
 	 * 
 	 */
 	@Test
@@ -40,6 +41,13 @@ public class PredictorFunctionTest {
 
 		assertEquals(false, yelp.containsRestaurant(restID));
 		assertEquals(false, yelp.getReviewsUser(userID).contains(reviewID));
+		
+		try {
+			func.applyAsDouble(yelp, restID);
+			fail("We expected an exception here...");
+		} catch (IllegalArgumentException e) {
+			//everything is fine here... we expect this exception
+		}
 	}
 
 	/*

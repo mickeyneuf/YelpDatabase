@@ -1,6 +1,7 @@
 package ca.ece.ubc.cpen221.mp5;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -91,9 +92,17 @@ public class Location {
 	public ArrayList<String> getNeighborhoods() {
 		return neighborhoods;
 	}
+	
+	public void setNeighborhoods(List<String> neighborhoods) {
+		this.neighborhoods = (ArrayList<String>) neighborhoods;
+	}
 
 	public ArrayList<String> getSchools() {
 		return schools;
+	}
+	
+	public void setSchools(List<String> schools) {
+		this.schools = (ArrayList<String>) schools;
 	}
 	
 	public String getStreetAddress() {

@@ -19,8 +19,8 @@ public class ClusterTests {
 	public void test0() throws IOException, InvalidInputException, RestaurantNotFoundException, ArithmeticException{
 		try {
 		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
-		System.out.println(yelp.kMeansClusters_json(15));
 		ArrayList<HashSet<String>> clusters = yelp.kMeansClusters(26);
+		yelp.kMeansClusters_json(15);
 		HashMap<ArrayList<Double>, Integer> centroids = new HashMap<ArrayList<Double>, Integer>();
 		HashMap<String, Integer> restGroups = new HashMap<String, Integer>();
 		for (HashSet<String> cluster : clusters) {
@@ -59,8 +59,6 @@ public class ClusterTests {
 			}
 			for (HashSet<String> set : clusters) {
 				if (set.contains(rest)&&!centroids.get(closest).equals(clusters.indexOf(set))) {
-					/*System.out.println("should have been in: " +centroids.get(closest));
-					System.out.println("was in: " +clusters.indexOf(set));*/
 				}
 			}
 		}
