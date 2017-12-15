@@ -119,13 +119,13 @@ public class YelpDBClient {
             String answer4 = client.getReply();
             System.out.println("Reply: " + answer4 + "\n");
             
-            String request5 = "QUERY { in(Telegraph Ave) && (category(Chinese) || category(Italian)) && price <= 2 }";
+            String request5 = "QUERY in(Telegraph Ave) && (category(Chinese) || category(Italian)) && price <= 2 ";
             client.sendRequest(request5);
             System.out.println(request5 + "\n");
             String answer5 = client.getReply();
             System.out.println("Reply: " + answer5 + "\n");
             
-            String request6 = "QUERY { category(Cafes) && price = 4 }";
+            String request6 = "QUERY category(Cafes, American (Traditional)) && price = 4 ";
             client.sendRequest(request6);
             System.out.println(request6 + "\n");
             String answer6 = client.getReply();

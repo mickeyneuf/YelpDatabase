@@ -1,6 +1,8 @@
 package ca.ece.ubc.cpen221.mp5.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
@@ -13,8 +15,13 @@ import ca.ece.ubc.cpen221.mp5.YelpDBServer;
 public class YelpDBServerTest {
 
 	@Test
-	public void test0() throws InterruptedException {
-		String correct = "{\"open\": true, \"url\": \"http://www.thisbusiness.com/yelp\", \"longitude\": -122.260408, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"0\", \"name\": \"The Spot\", \"categories\": [\"Cafes\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 0, \"city\": \"Berkeley\", \"full_address\": \"2400 Durant Ave\\nTelegraph Ave\\nBerkeley, CA 94701\", \"review_count\": 2, \"photo_url\": \"http://thisbusiness.com/yelp/photo\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.867417, \"price\": 1}";
+	public void test0() {
+		String correct1 = "{\"open\": true, \"url\": \"http://www.thisbusiness.com/yelp\", \"longitude\": -122.260408, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"0\", \"name\": \"The Spot\", \"categories\": [\"Cafes\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 0, \"city\": \"Berkeley\", \"full_address\": \"2400 Durant Ave\\nTelegraph Ave\\nBerkeley, CA 94701\", \"review_count\": 2, \"photo_url\": \"http://thisbusiness.com/yelp/photo\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.867417, \"price\": 1}";
+		String correct2 = "{\"url\": \"http://www.yelp.com/user_details?userid=0\", \"votes\": {}, \"review_count\": 0, \"type\": \"user\", \"user_id\": \"0\", \"name\": \"Hillary S.\", \"average_stars\": 0}";
+		String correct3 = "ERR: INVALID REVIEW STRING";
+		String correct4 = "ERR: INVALID REQUEST";
+		String correct5 = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/lotus-house-berkeley\", \"longitude\": -122.258216, \"neighborhoods\": [\"Telegraph Ave\", \"UC Campus Area\"], \"business_id\": \"XBPMMfMchDlxZG-qSsSdtw\", \"name\": \"Lotus House\", \"categories\": [\"Food\", \"Coffee & Tea\", \"Chinese\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"2517A Durant Ave\\nTelegraph Ave\\nBerkeley, CA 94704\", \"review_count\": 160, \"photo_url\": \"http://s3-media3.ak.yelpcdn.com/bphoto/w4ig8KmeCt9wYkeYrDehIA/ms.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.868035, \"price\": 2}";
+		String correct6 = "ERR: NO MATCH";
 		
 		Thread serverThread = new Thread(new Runnable() {
 			public void run() {
@@ -33,12 +40,37 @@ public class YelpDBServerTest {
 				try {
 					YelpDBClient client = new YelpDBClient("localhost", YelpDBServer.YELPDB_PORT);
 
-					String request = "ADDRESTAURANT {\"open\": true, \"url\": \"http://www.thisbusiness.com/yelp\", \"longitude\": -122.260408, \"neighborhoods\": [\"UC Campus Area\"], \"name\": \"The Spot\", \"categories\": [\"Cafes\", \"Restaurants\"], \"full_address\": \"2400 Durant Ave\\nTelegraph Ave\\nBerkeley, CA 94701\", \"review_count\": 2, \"photo_url\": \"http://thisbusiness.com/yelp/photo\", \"latitude\": 37.867417, \"price\": 1}";
-					client.sendRequest(request);
-					System.out.println(request + "\n");
-					String answer = client.getReply();
-					System.out.println("Reply: " + answer + "\n");
-					assertEquals(correct, answer);
+					String request1 = "ADDRESTAURANT {\"open\": true, \"url\": \"http://www.thisbusiness.com/yelp\", \"longitude\": -122.260408, \"neighborhoods\": [\"UC Campus Area\"], \"name\": \"The Spot\", \"categories\": [\"Cafes\", \"Restaurants\"], \"full_address\": \"2400 Durant Ave\\nTelegraph Ave\\nBerkeley, CA 94701\", \"review_count\": 2, \"photo_url\": \"http://thisbusiness.com/yelp/photo\", \"latitude\": 37.867417, \"price\": 1}";
+					client.sendRequest(request1);
+					String answer1 = client.getReply();
+					assertEquals(correct1, answer1);
+					
+		            String request2 = "ADDUSER {\"name\": \"Hillary S.\", \"price\": 1}";
+		            client.sendRequest(request2);
+		            String answer2 = client.getReply();
+		            assertEquals(correct2, answer2);
+		            
+		            String request3 = "ADDREVIEW {\"open\": true, \"url\": \"http://www.thisbusiness.com/yelp\", \"full_address\": \"2400 Durant Ave\\nTelegraph Ave\\nBerkeley, CA 94701\", \"review_count\": 2, \"price\": 1}";
+		            client.sendRequest(request3);
+		            String answer3 = client.getReply();
+		            assertEquals(correct3, answer3);
+		            
+		            String request4 = "GETUSER 37.867417";
+		            client.sendRequest(request4);
+		            String answer4 = client.getReply();
+		            assertEquals(correct4, answer4);
+		            
+		            String request5 = "QUERY in(Telegraph Ave) && (category(Chinese) || category(Italian)) && price <= 2 ";
+		            client.sendRequest(request5);
+		            String answer5 = client.getReply();
+		            assertTrue(answer5.contains(correct5));
+		            
+		            String request6 = "QUERY category(Cafes, American (Traditional)) && price = 4 ";
+		            client.sendRequest(request6);
+		            String answer6 = client.getReply();
+		            assertEquals(correct6, answer6);
+		            
+		            
 					client.close();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -46,7 +78,13 @@ public class YelpDBServerTest {
 			}
 		});
 		clientThread.start();
-		serverThread.join();
+		
+		try {
 		clientThread.join();
+		} catch (Exception e) {
+			fail("This thread should not have been interrupted.");
+		}
+		
+		serverThread.interrupt();
 	}
 }

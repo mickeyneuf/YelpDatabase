@@ -895,8 +895,8 @@ public class YelpDb implements MP5Db<Restaurant> {
 				throw new RestaurantNotFoundException();
 			}
 
-		} else if (queryString.contains("in(") | queryString.contains("category(") | queryString.contains("price")
-				| queryString.contains("rating") | queryString.contains("name(")) {
+		} else if (queryString.startsWith("QUERY")) {
+			queryString = queryString.substring(6);
 			try {
 				HashSet<Restaurant> matches = (HashSet<Restaurant>) this.getMatches(queryString);
 				if (matches.isEmpty()) {
