@@ -882,18 +882,19 @@ public class YelpDb implements MP5Db<Restaurant> {
 			try {
 				this.addReviewJSON(json);
 				return this.getReviewJSON(ID);
-			} catch (InvalidInputException | UserNotFoundException | RestaurantNotFoundException
-					| ReviewNotFoundException e) {
-				if (e instanceof InvalidInputException) {
-					throw new InvalidReviewStringException();
-				}
-				if (e instanceof UserNotFoundException) {
-					throw new UserNotFoundException();
-				}
-				if (e instanceof RestaurantNotFoundException) {
-					throw new RestaurantNotFoundException();
-				}
+				
+			} catch (ReviewNotFoundException e) {
+
+			} catch (InvalidInputException e) {
+				throw new InvalidReviewStringException();
+				
+			} catch (UserNotFoundException e) {
+				throw new UserNotFoundException();
+				
+			} catch (RestaurantNotFoundException e) {
+				throw new RestaurantNotFoundException();
 			}
+
 		} else if (queryString.contains("in(") | queryString.contains("category(") | queryString.contains("price")
 				| queryString.contains("rating") | queryString.contains("name(")) {
 			try {

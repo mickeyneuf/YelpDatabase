@@ -3,19 +3,47 @@ package ca.ece.ubc.cpen221.mp5;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-import javax.json.JsonException;
-
+import java.util.Scanner;
 
 /**
- * FibonacciServerMulti is a server that finds the n^th Fibonacci number given
- * n. It accepts requests of the form: Request ::= Number "\n" Number ::= [0-9]+
- * and for each request, returns a reply of the form: Reply ::= (Number | "err")
- * "\n" where a Number is the request Fibonacci number, or "err" is used to
- * indicate a misformatted request. FinbonacciServerMulti can handle multiple
- * concurrent clients.
+ * YelpDBServer is a server that was based off of the FibonacciServerMulti given
+ * in class.
+ * 
+ * 
+ * Requests that it accepts include: GETRESTAURANT <business id>: This returns
+ * the restaurant with the specified business ID ADDUSER <user information>:
+ * This adds a new user to the YelpDb database and returns the JSON string
+ * associated with this new user once it has been created ADDRESTAURANT
+ * <restaurant information>: This adds a new restaurant to the YelpDb database
+ * and returns the JSON string ADDREVIEW <review information>: This adds a new
+ * review to the YelpDb database and returns the JSON string And various search
+ * strings: Clients can search for all restaurants that conform to specific
+ * criteria. For example: "QUERY (in(Telegraph Ave) && (category(Chinese) ||
+ * category(Italian)) && price <= 2)" would return a list of Chinese and Italian
+ * restaurants in the Telegraph Avenue neighbourhood that have a price range of
+ * 1-2.
+ * 
+ * This server will reply with the JSON string of the restaurant requested, the
+ * JSON string of the user, restaurant, or review that was added, or a set of
+ * Restaurants that matched the specific query.
+ * 
+ * This server has several error messages which correspond to various errors:
+ * "ERR: INVALID_REQUEST" is used to handle incorrectly formatted request
+ * strings or invalid queries. "ERR: NO SUCH USER" is used if the client tries
+ * to create a review for a user that does not exist in the database. "ERR: NO
+ * SUCH RESTAURANT" is used if the business ID used in a GETRESTAURANT request
+ * does not match an existing restaurant, or if the client tries to create a
+ * review for a restaurant that does not exist. "ERR: INVALID REVIEW STRING" is
+ * used if the JSON string for a new review is not correctly formatted. "ERR:
+ * INVALID USER STRING" is used if the JSON string for a new user is not
+ * correctly formatted. "ERR: INVALID RESTAURANT STRING" is used if the JSON
+ * string for a new restaurant is not correctly formatted. "ERR: NO MATCH" is
+ * used if the query yields no matches.
+ * 
+ * 
+ * This server can handle multiple concurrent clients.
  */
-public class YelpDBServer{
+public class YelpDBServer {
 	/** Default port number where the server listens for connections. */
 	public static final int YELPDB_PORT = 4949;
 
@@ -36,7 +64,7 @@ public class YelpDBServer{
 	 * 
 	 * @param port
 	 *            port number, requires 0 <= port <= 65535
-	 * @throws InvalidInputException 
+	 * @throws InvalidInputException
 	 */
 	public YelpDBServer(int port) throws IOException, InvalidInputException {
 		serverSocket = new ServerSocket(port);
@@ -106,38 +134,39 @@ public class YelpDBServer{
 					String reply = yelp.queryProcessor(line);
 					System.err.println("Reply: " + reply);
 					out.println(reply);
-					
+
 				} catch (InvalidInputException e) {
 					System.err.println("Reply: ERR: INVALID_REQUEST");
 					out.println("ERR: INVALID REQUEST\n");
-					
+
 				} catch (ReviewNotFoundException e) {
 					// This exception should not ever be thrown since we cannot look for a review,
 					// but we must catch it anyway
-					
+
 				} catch (UserNotFoundException e) {
 					System.err.println("Reply: ERR: NO_SUCH_USER");
-					out.println("ERR: NO SUCH USER\n");
-					
+					out.println("ERR: NO SUCH USER");
+
 				} catch (RestaurantNotFoundException e) {
 					System.err.println("Reply: ERR: NO_SUCH_RESTAURANT");
-					out.println("ERR: NO SUCH RESTAURANT\n");
-					
+					out.println("ERR: NO SUCH RESTAURANT");
+
 				} catch (InvalidReviewStringException e) {
 					System.err.println("Reply: ERR: INVALID_REVIEW_STRING");
-					out.println("ERR: INVALID REVIEW STRING\n");
+					out.println("ERR: INVALID REVIEW STRING");
+
 				} catch (InvalidUserStringException e) {
 					System.err.println("Reply: ERR: INVALID_USER_STRING");
-					out.println("ERR: INVALID USER STRING\n");
-					
+					out.println("ERR: INVALID USER STRING");
+
 				} catch (InvalidRestaurantStringException e) {
 					System.err.println("Reply: ERR: INVALID_RESTAURANT_STRING");
-					out.println("ERR: INVALID RESTAURANT STRING\n");
-					
+					out.println("ERR: INVALID RESTAURANT STRING");
+
 				} catch (InvalidQueryException e) {
 					System.err.println("Reply: ERR: INVALID_REQUEST");
-					out.println("ERR: INVALID REQUEST\n");
-					
+					out.println("ERR: INVALID REQUEST");
+
 				} catch (NoMatchException e) {
 					System.err.println("Reply: ERR: NO_MATCH");
 					out.println("ERR: NO MATCH");
@@ -151,14 +180,32 @@ public class YelpDBServer{
 	}
 
 	/**
-	 * Start a FibonacciServerMulti running on the default port.
+	 * Start a YelpDBServer running on the port specified as input to the function.
 	 */
 	public static void main(String[] args) {
-		try {
-			YelpDBServer server = new YelpDBServer(YELPDB_PORT);
-			server.serve();
-		} catch (IOException | InvalidInputException e1) {
-			e1.printStackTrace();
+		Scanner scan = new Scanner(System.in);
+		String port = null;
+		
+		do {
+			port = scan.next();
+		} while (port == null || port.isEmpty());
+		scan.close();
+		
+		
+		if (Integer.valueOf(port) == YELPDB_PORT) {
+			try {
+				YelpDBServer server = new YelpDBServer(YELPDB_PORT);
+				server.serve();
+			} catch (IOException | InvalidInputException e1) {
+				e1.printStackTrace();
+			}
+		} else {
+			try {
+				YelpDBServer server = new YelpDBServer(Integer.valueOf(port));
+				server.serve();
+			} catch (IOException | InvalidInputException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }
