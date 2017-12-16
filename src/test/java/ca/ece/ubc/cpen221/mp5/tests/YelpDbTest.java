@@ -349,7 +349,7 @@ public class YelpDbTest {
 			yelp.requestProcessor("GETUSER ksadasd");
 			
 			fail("expected an exception");
-		} catch (InvalidQueryException e) {
+		} catch (IllegalRequestException e) {
 			//do nothing
 		}
 	}
