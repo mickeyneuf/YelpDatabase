@@ -745,8 +745,8 @@ public class YelpDb implements MP5Db<Restaurant> {
 	}
 
 	/**
-	 * A method called by a server to process queries from clients. Currently
-	 * supports GETRESTAURANT, ADDUSER, ADDRESTAURANT and ADDREVIEW queries, as well
+	 * A method called by a server to process requests from clients. Currently
+	 * supports GETRESTAURANT, ADDUSER, ADDRESTAURANT and ADDREVIEW requests, as well
 	 * as structured queries to search for restaurants that conform to certain
 	 * conditions
 	 * 
@@ -763,26 +763,27 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * @throws InvalidRestaurantStringException
 	 * @throws InvalidQueryException
 	 * @throws NoMatchException
+	 * @throws IllegalRequestException 
 	 * 
 	 */
-	public synchronized String queryProcessor(String queryString)
+	public synchronized String requestProcessor(String requestString)
 			throws RestaurantNotFoundException, InvalidInputException, UserNotFoundException, ReviewNotFoundException,
 			InvalidReviewStringException, InvalidUserStringException, InvalidRestaurantStringException,
-			InvalidQueryException, JsonException, NoMatchException {
-		// checking if this is a get restaurant query
+			InvalidQueryException, JsonException, NoMatchException, IllegalRequestException {
+		// checking if this is a get restaurant request
 		Pattern gRestPat = Pattern.compile("GETRESTAURANT (.*?)");
-		Matcher gRestMat = gRestPat.matcher(queryString);
+		Matcher gRestMat = gRestPat.matcher(requestString);
 		if (gRestMat.find()) {
 			try {
-				String ID = queryString.split(" ")[1];
+				String ID = requestString.split(" ")[1];
 				return this.getRestaurantJSON(ID);
 			} catch (RestaurantNotFoundException e) {
 				throw new RestaurantNotFoundException();
 			}
 		}
-		// checking if this is an add user query
+		// checking if this is an add user request
 		Pattern aUserPat = Pattern.compile("ADDUSER \\{(.*?)\\}");
-		Matcher aUserMat = aUserPat.matcher(queryString);
+		Matcher aUserMat = aUserPat.matcher(requestString);
 		// need to figure out how to validate rest of json string
 		if (aUserMat.find()) {
 			String json = aUserMat.group(1); // validate this (check if extra info is in json format, then ignore it)
@@ -805,9 +806,9 @@ public class YelpDb implements MP5Db<Restaurant> {
 				throw new InvalidUserStringException();
 			}
 		}
-		// checks if this is an add restaurant query
+		// checks if this is an add restaurant request
 		Pattern aRestPat = Pattern.compile("ADDRESTAURANT \\{(.*?)\\}");
-		Matcher aRestMat = aRestPat.matcher(queryString);
+		Matcher aRestMat = aRestPat.matcher(requestString);
 		if (aRestMat.find()) {
 			String json = aRestMat.group(1);
 			JsonObject object = null;
@@ -856,9 +857,9 @@ public class YelpDb implements MP5Db<Restaurant> {
 				throw new InvalidRestaurantStringException();
 			}
 		}
-		// checks if this is an add review query
+		// checks if this is an add review request
 		Pattern aRevPat = Pattern.compile("ADDREVIEW \\{(.*?)\\}");
-		Matcher aRevMat = aRevPat.matcher(queryString);
+		Matcher aRevMat = aRevPat.matcher(requestString);
 		if (aRevMat.find()) {
 			String json = aRevMat.group(1);
 			JsonObject object = null;
@@ -882,23 +883,19 @@ public class YelpDb implements MP5Db<Restaurant> {
 			try {
 				this.addReviewJSON(json);
 				return this.getReviewJSON(ID);
-				
 			} catch (ReviewNotFoundException e) {
-
+				// this would not happen, cause we just added the review
 			} catch (InvalidInputException e) {
 				throw new InvalidReviewStringException();
-				
 			} catch (UserNotFoundException e) {
 				throw new UserNotFoundException();
-				
 			} catch (RestaurantNotFoundException e) {
 				throw new RestaurantNotFoundException();
 			}
-
-		} else if (queryString.startsWith("QUERY")) {
-			queryString = queryString.substring(6);
+		} else if (requestString.startsWith("QUERY")) {
+			requestString = requestString.substring(6);
 			try {
-				HashSet<Restaurant> matches = (HashSet<Restaurant>) this.getMatches(queryString);
+				HashSet<Restaurant> matches = (HashSet<Restaurant>) this.getMatches(requestString);
 				if (matches.isEmpty()) {
 					throw new NoMatchException();
 				}
@@ -911,9 +908,9 @@ public class YelpDb implements MP5Db<Restaurant> {
 				throw new InvalidQueryException();
 			}
 		} else {
-			throw new InvalidQueryException();
+			throw new IllegalRequestException();
 		}
-		throw new InvalidQueryException();
+		throw new IllegalRequestException();
 	}
 
 	/**

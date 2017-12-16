@@ -11,6 +11,7 @@ import javax.json.JsonException;
 import org.junit.Test;
 import ca.ece.ubc.cpen221.mp5.InvalidInputException;
 import ca.ece.ubc.cpen221.mp5.InvalidQueryException;
+import ca.ece.ubc.cpen221.mp5.IllegalRequestException;
 import ca.ece.ubc.cpen221.mp5.InvalidRestaurantStringException;
 import ca.ece.ubc.cpen221.mp5.InvalidReviewStringException;
 import ca.ece.ubc.cpen221.mp5.InvalidUserStringException;
@@ -311,41 +312,41 @@ public class YelpDbTest {
 	 * 
 	 */
 	@Test 
-	public void test13() throws IOException, InvalidInputException, RestaurantNotFoundException, UserNotFoundException, ReviewNotFoundException, InvalidReviewStringException, InvalidUserStringException, InvalidRestaurantStringException, InvalidQueryException, NoMatchException {
+	public void test13() throws IOException, InvalidInputException, RestaurantNotFoundException, UserNotFoundException, ReviewNotFoundException, InvalidReviewStringException, InvalidUserStringException, InvalidRestaurantStringException, InvalidQueryException, NoMatchException, JsonException, IllegalRequestException {
 		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
-		assertEquals("{\"url\": \"http://www.yelp.com/user_details?userid=0\", \"votes\": {}, \"review_count\": 0, \"type\": \"user\", \"user_id\": \"0\", \"name\": \"Sathish G.\", \"average_stars\": 0}", yelp.queryProcessor("ADDUSER {\"favorite color\": \"yellow\", \"name\": \"Sathish G.\", \"hobbies\": \"golf\", \"favorite food\": \"egg\"}"));
-		assertEquals(yelp.getRestaurantJSON("WXKx2I2SEzBpeUGtDMCS8A"), yelp.queryProcessor("GETRESTAURANT WXKx2I2SEzBpeUGtDMCS8A"));
-		assertEquals("{\"open\": true, \"url\": \"http://www.yelp.com/biz/pancake\", \"longitude\": -121.53281948723, \"neighborhoods\": [\"Downtown Berkeley\", \"UC Campus Area\"], \"business_id\": \"0\", \"name\": \"pancake store\", \"categories\": [\"pancake\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 0, \"city\": \"Berkeley\", \"full_address\": \"9999 pancake St\\nDowntown Berkeley\\nBerkeley, CA 99999\", \"review_count\": 0, \"photo_url\": \"http://s3-media3.ak.yelpcdn.com/bphoto/pancake.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 32.342895435, \"price\": 1}", yelp.queryProcessor("ADDRESTAURANT {\"open\": true, \"url\": \"http://www.yelp.com/biz/pancake\", \"longitude\": -121.53281948723, \"neighborhoods\": [\"Downtown Berkeley\", \"UC Campus Area\"], \"name\": \"pancake store\", \"categories\": [\"pancake\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"city\": \"Berkeley\", \"full_address\": \"9999 pancake St\\nDowntown Berkeley\\nBerkeley, CA 99999\", \"review_count\": 0, \"photo_url\": \"http://s3-media3.ak.yelpcdn.com/bphoto/pancake.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 32.342895435, \"price\": 1}"));
-		assertEquals("{\"type\": \"review\", \"business_id\": \"0\", \"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": \"0\", \"text\": \"it was pretty good\", \"stars\": 5, \"user_id\": \"0\", \"date\": \"2017-12-13\"}", yelp.queryProcessor("ADDREVIEW {\"type\": \"review\", \"business_id\": \"0\", \"text\": \"it was pretty good\", \"stars\": 5, \"user_id\": \"0\", \"date\": \"2017-12-13\", \"time\": \"6:02 pm\"}"));
+		assertEquals("{\"url\": \"http://www.yelp.com/user_details?userid=0\", \"votes\": {}, \"review_count\": 0, \"type\": \"user\", \"user_id\": \"0\", \"name\": \"Sathish G.\", \"average_stars\": 0}", yelp.requestProcessor("ADDUSER {\"favorite color\": \"yellow\", \"name\": \"Sathish G.\", \"hobbies\": \"golf\", \"favorite food\": \"egg\"}"));
+		assertEquals(yelp.getRestaurantJSON("WXKx2I2SEzBpeUGtDMCS8A"), yelp.requestProcessor("GETRESTAURANT WXKx2I2SEzBpeUGtDMCS8A"));
+		assertEquals("{\"open\": true, \"url\": \"http://www.yelp.com/biz/pancake\", \"longitude\": -121.53281948723, \"neighborhoods\": [\"Downtown Berkeley\", \"UC Campus Area\"], \"business_id\": \"0\", \"name\": \"pancake store\", \"categories\": [\"pancake\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 0, \"city\": \"Berkeley\", \"full_address\": \"9999 pancake St\\nDowntown Berkeley\\nBerkeley, CA 99999\", \"review_count\": 0, \"photo_url\": \"http://s3-media3.ak.yelpcdn.com/bphoto/pancake.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 32.342895435, \"price\": 1}", yelp.requestProcessor("ADDRESTAURANT {\"open\": true, \"url\": \"http://www.yelp.com/biz/pancake\", \"longitude\": -121.53281948723, \"neighborhoods\": [\"Downtown Berkeley\", \"UC Campus Area\"], \"name\": \"pancake store\", \"categories\": [\"pancake\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"city\": \"Berkeley\", \"full_address\": \"9999 pancake St\\nDowntown Berkeley\\nBerkeley, CA 99999\", \"review_count\": 0, \"photo_url\": \"http://s3-media3.ak.yelpcdn.com/bphoto/pancake.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 32.342895435, \"price\": 1}"));
+		assertEquals("{\"type\": \"review\", \"business_id\": \"0\", \"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": \"0\", \"text\": \"it was pretty good\", \"stars\": 5, \"user_id\": \"0\", \"date\": \"2017-12-13\"}", yelp.requestProcessor("ADDREVIEW {\"type\": \"review\", \"business_id\": \"0\", \"text\": \"it was pretty good\", \"stars\": 5, \"user_id\": \"0\", \"date\": \"2017-12-13\", \"time\": \"6:02 pm\"}"));
 		try {
-			yelp.queryProcessor("ADDUSER {\"name\": \"mike w.\", favorite food: eggs}");
+			yelp.requestProcessor("ADDUSER {\"name\": \"mike w.\", favorite food: eggs}");
 			fail("Exception expected!");
 		} catch (InvalidUserStringException e) {
 			//do nothing
 		}
 		try {
-			yelp.queryProcessor("ADDUSER {\"name\": \"mike w.\", \"favorite food\": \"eggs\"}");
+			yelp.requestProcessor("ADDUSER {\"name\": \"mike w.\", \"favorite food\": \"eggs\"}");
 		} catch (InvalidUserStringException e) {
 			fail("No Exception expected!");
 		}
-		yelp.queryProcessor("QUERY in(Telegraph Ave) && (category(Chinese) || category(Italian)) && price <= 2");
-		yelp.queryProcessor("QUERY category(Sandwiches) && price < 2 && rating > 4");
-		yelp.queryProcessor("QUERY category(Mexican) && price < 2 && rating >= 4");
-		yelp.queryProcessor("QUERY category(Chinese) || category(Mexican)");
+		yelp.requestProcessor("QUERY in(Telegraph Ave) && (category(Chinese) || category(Italian)) && price <= 2");
+		yelp.requestProcessor("QUERY category(Sandwiches) && price < 2 && rating > 4");
+		yelp.requestProcessor("QUERY category(Mexican) && price < 2 && rating >= 4");
+		yelp.requestProcessor("QUERY category(Chinese) || category(Mexican)");
 		try {
-			yelp.queryProcessor("QUERY category(Chinese)|| category(Mexican)");
+			yelp.requestProcessor("QUERY category(Chinese)|| category(Mexican)");
 			fail("exception expected!");
 		} catch (InvalidQueryException e) {
 			// do nothing
 		}
 		try {
-			yelp.queryProcessor("QUERY category(alien) && category(Mexican)");
+			yelp.requestProcessor("QUERY category(alien) && category(Mexican)");
 			fail("exception expected!");
 		} catch (NoMatchException e) {
 			//do nothing
 		}
 		try {
-			yelp.queryProcessor("GETUSER ksadasd");
+			yelp.requestProcessor("GETUSER ksadasd");
 			
 			fail("expected an exception");
 		} catch (InvalidQueryException e) {
@@ -593,7 +594,7 @@ public class YelpDbTest {
 		YelpDb yelp2 = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
 		
 		try { //trying to get a restaurant that doesn't exist in the database
-			yelp.queryProcessor("GETRESTAURANT zqcTeWwRe7HjbwDaWJGjCw");
+			yelp.requestProcessor("GETRESTAURANT zqcTeWwRe7HjbwDaWJGjCw");
 			fail("We expect a RestaurantNotFoundException here.");
 		} catch (RestaurantNotFoundException e) {
 			//We expect this exception
@@ -603,7 +604,7 @@ public class YelpDbTest {
 		}
 		
 		try { //trying to add a review for a user that does not exist
-			yelp.queryProcessor("ADDREVIEW {\"business_id\": \"gclB3ED6uk6viWlolSb_uA\", \"text\": \"The pizza is terrible, but if you need a place to watch a game or just down some pitchers, this place works.\\n\\nOh, and the pasta is even worse than the pizza.\", \"stars\": 1, \"user_id\": \"_NH7Cpq\", \"date\": \"2006-07-26\"}");
+			yelp.requestProcessor("ADDREVIEW {\"business_id\": \"gclB3ED6uk6viWlolSb_uA\", \"text\": \"The pizza is terrible, but if you need a place to watch a game or just down some pitchers, this place works.\\n\\nOh, and the pasta is even worse than the pizza.\", \"stars\": 1, \"user_id\": \"_NH7Cpq\", \"date\": \"2006-07-26\"}");
 			fail("An exception should have been thrown.");
 		} catch (UserNotFoundException e) {
 			
@@ -612,7 +613,7 @@ public class YelpDbTest {
 		}
 		
 		try { //trying to add a review for a restaurant that does not exist
-			yelp.queryProcessor("ADDREVIEW {\"business_id\": \"lolSb_uA\", \"text\": \"The pizza is terrible, but if you need a place to watch a game or just down some pitchers, this place works.\\n\\nOh, and the pasta is even worse than the pizza.\", \"stars\": 1, \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"date\": \"2006-07-26\"}");
+			yelp.requestProcessor("ADDREVIEW {\"business_id\": \"lolSb_uA\", \"text\": \"The pizza is terrible, but if you need a place to watch a game or just down some pitchers, this place works.\\n\\nOh, and the pasta is even worse than the pizza.\", \"stars\": 1, \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"date\": \"2006-07-26\"}");
 			fail("We expect an exception here.");
 		} catch (RestaurantNotFoundException e) {
 			//We expect this
@@ -621,7 +622,7 @@ public class YelpDbTest {
 		}
 		
 		try { //trying to add a user with an invalid user string
-			yelp.queryProcessor("ADDUSER {\"name\": \"Mikayla\", yedsdf}");
+			yelp.requestProcessor("ADDUSER {\"name\": \"Mikayla\", yedsdf}");
 			fail("We expect an exception here.");
 		} catch (InvalidUserStringException e) {
 			//We expect this
@@ -630,7 +631,7 @@ public class YelpDbTest {
 		}
 		
 		try { //trying to add a restaurant with an invalid restaurant string
-			yelp.queryProcessor("ADDRESTAURANT {\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-mJ3GQyKg\", \"name\": \"Hummingbird Express\", \"categories\": [\"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://ak.yelpcdn.com/gfx/blank_biz_medium.gif\", \"schools\": University of California at Berkeley, \"latitude\": 37.8755024, \"price\": 2}");
+			yelp.requestProcessor("ADDRESTAURANT {\"open\": true, \"url\": \"http://www.yelp.com/biz/hummingbird-express-berkeley\", \"longitude\": -122.2602129, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"LqVC-mJ3GQyKg\", \"name\": \"Hummingbird Express\", \"categories\": [\"Mediterranean\", \"Sandwiches\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"1842 Euclid Ave\\nUC Campus Area\\nBerkeley, CA 94709\", \"review_count\": 16, \"photo_url\": \"http://ak.yelpcdn.com/gfx/blank_biz_medium.gif\", \"schools\": University of California at Berkeley, \"latitude\": 37.8755024, \"price\": 2}");
 			fail("We expect an exception here.");
 		} catch (InvalidRestaurantStringException e) {
 			//we expect this
@@ -639,7 +640,7 @@ public class YelpDbTest {
 		}
 		
 		try { //trying to add an invalid review
-			yelp.queryProcessor("ADDREVIEW {\"type\": \"review\", \"business_id\": \"gclB3ED6uk6viWlolSb_uA\", \"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": \"0a-pCW4guXIlWNpVeBHChg\", \"text\": \"The pizza is terrible, but if you need a place to watch a game or just down some pitchers, this place works.\\n\\nOh, and the pasta is even worse than the pizza.\", \"stars\": 1, \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"date\": \"2006-07-26}");
+			yelp.requestProcessor("ADDREVIEW {\"type\": \"review\", \"business_id\": \"gclB3ED6uk6viWlolSb_uA\", \"votes\": {\"cool\": 0, \"useful\": 0, \"funny\": 0}, \"review_id\": \"0a-pCW4guXIlWNpVeBHChg\", \"text\": \"The pizza is terrible, but if you need a place to watch a game or just down some pitchers, this place works.\\n\\nOh, and the pasta is even worse than the pizza.\", \"stars\": 1, \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"date\": \"2006-07-26}");
 			fail("We expect an exception.");
 		} catch (InvalidReviewStringException e) {
 			//We expect this
@@ -648,7 +649,7 @@ public class YelpDbTest {
 		}
 		
 		try { //trying a query without spaces beside the "&&"
-			yelp.queryProcessor("QUERY price = 4&&rating = 2");
+			yelp.requestProcessor("QUERY price = 4&&rating = 2");
 			fail("We expect an exception.");
 		} catch (InvalidQueryException e) {
 			//We expect this
@@ -657,7 +658,7 @@ public class YelpDbTest {
 		}
 		
 		try { //trying a query without spaces beside the "||"
-			yelp.queryProcessor("QUERY name(\"Hummingbird Express\")||in(\"UC Campus Area\")");
+			yelp.requestProcessor("QUERY name(\"Hummingbird Express\")||in(\"UC Campus Area\")");
 			fail("We expect an exception/");
 		} catch (InvalidQueryException e) {
 			//We expect this
@@ -666,7 +667,7 @@ public class YelpDbTest {
 		}
 		
 		try { //a query with a name condition, price >= 2, and a rating of <=2. Should yield no results
-			yelp.queryProcessor("QUERY (price >= 2 || rating <= 2) && name(Yelp)");
+			yelp.requestProcessor("QUERY (price >= 2 || rating <= 2) && name(Yelp)");
 			fail("We expect no matches.");
 		} catch (NoMatchException e) {
 			//We expect this
@@ -675,7 +676,7 @@ public class YelpDbTest {
 		}
 		
 		try { //a query with an invalid name request
-			yelp.queryProcessor("QUERY name(hdjlsa && price < 0");
+			yelp.requestProcessor("QUERY name(hdjlsa && price < 0");
 			fail("We expect an exception.");
 		} catch (InvalidQueryException e) {
 			//We expect this
@@ -684,7 +685,7 @@ public class YelpDbTest {
 		}
 		
 		try { //a query with an invalid in request
-			yelp.queryProcessor("QUERY in(Alabama");
+			yelp.requestProcessor("QUERY in(Alabama");
 			fail("We expect an exception");
 		} catch (InvalidQueryException e) {
 			//We expect this
@@ -693,7 +694,7 @@ public class YelpDbTest {
 		}
 		
 		try { //a query with rating > 6
-			yelp.queryProcessor("QUERY (rating > 6)");
+			yelp.requestProcessor("QUERY (rating > 6)");
 			fail("We expect an exception");
 		} catch (InvalidQueryException e) {
 			//We expect this
@@ -702,7 +703,7 @@ public class YelpDbTest {
 		}
 
 		try { //a query with a rating < 0
-			yelp.queryProcessor("QUERY rating < 0");
+			yelp.requestProcessor("QUERY rating < 0");
 			fail("We expect an exception");
 		} catch (InvalidQueryException e) {
 			//We expect this
@@ -711,7 +712,7 @@ public class YelpDbTest {
 		}
 		
 		try { //a query with a rating that is not a number
-			yelp.queryProcessor("QUERY rating = a");
+			yelp.requestProcessor("QUERY rating = a");
 			fail("We expect an exception");
 		} catch (InvalidQueryException e) {
 			//We expect this
@@ -720,7 +721,7 @@ public class YelpDbTest {
 		}
 		
 		try { //a query with price > 5
-			yelp.queryProcessor("QUERY price > 5");
+			yelp.requestProcessor("QUERY price > 5");
 			fail("We expect an exception");
 		} catch (InvalidQueryException e) {
 			//We expect this
@@ -729,7 +730,7 @@ public class YelpDbTest {
 		}
 		
 		try { //a query with price < 0 
-			yelp.queryProcessor("QUERY price < 0");
+			yelp.requestProcessor("QUERY price < 0");
 			fail("We expect an exception");
 		} catch (InvalidQueryException e) {
 			//We expect this
@@ -738,20 +739,20 @@ public class YelpDbTest {
 		}
 		
 		try { //a query with price > 2 and rating < 4
-			yelp.queryProcessor("QUERY price > 2 && rating < 4");
+			yelp.requestProcessor("QUERY price > 2 && rating < 4");
 			//we don't expect any exceptions
 		} catch (Exception e) {
 			fail("We don't expect an exception.");
 		}
 		
 		try {//a query with a price = 4 and a rating = 4
-			yelp2.queryProcessor("QUERY price = 4 && rating = 4");
+			yelp2.requestProcessor("QUERY price = 4 && rating = 4");
 		} catch (Exception e) {
 			fail("We don't expect any exceptions to be thrown here.");
 		}
 		
 		try {//a query with a price that is not a number
-			yelp.queryProcessor("QUERY price <= t");
+			yelp.requestProcessor("QUERY price <= t");
 			fail("We expect an exception");
 		} catch (InvalidQueryException e) {
 			//We expect this

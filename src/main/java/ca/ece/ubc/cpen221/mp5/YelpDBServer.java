@@ -5,6 +5,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
+import javax.json.JsonException;
+
 /**
  * YelpDBServer is a server that was based off of the FibonacciServerMulti given
  * in class.
@@ -111,6 +113,8 @@ public class YelpDBServer {
 	 *            socket where client is connected
 	 * @throws IOException
 	 *             if connection encounters an error
+	 * @throws IllegalRequestException 
+	 * @throws JsonException 
 	 */
 	private void handle(Socket socket) throws IOException {
 		System.err.println("Client connected");
@@ -131,7 +135,7 @@ public class YelpDBServer {
 			for (String line = in.readLine(); line != null; line = in.readLine()) {
 				System.err.println("Request: " + line);
 				try {
-					String reply = yelp.queryProcessor(line);
+					String reply = yelp.requestProcessor(line);
 					System.err.println("Reply: " + reply);
 					out.println(reply);
 
@@ -139,6 +143,9 @@ public class YelpDBServer {
 					// These exceptions should not ever be thrown since we cannot look for a review
 					// and the input exception should be handled elsewhere, but we must catch it anyway
 
+				} catch (IllegalRequestException e) {
+					System.err.println("Reply: ERR: ILLEGAL_REQUEST");
+					out.println("ERR: ILLEGAL REQUEST");
 				} catch (UserNotFoundException e) {
 					System.err.println("Reply: ERR: NO_SUCH_USER");
 					out.println("ERR: NO SUCH USER");
