@@ -42,10 +42,11 @@ Part 3 YelpDBServer: _3.5 hours total_
   - YelpDBServer class: _3 hours_
   - YelpDBClient: _30 minutes_
 
-Testing: _6 hours total_
+Testing: _8 hours total_
   - YelpDB tests: _3 hours_
   - PredictorFunction tests: _1.5 hours_
   - YelpDBServer tests: _1.5 hours_
+  - Datatype tests: _2 hours_
 
 
 :santa: :christmas_tree: :gift:
