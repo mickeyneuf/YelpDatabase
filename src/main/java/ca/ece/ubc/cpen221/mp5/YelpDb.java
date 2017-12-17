@@ -1064,10 +1064,16 @@ public class YelpDb implements MP5Db<Restaurant> {
 							.collect(Collectors.toSet());
 				}
 				if (conditionArr[1].equals(">")) {
+					if (rating == 5) {
+						throw new InvalidQueryException();
+					}
 					return pool.stream().filter(restaurant -> restaurant.getStars() > rating)
 							.collect(Collectors.toSet());
 				}
 				if (conditionArr[1].equals("<")) {
+					if (rating == 1) {
+						throw new InvalidQueryException();
+					}
 					return pool.stream().filter(restaurant -> restaurant.getStars() < rating)
 							.collect(Collectors.toSet());
 				}
@@ -1105,10 +1111,16 @@ public class YelpDb implements MP5Db<Restaurant> {
 							.collect(Collectors.toSet());
 				}
 				if (conditionArr[1].equals(">")) {
+					if (price == 4) {
+						throw new InvalidQueryException();
+					}
 					return pool.stream().filter(restaurant -> restaurant.getPrice() > price)
 							.collect(Collectors.toSet());
 				}
 				if (conditionArr[1].equals("<")) {
+					if (price == 1) {
+						throw new InvalidQueryException();
+					}
 					return pool.stream().filter(restaurant -> restaurant.getPrice() < price)
 							.collect(Collectors.toSet());
 				}
