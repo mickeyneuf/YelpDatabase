@@ -171,7 +171,6 @@ public class YelpDb implements MP5Db<Restaurant> {
 			do {
 				good = true;
 				for (ArrayList<Double> centro : clusters.keySet()) {
-					System.out.println("old: "+centro);
 					double avgX = 0;
 					double avgY = 0;
 					for (String rest : clusters.get(centro)) {
@@ -183,7 +182,6 @@ public class YelpDb implements MP5Db<Restaurant> {
 					centro = new ArrayList<Double>();
 					centro.add(0, avgX);
 					centro.add(1, avgY);
-					System.out.println("new: "+centro);
 				}
 				// readjust restaurants
 				for (Restaurant rest : this.restaurantList) {
@@ -193,15 +191,12 @@ public class YelpDb implements MP5Db<Restaurant> {
 						double distance = Math.sqrt(Math.pow(rest.getLocation().getLatitude() - centro.get(1), 2)
 								+ Math.pow(rest.getLocation().getLongitude() - centro.get(0), 2));
 						if (distance < mindist) {
-							System.out.println(rest.getBusinessID() + centro);
 							closest = centro;
 							mindist = distance;
 						}
 					}
-					System.out.println(clusters.keySet().contains(closest));
 					if (!clusters.get(closest).contains(rest.getBusinessID())) {
 						// if restaurants are closer to another centroid, set the good boolean to false
-						System.out.println("reached");
 						good = false;
 						for (ArrayList<Double> centro : clusters.keySet()) {
 							if (clusters.get(centro).contains(rest.getBusinessID())) {
