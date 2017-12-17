@@ -24,7 +24,7 @@ public class YelpDBServerTest {
 		String correct1 = "{\"open\": true, \"url\": \"http://www.thisbusiness.com/yelp\", \"longitude\": -122.260408, \"neighborhoods\": [\"UC Campus Area\"], \"business_id\": \"0\", \"name\": \"The Spot\", \"categories\": [\"Cafes\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 0, \"city\": \"Berkeley\", \"full_address\": \"2400 Durant Ave\\nTelegraph Ave\\nBerkeley, CA 94701\", \"review_count\": 2, \"photo_url\": \"http://thisbusiness.com/yelp/photo\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.867417, \"price\": 1}";
 		String correct2 = "{\"url\": \"http://www.yelp.com/user_details?userid=0\", \"votes\": {}, \"review_count\": 0, \"type\": \"user\", \"user_id\": \"0\", \"name\": \"Hillary S.\", \"average_stars\": 0}";
 		String correct3 = "ERR: INVALID REVIEW STRING";
-		String correct4 = "ERR: INVALID REQUEST";
+		String correct4 = "ERR: ILLEGAL REQUEST";
 		String correct5 = "{\"open\": true, \"url\": \"http://www.yelp.com/biz/lotus-house-berkeley\", \"longitude\": -122.258216, \"neighborhoods\": [\"Telegraph Ave\", \"UC Campus Area\"], \"business_id\": \"XBPMMfMchDlxZG-qSsSdtw\", \"name\": \"Lotus House\", \"categories\": [\"Food\", \"Coffee & Tea\", \"Chinese\", \"Restaurants\"], \"state\": \"CA\", \"type\": \"business\", \"stars\": 3.0, \"city\": \"Berkeley\", \"full_address\": \"2517A Durant Ave\\nTelegraph Ave\\nBerkeley, CA 94704\", \"review_count\": 160, \"photo_url\": \"http://s3-media3.ak.yelpcdn.com/bphoto/w4ig8KmeCt9wYkeYrDehIA/ms.jpg\", \"schools\": [\"University of California at Berkeley\"], \"latitude\": 37.868035, \"price\": 2}";
 		String correct6 = "ERR: NO MATCH";
 		String correct7 = "ERR: NO SUCH USER";

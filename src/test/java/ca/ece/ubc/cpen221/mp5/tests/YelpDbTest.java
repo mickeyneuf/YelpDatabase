@@ -330,7 +330,7 @@ public class YelpDbTest {
 			fail("No Exception expected!");
 		}
 		yelp.requestProcessor("QUERY in(Telegraph Ave) && (category(Chinese) || category(Italian)) && price <= 2");
-		System.out.println(yelp.requestProcessor("QUERY in(Telegraph Ave) && (category(Chinese) || category(Italian)) && price <= 2"));
+		yelp.requestProcessor("QUERY in(Telegraph Ave) && (category(Chinese) || category(Italian)) && price <= 2");
 		yelp.requestProcessor("QUERY category(Sandwiches) && price < 2 && rating > 4");
 		yelp.requestProcessor("QUERY category(Mexican) && price < 2 && rating >= 4");
 		yelp.requestProcessor("QUERY category(Chinese) || category(Mexican)");
