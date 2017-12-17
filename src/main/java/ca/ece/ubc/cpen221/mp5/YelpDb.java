@@ -91,20 +91,11 @@ public class YelpDb implements MP5Db<Restaurant> {
 	}
 
 	/**
-	 * Collects all objects inside the database that match the queryString As of
-	 * right now, it is assumed that queryString will be a businessID and getMatches
-	 * will return the restaurant that matches the ID.
-	 * 
-	 * Returns an empty set of no restaurant with a matching ID can be found in the
-	 * database
+	 * Perform a structured query and return the set of objects that matches the
+	 * query
 	 * 
 	 * @param queryString
-	 *            a businessID that we are trying to find the restaurant for
-	 * 
-	 * @return Set the set of all objects that match the queryString; in this case,
-	 *         the restaurant with the matching ID
-	 * 
-	 * 
+	 * @return the set of objects that matches the query
 	 */
 	@Override
 	public Set<Restaurant> getMatches(String queryString) {
@@ -139,7 +130,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * @throws InvalidInputException
 	 * @throws ArrayIndexOutOfBoundsException
 	 */
-	public synchronized ArrayList<HashSet<String>> kMeansClusters(int k)
+	public ArrayList<HashSet<String>> kMeansClusters(int k)
 			throws RestaurantNotFoundException, ArrayIndexOutOfBoundsException {
 		boolean noEmpty = true;
 		Random rand = new Random();
@@ -176,9 +167,11 @@ public class YelpDb implements MP5Db<Restaurant> {
 				clusters.get(closest).add(r.getBusinessID());
 			}
 			boolean good = true;
+			// recalculate centroids
 			do {
 				good = true;
 				for (ArrayList<Double> centro : clusters.keySet()) {
+					System.out.println("old: "+centro);
 					double avgX = 0;
 					double avgY = 0;
 					for (String rest : clusters.get(centro)) {
@@ -188,9 +181,11 @@ public class YelpDb implements MP5Db<Restaurant> {
 					avgX = avgX / clusters.get(centro).size();
 					avgY = avgY / clusters.get(centro).size();
 					centro = new ArrayList<Double>();
-					centro.add(avgX);
-					centro.add(avgY);
+					centro.add(0, avgX);
+					centro.add(1, avgY);
+					System.out.println("new: "+centro);
 				}
+				// readjust restaurants
 				for (Restaurant rest : this.restaurantList) {
 					double mindist = Double.MAX_VALUE;
 					ArrayList<Double> closest = null;
@@ -198,13 +193,15 @@ public class YelpDb implements MP5Db<Restaurant> {
 						double distance = Math.sqrt(Math.pow(rest.getLocation().getLatitude() - centro.get(1), 2)
 								+ Math.pow(rest.getLocation().getLongitude() - centro.get(0), 2));
 						if (distance < mindist) {
+							System.out.println(rest.getBusinessID() + centro);
 							closest = centro;
 							mindist = distance;
 						}
 					}
-					if (clusters.get(closest).contains(rest.getBusinessID())) {
-					}
+					System.out.println(clusters.keySet().contains(closest));
 					if (!clusters.get(closest).contains(rest.getBusinessID())) {
+						// if restaurants are closer to another centroid, set the good boolean to false
+						System.out.println("reached");
 						good = false;
 						for (ArrayList<Double> centro : clusters.keySet()) {
 							if (clusters.get(centro).contains(rest.getBusinessID())) {
@@ -214,13 +211,16 @@ public class YelpDb implements MP5Db<Restaurant> {
 						clusters.get(closest).add(rest.getBusinessID());
 					}
 				}
+			// while this boolean is false, keep looping
 			} while (!good);
 			for (ArrayList<Double> centro : clusters.keySet()) {
+				// check if any empty clusters
 				if (clusters.get(centro).isEmpty()) {
 					noEmpty = false;
 					break;
 				}
 			}
+			// if any empty clusters, try again
 		} while (!noEmpty);
 		for (ArrayList<Double> a : clusters.keySet()) {
 			HashSet<String> clusterSet = new HashSet<String>();
@@ -244,7 +244,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 */
 
 	@Override
-	public synchronized String kMeansClusters_json(int k) {
+	public String kMeansClusters_json(int k) {
 		ArrayList<HashSet<String>> setList;
 		try {
 			setList = this.kMeansClusters(k);
@@ -294,7 +294,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * 
 	 */
 	@Override
-	public synchronized ToDoubleBiFunction<MP5Db<Restaurant>, String> getPredictorFunction(String user) {
+	public ToDoubleBiFunction<MP5Db<Restaurant>, String> getPredictorFunction(String user) {
 		double sxx = 0;
 		double sxy = 0;
 
@@ -348,7 +348,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 *             if the user does not exist in the database
 	 */
 
-	private synchronized YelpUser getUser(String userID) throws UserNotFoundException {
+	private YelpUser getUser(String userID) throws UserNotFoundException {
 		List<YelpUser> users = userList.stream().filter(user -> user.getUserID().equals(userID))
 				.collect(Collectors.toList());
 		if (users.isEmpty()) {
@@ -364,7 +364,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * @throws UserNotFoundException
 	 *             if the user does not exist in the database
 	 */
-	public synchronized String getUserJSON(String userID) throws UserNotFoundException {
+	public String getUserJSON(String userID) throws UserNotFoundException {
 		return this.getUser(userID).getJSON();
 	}
 
@@ -375,7 +375,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * @throws ReviewNotFoundException
 	 *             if the review does not exist in the database
 	 */
-	private synchronized YelpReview getReview(String reviewID) throws ReviewNotFoundException {
+	private YelpReview getReview(String reviewID) throws ReviewNotFoundException {
 		List<YelpReview> reviews = reviewList.stream().filter(review -> review.getReviewID().equals(reviewID))
 				.collect(Collectors.toList());
 		if (reviews.isEmpty()) {
@@ -391,7 +391,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * @throws ReviewNotFoundException
 	 *             if this review does not exist in the database
 	 */
-	public synchronized String getReviewJSON(String reviewID) throws ReviewNotFoundException {
+	public String getReviewJSON(String reviewID) throws ReviewNotFoundException {
 		return this.getReview(reviewID).getJSON();
 	}
 
@@ -402,7 +402,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * @throws RestaurantNotFoundException
 	 *             if the restaurant does not exist in the database
 	 */
-	public synchronized Restaurant getRestaurant(String businessID) throws RestaurantNotFoundException {
+	public Restaurant getRestaurant(String businessID) throws RestaurantNotFoundException {
 		List<Restaurant> restaurants = restaurantList.stream()
 				.filter(restaurant -> restaurant.getBusinessID().equals(businessID)).collect(Collectors.toList());
 		if (restaurants.isEmpty()) {
@@ -419,7 +419,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * @throws RestaurantNotFoundException
 	 *             if the restaurant does not exist in the database
 	 */
-	public synchronized String getRestaurantJSON(String businessID) throws RestaurantNotFoundException {
+	public String getRestaurantJSON(String businessID) throws RestaurantNotFoundException {
 		return this.getRestaurant(businessID).getJSON();
 	}
 
@@ -691,7 +691,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 *            database
 	 * @return true if the user is in the database, false otherwise
 	 */
-	public synchronized boolean containsUser(String userID) {
+	public boolean containsUser(String userID) {
 		for (YelpUser y : this.userList) {
 			if (y.getUserID().equals(userID)) {
 				return true;
@@ -706,7 +706,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 *            in the database
 	 * @return true if the restaurant exists, false otherwise
 	 */
-	public synchronized boolean containsRestaurant(String businessID) {
+	public boolean containsRestaurant(String businessID) {
 		for (Restaurant r : this.restaurantList) {
 			if (r.getBusinessID().equals(businessID)) {
 				return true;
@@ -720,7 +720,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 *            the userID of the user whos reviews we want
 	 * @return a list of the reviewIDs of reviews written by this user
 	 */
-	public synchronized ArrayList<String> getReviewsUser(String userID) {
+	public ArrayList<String> getReviewsUser(String userID) {
 		return new ArrayList<String>(this.userReviews.get(userID));
 	}
 
@@ -729,7 +729,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 *            the businessID of the restaurant whose reviews we want
 	 * @return a list of reviewIDs of reviews written about this restaurant
 	 */
-	public synchronized ArrayList<String> getReviewsRestaurant(String businessID) {
+	public ArrayList<String> getReviewsRestaurant(String businessID) {
 		return new ArrayList<String>(this.restaurantReviews.get(businessID));
 	}
 
@@ -740,7 +740,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * @return a list of userIDs of users who have written reviews about this
 	 *         restaurant
 	 */
-	public synchronized ArrayList<String> getUsersRestaurant(String businessID) {
+	public ArrayList<String> getUsersRestaurant(String businessID) {
 		return new ArrayList<String>(this.visitedBy.get(businessID));
 	}
 
@@ -921,7 +921,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 	 * @param conditions
 	 *            queryString that outline the conditions of the desired restaurants
 	 * @return jsonPool a set of json-formatted strings containing all the info of
-	 *         the restauarants conforming to the conditions
+	 *         the restaurants conforming to the conditions
 	 * @throws InvalidQueryException
 	 * @throws NoMatchException
 	 */

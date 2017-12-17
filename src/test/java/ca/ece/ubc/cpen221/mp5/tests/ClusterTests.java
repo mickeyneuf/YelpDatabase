@@ -16,6 +16,8 @@ import ca.ece.ubc.cpen221.mp5.YelpDb;
 
 public class ClusterTests {
 	@Test
+	// This test creates a YelpDb instance and checks that the kMeansClusters and kMeansClusters_json methods work correctly
+	// It does this by checking that every restaurant in a cluster is not closer to another cluster's centroid
 	public void test0() throws IOException, InvalidInputException, RestaurantNotFoundException, ArithmeticException{
 		try {
 		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
@@ -23,6 +25,7 @@ public class ClusterTests {
 		yelp.kMeansClusters_json(15);
 		HashMap<ArrayList<Double>, Integer> centroids = new HashMap<ArrayList<Double>, Integer>();
 		HashMap<String, Integer> restGroups = new HashMap<String, Integer>();
+		// calculating centroids of each cluster
 		for (HashSet<String> cluster : clusters) {
 			double xCoord = 0;
 			double yCoord = 0;
@@ -38,6 +41,7 @@ public class ClusterTests {
 			centroid.add(yCoord);
 			centroids.put(centroid, clusters.indexOf(cluster));
 		}
+		// checks that all restaurants in list are in the cluster whose centroid they are closest to 
 		for (String rest : restGroups.keySet()) {
 			double mindist = Double.MAX_VALUE;
 			ArrayList<Double> closest = null;
@@ -57,10 +61,17 @@ public class ClusterTests {
 				}
 				restGroups.put(rest, group);
 			}
+			// if the restaurant is not closest to the right centroid, test fails
 			for (HashSet<String> set : clusters) {
 				if (set.contains(rest)&&!centroids.get(closest).equals(clusters.indexOf(set))) {
+					fail("Restaurant was closer to another centroid!");
 				}
 			}
+		}
+		// for the kmeansClusters_json method, because it only converts the result of 
+		// kmeansClusters to a string of json strings, we only test that the number of clusters is correct
+		for (int i = 0 ; i < 10 ; i++) {
+			assertTrue(yelp.kMeansClusters_json(10).contains("\"cluster\": "+i));
 		}
 		} catch (IOException e) {
 			fail("no exception expected");
