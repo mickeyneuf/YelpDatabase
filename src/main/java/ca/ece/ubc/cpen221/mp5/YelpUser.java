@@ -72,7 +72,7 @@ public class YelpUser implements User {
 	 */
 	public YelpUser(String json) throws InvalidInputException, ArrayIndexOutOfBoundsException {
 		// storing URL
-		Pattern urlPat = Pattern.compile("\"url\": \"(.*?)\", \"votes\": ");
+		Pattern urlPat = Pattern.compile("\"url\": \"(.*?)\", \"votes\":");
 		Matcher urlMat = urlPat.matcher(json);
 		if(urlMat.find()) {
 			this.url = urlMat.group(1);
@@ -80,7 +80,7 @@ public class YelpUser implements User {
 			throw new InvalidInputException();
 		}
 		// storing votes
-		Pattern votesPat = Pattern.compile("\"votes\": (.*?), \"review_count\": ");
+		Pattern votesPat = Pattern.compile("\"votes\": (.*?), \"review_count\":");
 		Matcher votesMat = votesPat.matcher(json);
 		String voteStr = null;
 		if(votesMat.find()) {
@@ -97,7 +97,7 @@ public class YelpUser implements User {
 			throw new InvalidInputException();
 		}
 		// storing review count
-		Pattern reviewCountPat = Pattern.compile("\"review_count\": (.*?), \"type\": ");
+		Pattern reviewCountPat = Pattern.compile("\"review_count\": (.*?), \"type\":");
 		Matcher reviewCountMat = reviewCountPat.matcher(json);
 		if(reviewCountMat.find()) {
 			this.reviewCount = Integer.parseInt(reviewCountMat.group(1));
@@ -105,7 +105,7 @@ public class YelpUser implements User {
 			throw new InvalidInputException();
 		}
 		// storing userID
-		Pattern userIDPat = Pattern.compile("\"user_id\": \"(.*?)\", \"name\": ");
+		Pattern userIDPat = Pattern.compile("\"user_id\": \"(.*?)\", \"name\":");
 		Matcher userIDMat = userIDPat.matcher(json);
 		if(userIDMat.find()) {
 			this.userID = userIDMat.group(1);
@@ -113,7 +113,7 @@ public class YelpUser implements User {
 			throw new InvalidInputException();
 		}	
 		// storing name
-		Pattern namePat = Pattern.compile("\"name\": \"(.*?)\", \"average_stars\": ");
+		Pattern namePat = Pattern.compile("\"name\": \"(.*?)\", \"average_stars\":");
 		Matcher nameMat = namePat.matcher(json);
 		if(nameMat.find()) {
 			this.name = nameMat.group(1);

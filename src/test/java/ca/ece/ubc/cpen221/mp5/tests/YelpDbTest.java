@@ -760,6 +760,38 @@ public class YelpDbTest {
 		} catch (Exception e) {
 			fail("Wrong exception thrown.");
 		}
+		
+		try {//a query with a price out of the range
+			yelp.requestProcessor("QUERY  > 5");
+		} catch (InvalidQueryException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong exception thrown.");
+		}
+		
+		try {//a query with a price out of the range
+			yelp.requestProcessor("QUERY price < 1");
+		} catch (InvalidQueryException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong exception thrown.");
+		}
+		
+		try {//a query with a rating out of the range
+			yelp.requestProcessor("QUERY rating > 5");
+		} catch (InvalidQueryException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong exception thrown.");
+		}
+		
+		try {//a query with a rating out of the range
+			yelp.requestProcessor("QUERY rating < 1");
+		} catch (InvalidQueryException e) {
+			//We expect this
+		} catch (Exception e) {
+			fail("Wrong exception thrown.");
+		}
 	}
 	
 	/*
@@ -782,5 +814,123 @@ public class YelpDbTest {
 		} catch (ReviewNotFoundException e) {
 			//We expect this
 		}
+	}
+	/*
+	 * Testing that trying to create a user with a poorly-formed json string throws exceptions whenever it should
+	 * Meanwhile tests the getVotes and getAvgStars method of YelpUser
+	 */
+	@Test
+	public void test19() throws InvalidUserStringException, InvalidInputException {
+		String string0 = "{\"url\": \"http://www.yelp.com/user_details?userid=_NH7Cpq3qZkByP5xR4gXog\", \"votes\": {\"funny\": 35, \"useful\": 21, \"cool\": 14}, \"review_count\": 29, \"type\": \"user\", \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"name\": \"Chris M.\", \"average_stars\": 3.89655172413793}";
+		YelpUser user0 = new YelpUser(string0);
+		//checking that getVotes method works correctly
+		assertTrue(user0.getVotes("funny")==35);
+		assertTrue(user0.getVotes("useful")==21);
+		assertTrue(user0.getVotes("cool")==14);
+		//checking that getAvgStars works correctly 
+		assertTrue(user0.getAvgStars()==3.89655172413793);
+		
+		//checking that exception gets thrown if no url
+		try {
+			String string1 = "{\"votes\": {\"funny\": 35, \"useful\": 21, \"cool\": 14}, \"review_count\": 29, \"type\": \"user\", \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"name\": \"Chris M.\", \"average_stars\": 3.89655172413793}";
+			YelpUser user1 = new YelpUser(string1);
+			fail("exception expected");
+		} catch (InvalidInputException e) {
+			// do nothing
+		}
+		//checking that exception gets thrown if bad votes format
+		try {
+			String string2 = "{\"url\": \"http://www.yelp.com/user_details?userid=_NH7Cpq3qZkByP5xR4gXog\", \"votes\":{\"funny\": 35, \"useful\": 21, \"cool\": 14}, \"review_count\": 29, \"type\": \"user\", \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"name\": \"Chris M.\", \"average_stars\": 3.89655172413793}";
+			YelpUser user2 = new YelpUser(string2);
+			fail("exception expected");
+		} catch (InvalidInputException e) {
+			// do nothing
+		}
+		//checking that exception gets thrown if bad review count format
+		try {
+			String string3 = "{\"url\": \"http://www.yelp.com/user_details?userid=_NH7Cpq3qZkByP5xR4gXog\", \"votes\": {\"funny\": 35, \"useful\": 21, \"cool\": 14}, \"review_count\":29, \"type\": \"user\", \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"name\": \"Chris M.\", \"average_stars\": 3.89655172413793}";
+			YelpUser user3 = new YelpUser(string3);
+			fail("exception expected");
+		} catch (InvalidInputException e) {
+			// do nothing
+		}
+		
+		//checking that exception gets thrown if bad user id format
+		try {
+			String string4 = "{\"url\": \"http://www.yelp.com/user_details?userid=_NH7Cpq3qZkByP5xR4gXog\", \"votes\": {\"funny\": 35, \"useful\": 21, \"cool\": 14}, \"review_count\": 29, \"type\": \"user\", \"user_id\":\"_NH7Cpq3qZkByP5xR4gXog\", \"name\": \"Chris M.\", \"average_stars\": 3.89655172413793}";
+			YelpUser user4 = new YelpUser(string4);
+			fail("exception expected");
+		} catch (InvalidInputException e) {
+			// do nothing
+		}
+		//checking that exception gets thrown if bad name format
+		try {
+			String string5 = "{\"url\": \"http://www.yelp.com/user_details?userid=_NH7Cpq3qZkByP5xR4gXog\", \"votes\": {\"funny\": 35, \"useful\": 21, \"cool\": 14}, \"review_count\": 29, \"type\": \"user\", \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"name\":\"Chris M.\", \"average_stars\": 3.89655172413793}";
+			YelpUser user5 = new YelpUser(string5);
+			fail("exception expected");
+		} catch (InvalidInputException e) {
+			// do nothing
+		}
+		//checking that the exception gets thrown if bad avg stars format
+		try {
+			String string6 = "{\"url\": \"http://www.yelp.com/user_details?userid=_NH7Cpq3qZkByP5xR4gXog\", \"votes\": {\"funny\": 35, \"useful\": 21, \"cool\": 14}, \"review_count\": 29, \"type\": \"user\", \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"name\": \"Chris M.\", \"average_stars\":3.89655172413793}";
+			YelpUser user6 = new YelpUser(string6);
+			fail("exception expected");
+		} catch (InvalidInputException e) {
+			// do nothing
+		}
+		//checking that the exception gets thrown if votes in bad format
+		try {
+			String string7 = "{\"url\": \"http://www.yelp.com/user_details?userid=_NH7Cpq3qZkByP5xR4gXog\", \"votes\": {\"useful\": 21, \"cool\": 14}, \"review_count\": 29, \"type\": \"user\", \"user_id\": \"_NH7Cpq3qZkByP5xR4gXog\", \"name\": \"Chris M.\", \"average_stars\":3.89655172413793}";
+			YelpUser user7 = new YelpUser(string7);
+			fail("exception expected");
+		} catch (InvalidInputException e) {
+			// do nothing
+		}
+	}
+	/*
+	 * Testing that exceptions get thrown if one tries to create a review with a user id and business id not in the database
+	 * Also testing remove methods
+	 */
+	@Test
+	public void test20() throws IOException, InvalidInputException, UserNotFoundException, RestaurantNotFoundException, ReviewNotFoundException {
+		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
+		// check that exception gets thrown if the business id is not in database
+		try {
+			yelp.addReview("2011-05-04", "fb27QnDlJLzYttxNQDO0bg", "1", 3);
+			fail("exception expected");
+		} catch (RestaurantNotFoundException e) {
+			//do nothing
+		}
+		// check that exception gets thrown if the user id is not in database
+		try {
+			yelp.addReview("2011-05-04", "1", "1CBs84C-a-cuA3vncXVSAw", 3);
+			fail("exception expected");
+		} catch (UserNotFoundException e) {
+			//do nothing
+		}
+		// check that remove methods work
+		assertTrue(yelp.containsRestaurant("1CBs84C-a-cuA3vncXVSAw"));
+		yelp.removeRestaurant("1CBs84C-a-cuA3vncXVSAw");
+		assertFalse(yelp.containsRestaurant("1CBs84C-a-cuA3vncXVSAw"));
+		assertTrue(yelp.containsUser("fb27QnDlJLzYttxNQDO0bg"));
+		yelp.removeUser("fb27QnDlJLzYttxNQDO0bg");
+		assertFalse(yelp.containsUser("fb27QnDlJLzYttxNQDO0bg"));
+		assertTrue(yelp.containsReview("KA0Ij8AGUpipD1M1d9B3RQ"));
+		yelp.removeReview("KA0Ij8AGUpipD1M1d9B3RQ");
+		assertFalse(yelp.containsReview("KA0Ij8AGUpipD1M1d9B3RQ"));
+	}
+	/*
+	 * Testing the getReviewsRestaurant, getReviewsUser, getRestaurantsUser methods
+	 */
+	@Test
+	public void test21() throws IOException, InvalidInputException {
+		YelpDb yelp = new YelpDb("data/users.json", "data/restaurants.json", "data/reviews.json");
+		// testing that checking size of the list of reviews of this restaurant is correct
+		assertEquals(yelp.getReviewsRestaurant("1CBs84C-a-cuA3vncXVSAw").size(), 201);
+		// testing that checking the size of the list of users visiting this restaurant is correct
+		assertEquals(yelp.getUsersRestaurant("1CBs84C-a-cuA3vncXVSAw").size(), 201);
+		// testing that checking the size of the list of reviews of this yser is correct
+		assertEquals(yelp.getReviewsUser("fb27QnDlJLzYttxNQDO0bg").size(), 12);
 	}
 }

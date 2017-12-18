@@ -466,6 +466,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 		double tUserRatings = this.userReviews.get(userID).stream().mapToDouble(s -> {
 			try {
 				return this.getUser(s).getAvgStars();
+				// should never be thrown
 			} catch (UserNotFoundException e1) {
 				return 0.0;
 			}
@@ -478,6 +479,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 			double tRestRatings = this.restaurantReviews.get(businessID).stream().mapToDouble(s -> {
 				try {
 					return this.getRestaurant(s).getStars();
+					// should never be thrown
 				} catch (RestaurantNotFoundException e) {
 					return 0.0;
 				}
@@ -711,6 +713,20 @@ public class YelpDb implements MP5Db<Restaurant> {
 	}
 
 	/**
+	 * @param reviewID
+	 *            the reviewID of the restaurant we are checking to see if exists
+	 *            in the database
+	 * @return true if the review exists, false otherwise
+	 */
+	public boolean containsReview(String reviewID) {
+		for (YelpReview r : this.reviewList) {
+			if (r.getReviewID().equals(reviewID)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	/**
 	 * @param userID
 	 *            the userID of the user whos reviews we want
 	 * @return a list of the reviewIDs of reviews written by this user
@@ -797,6 +813,7 @@ public class YelpDb implements MP5Db<Restaurant> {
 				String ID = this.userID.toString();
 				this.addUser(object.get("name").toString().replaceAll("\"", ""));
 				return this.getUserJSON(ID);
+				// should never be thrown
 			} catch (Exception e) {
 				throw new InvalidUserStringException();
 			}
